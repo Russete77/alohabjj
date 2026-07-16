@@ -30,14 +30,22 @@ ROOT = Path(__file__).resolve().parent.parent
 load_dotenv(ROOT / ".env")
 
 
+def _data_uri(path: str | Path) -> str:
+    p = Path(path)
+    mt = {"png": "image/png", "jpg": "image/jpeg", "jpeg": "image/jpeg", "webp": "image/webp"}.get(
+        p.suffix.lower().lstrip("."), "image/jpeg")
+    return f"data:{mt};base64," + base64.b64encode(p.read_bytes()).decode()
+
+
 class ImageProvider:
     name: str = "base"
 
     def available(self) -> bool:
         raise NotImplementedError
 
-    def generate(self, prompt: str, ratio: str) -> bytes:
-        """Retorna os bytes PNG da imagem."""
+    def generate(self, prompt: str, ratio: str, references: list[str] | None = None) -> bytes:
+        """Retorna os bytes da imagem. `references` = fotos (caminhos/URLs) pra preservar
+        a semelhança do protagonista (recontextualização likeness-preserving)."""
         raise NotImplementedError
 
 
@@ -51,14 +59,27 @@ class GeminiImageProvider(ImageProvider):
     def available(self) -> bool:
         return bool(os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY"))
 
-    def generate(self, prompt: str, ratio: str) -> bytes:
+    def generate(self, prompt: str, ratio: str, references: list[str] | None = None) -> bytes:
         from google import genai  # lazy import
         from google.genai import types
 
         client = genai.Client(api_key=os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY"))
+        # nano-banana-pro (Gemini image) aceita imagens de referência via generate_content;
+        # com referência, recontextualiza preservando o sujeito. Sem, texto->imagem puro.
+        if references:
+            parts: list = [prompt]
+            for r in references:
+                data = Path(r).read_bytes() if Path(r).exists() else None
+                if data:
+                    parts.append(types.Part.from_bytes(data=data, mime_type="image/jpeg"))
+            resp = client.models.generate_content(model=os.getenv("GEMINI_IMAGE_MODEL", "gemini-3-pro-image"),
+                                                  contents=parts)
+            for part in resp.candidates[0].content.parts:
+                if getattr(part, "inline_data", None):
+                    return part.inline_data.data
+            raise RuntimeError("gemini não retornou imagem")
         resp = client.models.generate_images(
-            model=self.model,
-            prompt=prompt,
+            model=self.model, prompt=prompt,
             config=types.GenerateImagesConfig(number_of_images=1, aspect_ratio=ratio),
         )
         return resp.generated_images[0].image.image_bytes
@@ -75,13 +96,20 @@ class OpenAIImageProvider(ImageProvider):
     def available(self) -> bool:
         return bool(os.getenv("OPENAI_API_KEY"))
 
-    def generate(self, prompt: str, ratio: str) -> bytes:
+    def generate(self, prompt: str, ratio: str, references: list[str] | None = None) -> bytes:
         from openai import OpenAI  # lazy import
 
         client = OpenAI()
-        resp = client.images.generate(
-            model=self.model, prompt=prompt, size=self._sizes.get(ratio, "1024x1536"), n=1,
-        )
+        size = self._sizes.get(ratio, "1024x1536")
+        if references:  # edição com referência: preserva o sujeito, recontextualiza
+            imgs = [open(r, "rb") for r in references if Path(r).exists()]
+            try:
+                resp = client.images.edit(model=self.model, image=imgs, prompt=prompt, size=size, n=1)
+            finally:
+                for f in imgs:
+                    f.close()
+        else:
+            resp = client.images.generate(model=self.model, prompt=prompt, size=size, n=1)
         return base64.b64decode(resp.data[0].b64_json)
 
 
@@ -94,16 +122,20 @@ class RunwayImageProvider(ImageProvider):
     def available(self) -> bool:
         return bool(os.getenv("RUNWAYML_API_SECRET") or os.getenv("RUNWAY_API_KEY"))
 
-    def generate(self, prompt: str, ratio: str) -> bytes:
+    def generate(self, prompt: str, ratio: str, references: list[str] | None = None) -> bytes:
         import requests
         from runwayml import RunwayML  # lazy import
 
         client = RunwayML(api_key=os.getenv("RUNWAYML_API_SECRET") or os.getenv("RUNWAY_API_KEY"))
         # ratio -> proporção em pixels aceita pela gen-4
         px = {"3:4": "1080:1440", "4:5": "1080:1350", "1:1": "1024:1024", "16:9": "1920:1080"}
-        task = client.text_to_image.create(
-            model=self.model, prompt_text=prompt, ratio=px.get(ratio, "1080:1440"),
-        ).wait_for_task_output()
+        kwargs: dict = {"model": self.model, "prompt_text": prompt, "ratio": px.get(ratio, "1080:1440")}
+        if references:  # referências (data URIs) → preserva o sujeito e recontextualiza
+            kwargs["reference_images"] = [
+                {"uri": r if r.startswith(("http", "data:")) else _data_uri(r), "tag": f"ref{i}"}
+                for i, r in enumerate(references)
+            ]
+        task = client.text_to_image.create(**kwargs).wait_for_task_output()
         return requests.get(task.output[0], timeout=60).content
 
 
@@ -112,6 +144,10 @@ PROVIDERS = {
     "openai": OpenAIImageProvider(),
     "runway": RunwayImageProvider(),
 }
+
+# Estimativa de custo por imagem (USD) — pro teto de gasto enxergar (P0-2 da auditoria).
+# Ajuste fino conforme a fatura real do provedor.
+COST_PER_IMAGE = {"gemini": 0.04, "openai": 0.04, "runway": 0.06}
 
 
 def select_provider() -> ImageProvider | None:
@@ -124,9 +160,12 @@ def select_provider() -> ImageProvider | None:
 
 
 def generate_image(prompt: str, out_path: str | Path, *, ratio: str = "3:4",
-                   log: JobLog | None = None, key: str = "img") -> Path:
+                   references: list[str] | None = None,
+                   log: JobLog | None = None, key: str = "img", step: str = "imagegen") -> Path:
     """
     Gera uma imagem complexa e salva em out_path. Escolhe o provedor disponível.
+    `references` = fotos do protagonista (recontextualização likeness-preserving).
+    Loga `cost_est` (estimativa por provedor) pro teto de gasto enxergar.
     Levanta RuntimeError se nenhum provedor tiver chave.
     """
     log = log or JobLog(prefix="imagegen")
@@ -139,12 +178,13 @@ def generate_image(prompt: str, out_path: str | Path, *, ratio: str = "3:4",
     out.parent.mkdir(parents=True, exist_ok=True)
     t0 = time.time()
     try:
-        data = prov.generate(prompt, ratio)
+        data = prov.generate(prompt, ratio, references=references)
     except Exception as e:  # noqa: BLE001
-        log.record("imagegen", "errored", key=key, model=prov.name, t0=t0, t1=time.time(), error=str(e))
+        log.record(step, "errored", key=key, model=prov.name, t0=t0, t1=time.time(), error=str(e))
         raise
     out.write_bytes(data)
-    log.record("imagegen", "succeeded", key=key, model=prov.name, t0=t0, t1=time.time(),
+    cost = COST_PER_IMAGE.get(prov.name, 0.04)
+    log.record(step, "succeeded", key=key, model=prov.name, cost_est=cost, t0=t0, t1=time.time(),
                note=f"bytes={len(data)} ratio={ratio}")
     return out
 

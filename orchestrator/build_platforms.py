@@ -1,41 +1,36 @@
 """
 orchestrator/build_platforms.py — Empacota uma peça aprovada por plataforma + arte.
 
-Roda, sobre outputs/<slug>/ (slides + caption + meta):
+Sobre outputs/<slug>/ (slides + caption + meta):
   - Instagram Publisher (Sonnet) → legenda BR + EUA, palavras-chave, headlines topo/capa
   - TikTok Publisher   (Sonnet) → pacote viral nativo (hook, beats, loop, CTA)
   - Empacotador        (Sonnet) → YouTube Shorts (título, descrição, tags)
-  - Render (node/sharp) → outputs/<slug>/story.png (frame AlohaBJJ + headline_capa[0])
+  - Arte (orchestrator.art) → Diretor de Arte → IA + QC por visão → headline coerente → card,
+                              ou FRAME PRÓPRIO se sem chave de imagem. Nunca foto de terceiro.
 
-Grava outputs/<slug>/platforms.json (instagram, tiktok, youtube) + story.png.
+Grava outputs/<slug>/platforms.json (instagram, tiktok, youtube, arte) + story.png.
 
 Requer ANTHROPIC_API_KEY.
 Uso:
     python -m orchestrator.build_platforms <slug>
     python -m orchestrator.build_platforms <slug> --dry-run
-    python -m orchestrator.build_platforms <slug> --no-art   # pula o render
+    python -m orchestrator.build_platforms <slug> --no-art   # pula a arte
 """
 from __future__ import annotations
 
 import argparse
 import json
-import re
-import subprocess
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from lib.claude import Claude, SONNET, HAIKU  # noqa: E402
+from lib.claude import Claude, SONNET  # noqa: E402
 from lib.jobs import JobLog  # noqa: E402
-from lib import heroimg  # noqa: E402
+from orchestrator import art  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 OUTPUTS = ROOT / "outputs"
-KNOWLEDGE = ROOT / "knowledge"
 AGENTS = ROOT / "agents"
-LUCAS = ROOT / "web" / "public" / "templates" / "lucas.png"  # recorte do apresentador (opcional)
-
-_URL = re.compile(r"https?://[^\s)\]\"']+")
 
 
 def _sys(name: str) -> str:
@@ -91,107 +86,6 @@ YT_SYSTEM = (
 )
 
 
-def _sources(slug: str) -> list[str]:
-    """URLs de artigo do dossiê (metadata + facts) pra buscar a foto real."""
-    d = KNOWLEDGE / slug
-    urls: list[str] = []
-    meta_p = d / "metadata.json"
-    if meta_p.exists():
-        try:
-            m = json.loads(meta_p.read_text(encoding="utf-8"))
-            link = (m.get("source") or {}).get("link") if isinstance(m.get("source"), dict) else m.get("source")
-            if isinstance(link, str):
-                urls.append(link)
-        except Exception:  # noqa: BLE001
-            pass
-    facts_p = d / "facts.md"
-    if facts_p.exists():
-        urls += _URL.findall(facts_p.read_text(encoding="utf-8"))
-    # dedup preservando ordem
-    seen, out = set(), []
-    for u in urls:
-        u = u.rstrip(".,;")
-        if u not in seen:
-            seen.add(u); out.append(u)
-    return out
-
-
-COHERENCE_SCHEMA = {
-    "type": "object", "additionalProperties": False,
-    "properties": {"ve_na_foto": {"type": "string"}, "headline": {"type": "string"},
-                   "veio_das_opcoes": {"type": "boolean"}},
-    "required": ["ve_na_foto", "headline", "veio_das_opcoes"],
-}
-COHERENCE_SYS = (
-    "Você é o Editor de Capa da AlohaBJJ. Regra inegociável: a headline NUNCA pode afirmar algo "
-    "que a FOTO não mostra — não cite pessoa específica, sexo, resultado ou número que não dá pra "
-    "ver na imagem. Coerência imagem↔texto acima de tudo (evita o vexame de 'campeã' sobre foto de homens)."
-)
-
-
-def coherent_headline(claude: Claude, image_path: Path, headlines: list[str], contexto: str,
-                      slug: str) -> str:
-    """Claude OLHA a foto e escolhe/escreve a headline honesta com o que aparece."""
-    user = ("Esta é a FOTO que vai virar a arte do card. Escolha, entre as OPÇÕES, a headline mais "
-            "forte que seja HONESTA com o que aparece na foto. Se NENHUMA for honesta (a foto não "
-            "mostra a pessoa/cena citada), ESCREVA você uma headline curta, verdadeira e chamativa "
-            "para o que a imagem realmente mostra (máx. 6 palavras). Devolva também o que você vê.\n\n"
-            f"OPÇÕES:\n- " + "\n- ".join(headlines) + f"\n\nCONTEXTO (tema da matéria): {contexto[:400]}")
-    try:
-        txt, _ = claude.call(model=HAIKU, system=COHERENCE_SYS, user=user, image=str(image_path),
-                             step="capa_visao", key=slug, json_schema=COHERENCE_SCHEMA, max_tokens=500)
-        r = json.loads(txt)
-        print(f"  👁  visão: “{r['ve_na_foto'][:70]}” → headline {'(opção)' if r['veio_das_opcoes'] else '(reescrita)'}")
-        return r["headline"]
-    except Exception as e:  # noqa: BLE001
-        print(f"  · visão falhou ({e}); usando a 1ª headline")
-        return headlines[0]
-
-
-def render_card(slug: str, headlines: list[str], contexto: str, claude: Claude, log: JobLog) -> dict | None:
-    """Foto REAL do artigo (heroimg, híbrido) + headline coerente (visão) → outputs/<slug>/story.png."""
-    out_dir = OUTPUTS / slug
-    hero = heroimg.hero_for(_sources(slug), out_dir / "hero_src.jpg")
-    credito = None
-    hero_path = None
-    if hero:
-        hero_path = hero["path"]; credito = hero["credito"]
-        print(f"  ✓ foto real: {credito} ({hero['img_url'][:60]}…)")
-    else:
-        # fallback IA (só se houver chave de imagem configurada)
-        try:
-            from lib.imagegen import which
-            if which() != "nenhum (sem chave)":
-                print(f"  · sem foto na fonte — fallback de IA ({which()}) [pendente de wiring]")
-        except Exception:  # noqa: BLE001
-            pass
-        print("  · sem foto real utilizável e sem IA — card sem hero pulado")
-        return None
-
-    # portão de coerência: o Claude olha a foto e garante headline honesta com a imagem
-    headline = coherent_headline(claude, hero_path, headlines, contexto, slug)
-
-    out_png = out_dir / "story.png"
-    cmd = ["node", "scripts/render_card.mjs", "--hero", str(hero_path),
-           "--headline", headline, "--out", str(out_png)]
-    if credito:
-        cmd += ["--credito", credito]
-    if LUCAS.exists():
-        cmd += ["--lucas", str(LUCAS)]
-    try:
-        r = subprocess.run(cmd, cwd=str(ROOT / "web"), capture_output=True, text=True, timeout=60)
-        if r.returncode != 0:
-            print(f"  ! card falhou: {r.stderr.strip() or r.stdout.strip()}")
-            log.record("arte", "errored", key=slug, error=(r.stderr or r.stdout)[:200])
-            return None
-        print(f"  ✓ card: {out_png.name} ← “{headline}”")
-        log.record("arte", "succeeded", key=slug)
-        return {"path": out_png, "credito": credito, "headline": headline}
-    except Exception as e:  # noqa: BLE001
-        print(f"  ! card falhou: {e}")
-        return None
-
-
 def main() -> int:
     try:
         sys.stdout.reconfigure(encoding="utf-8")  # type: ignore[attr-defined]
@@ -200,7 +94,7 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("slug")
     ap.add_argument("--dry-run", action="store_true")
-    ap.add_argument("--no-art", action="store_true", help="não renderiza a arte")
+    ap.add_argument("--no-art", action="store_true", help="não gera a arte")
     args = ap.parse_args()
 
     out = OUTPUTS / args.slug
@@ -248,18 +142,18 @@ def main() -> int:
     platforms = {"instagram": ig, "tiktok": tk, "youtube": yt}
     (out / "platforms.json").write_text(json.dumps(platforms, ensure_ascii=False, indent=2), encoding="utf-8")
 
-    # 4) Arte do card (foto real + headline coerente por visão)
-    art = None
+    # 4) Arte estruturada (Diretor → IA+QC → headline coerente → card, ou frame próprio)
+    art_res = None
     if not args.no_art and ig.get("headline_capa"):
-        art = render_card(args.slug, ig["headline_capa"], caption, claude, log)
-        if art:
-            platforms["arte"] = {"story_png": "story.png", "credito_foto": art["credito"],
-                                 "headline": art["headline"]}
+        art_res = art.art_for_piece(claude, args.slug, ig["headline_capa"], log)
+        if art_res:
+            platforms["arte"] = {"story_png": art_res["story"], "fonte": art_res["source"],
+                                 "headline": art_res["headline"]}
             (out / "platforms.json").write_text(
                 json.dumps(platforms, ensure_ascii=False, indent=2), encoding="utf-8")
 
     print(f"[plataformas] OK → {out / 'platforms.json'}"
-          f"{' + story.png' if art else ''} · custo ≈ ${log.total_cost():.4f}")
+          f"{' + story.png (' + art_res['source'] + ')' if art_res else ''} · custo ≈ ${log.total_cost():.4f}")
     return 0
 
 

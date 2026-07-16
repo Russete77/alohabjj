@@ -23,9 +23,15 @@ Dado um dossiê (posição/técnica/momento) + a base `config/bjj-visual.md`, pr
 ## 5. Como escrever o prompt (modo A)
 Estrutura: **cena** (posição/ação correta em termos visuais) + **traje** (gi+faixa cor X / rashguard) + **contexto** (tatame, arena, refletores) + **luz** (dura, sombra fria, aresta vermelha #C40F0F — nunca névoa quente) + **câmera/energia** (motion blur, plano) + **negativos** (no faces, no text, no logos) + **espaço** (topo escuro p/ headline).
 
+## 5b. Protagonista e recontextualização (likeness-preserving)
+Se a pauta gira em torno de **um atleta específico** (ex.: "Gabi Pessanha", "Gordon Ryan"), preencha `protagonista` com o nome e marque `usar_referencia: true`. Nesse caso, o sistema procura uma **foto com direito de uso** desse atleta e o modelo **recontextualiza preservando a semelhança** — mesma pessoa, cena/luz/elementos NOVOS na estética AlohaBJJ (arena, luz vermelha, pôster). Escreva o `hero_prompt` já pensando nisso: "the same athlete, preserving their appearance, in a NEW scene …".
+- Se a pauta é genérica (roundup, técnica sem protagonista), `protagonista: ""` e `usar_referencia: false`.
+- Você NÃO decide direitos — só sinaliza o protagonista; a marca controla quais fotos entram na biblioteca. O post sai sempre com `is_ai_generated`.
+
 ## 6. Contrato de saída (JSON estrito)
-`{modo: "A"|"B", posicao, traje: "gi"|"nogi", hero_prompt, needs_reference: bool, reference_hint, ratio: "3:4"|"9:16"|"1:1", motivo}`
-- `needs_reference: true` no modo B → `reference_hint` descreve a foto/pose que deve ser fornecida.
+`{modo: "A"|"B", protagonista, usar_referencia: bool, posicao, traje: "gi"|"nogi", hero_prompt, needs_reference: bool, reference_hint, ratio: "3:4"|"9:16"|"1:1", motivo}`
+- `needs_reference: true` no modo B (técnico) → `reference_hint` descreve a pose técnica exata.
+- `usar_referencia: true` (modo A) → recontextualização preservando a semelhança do `protagonista`.
 
 ## 7. Rubrica de auto-verificação
 - [ ] Posição do prompt bate com o dossiê (base visual). — [ ] Gi+faixa ou rashguard presentes. — [ ] Tatame/arena + ação. — [ ] Luz dura/aresta vermelha, não névoa quente. — [ ] Sem rosto identificável. — [ ] Se técnico-crítico, `needs_reference: true`.
