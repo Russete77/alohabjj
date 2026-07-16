@@ -5,6 +5,11 @@
 - Fonte de imagem preferida: acervo próprio do AlohaBJJNews > banco licenciado.
 - Imagem de atleta em breakdown: usar silhueta/pixel-art/diagrama próprio quando não houver licença.
 
+### 1.1 Direção de arte da IA — evitar leitura sensual (lição de 16/07/2026)
+Arte gerada por IA para heros **não pode** ler como cena íntima. Regra:
+- ❌ **Evitar:** dois corpos entrelaçados no chão em silhueta, guarda fechada em close, luz vermelha quente e difusa (névoa romântica). Isso lê como cena de sexo → off-brand + risco de flag.
+- ✅ **Exigir:** contexto inequívoco de esporte — gi/faixa ou rashguard, tatame/arena visível, ação atlética (projeção, queda, clinch em pé). Vermelho da marca como **aresta gráfica/luz dura**, sombra fria, não névoa quente. Sem rosto/pessoa identificável.
+
 ## 2. Compliance (PRD §12, §13)
 - **CONAR:** afiliado (Hayabusa) ou produto próprio remunerado → divulgação clara e imediata na **1ª linha** da caption (selo "parceria paga"/"conteúdo promocional" + #publi). "Link na bio" NÃO conta.
 - **IA disclosure de plataforma:** `is_ai_generated=true` no `meta.json` de toda peça (TikTok exige; não marcar = risco de shadow ban). Avatar de IA rotulado como artificial.
