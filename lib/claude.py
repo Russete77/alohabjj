@@ -33,10 +33,12 @@ class Model:
     id: str
     in_per_mtok: float   # USD / 1M tokens de input (padrão, sem batch)
     out_per_mtok: float  # USD / 1M tokens de output
+    adaptive: bool = True  # suporta adaptive thinking + output_config.effort?
 
 
 # Roteamento (§4 e §10 do PRD). IDs e preços conferidos com a skill claude-api.
-HAIKU = Model("claude-haiku-4-5", 1.00, 5.00)     # relevância/dedupe/quality gate
+# Haiku 4.5 NÃO suporta adaptive thinking nem effort (dá 400) — por isso adaptive=False.
+HAIKU = Model("claude-haiku-4-5", 1.00, 5.00, adaptive=False)  # relevância/dedupe/quality gate
 SONNET = Model("claude-sonnet-5", 3.00, 15.00)    # geração (intro $2/$10 até 31/ago/26)
 OPUS = Model("claude-opus-4-8", 5.00, 25.00)      # Analista / síntese de dossiê
 
@@ -99,11 +101,15 @@ class Claude:
             "max_tokens": max_tokens,
             "system": system,
             "messages": [{"role": "user", "content": user}],
-            "thinking": {"type": "adaptive"},
-            "output_config": {"effort": effort},
         }
+        oc: dict = {}
+        if model.adaptive:  # Opus/Sonnet suportam; Haiku 4.5 não (daria 400)
+            params["thinking"] = {"type": "adaptive"}
+            oc["effort"] = effort
         if json_schema is not None:
-            params["output_config"]["format"] = {"type": "json_schema", "schema": json_schema}
+            oc["format"] = {"type": "json_schema", "schema": json_schema}
+        if oc:
+            params["output_config"] = oc
 
         t0 = time.time()
         self.log.record(step, "running", key=key, model=model.id, t0=t0)  # ao vivo (ponte)
@@ -145,11 +151,11 @@ class Claude:
         t0 = time.time()
         self.log.record(step, "running", key=key, model=model.id, t0=t0)  # ao vivo (ponte)
         in_tok = out_tok = 0
+        extra = {"thinking": {"type": "adaptive"}, "output_config": {"effort": "high"}} if model.adaptive else {}
         for _ in range(6):  # limite de retomadas de pause_turn
             msg = self.client.messages.create(
                 model=model.id, max_tokens=max_tokens, system=system,
-                messages=messages, tools=tools,
-                thinking={"type": "adaptive"}, output_config={"effort": "high"},
+                messages=messages, tools=tools, **extra,
             )
             in_tok += msg.usage.input_tokens
             out_tok += msg.usage.output_tokens
