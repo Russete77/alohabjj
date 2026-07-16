@@ -1,0 +1,43 @@
+# config/catalogo.yaml
+# Catálogo de conversão — BjjcomLucas AI Platform (PRD §9.2, §12)
+# Prioridade decidida: curso (margem ~100%, digital) > BJJ3D próprio > afiliado.
+# Relevância acima de margem; sem encaixe honesto, o Supervisor NÃO força CTA.
+#
+# disclosure_obrigatorio: true  -> Supervisor injeta divulgação CONAR na 1ª linha da caption
+#                                  (selo "parceria paga"/"conteúdo promocional" + #publi).
+
+produtos:
+  - id: curso
+    tipo: proprio            # curso digital gratuito hospedado no site
+    prioridade: 1
+    url_base: https://alohabjjnews.com/
+    margem: 1.0             # ~100% (digital, próprio)
+    gancho: >
+      Curso completo e gratuito de BJJ — leva o público do conteúdo pro aprofundamento.
+    disclosure_obrigatorio: false   # produto próprio gratuito; sem relação de afiliação paga
+    cta_sugerido: "Curso completo grátis no link"
+
+  - id: bjj3d
+    tipo: proprio            # produto próprio (Shopee)
+    prioridade: 2
+    url_base: null           # TODO: preencher URL da loja Shopee BJJ3D
+    margem: null             # TODO: margem real
+    gancho: >
+      BJJ3D — visualização/estudo de posições. Produto próprio.
+    disclosure_obrigatorio: false
+    cta_sugerido: "BJJ3D no link"
+
+  - id: hayabusa
+    tipo: afiliado           # afiliado (comissão por performance)
+    prioridade: 3
+    url_base: null           # TODO: link de afiliado Hayabusa
+    margem: null             # comissão real do programa
+    gancho: >
+      Equipamento Hayabusa — kimono/rashguard para quem treina.
+    disclosure_obrigatorio: true    # CONAR: afiliado = conteúdo promocional (§12)
+    cta_sugerido: "Hayabusa no link (parceria)"
+
+# Regras de CTA (Supervisor de Vendas):
+# - 1 CTA por peça.
+# - Formato integrado (CTA suave no último slide) OU peça de venda separada, por dossiê.
+# - Aprende com tracking/clicks.csv qual produto x ângulo x formato converte.
