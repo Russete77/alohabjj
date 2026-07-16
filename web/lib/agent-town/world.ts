@@ -55,12 +55,14 @@ export class World {
       doorways: [],
     };
     this.rooms.push(room);
-    const margin = 2;
-    for (let y = margin; y < this.gridHeight - margin; y += 3) {
-      for (let x = margin; x < this.gridWidth - margin; x += 3) {
-        this.addZone('common_area', { x, y }, 1, 'down'); // zonas nas 3 áreas
-      }
-    }
+    // Posições fixas por área (ordem = ordem em que os agentes são adicionados):
+    // Tatame/Fase A (5) · Escritório/Vendas (4) · Estúdio/Arte-Vídeo (2). Grid 'small' (20x13).
+    const spots: [number, number][] = [
+      [2, 3], [5, 3], [3, 6], [6, 6], [4, 9],   // Tatame · Fase A
+      [8, 3], [11, 3], [9, 7], [12, 7],         // Escritório · Vendas
+      [15, 4], [16, 8],                         // Estúdio · Arte/Vídeo
+    ];
+    for (const [x, y] of spots) this.addZone('common_area', { x, y }, 1, 'down');
   }
 
   /* ── common layout ───────────────────────────── */
