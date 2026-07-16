@@ -56,11 +56,9 @@ export class World {
     };
     this.rooms.push(room);
     const margin = 2;
-    const cx = this.gridWidth / 2;
     for (let y = margin; y < this.gridHeight - margin; y += 3) {
       for (let x = margin; x < this.gridWidth - margin; x += 3) {
-        if (Math.abs(x - cx) < 3) continue; // deixa a área de luta central livre
-        this.addZone('common_area', { x, y }, 1, 'down');
+        this.addZone('common_area', { x, y }, 1, 'down'); // zonas nas 3 áreas
       }
     }
   }

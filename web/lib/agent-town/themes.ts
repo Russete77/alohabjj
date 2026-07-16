@@ -81,7 +81,7 @@ export const THEMES: Record<string, ThemeColors> = {
 
 export const ENV_COLORS: Record<string, ThemeColors> = {
   office: { ...THEMES.hybrid, bg: '#0E140F', floor: '#3D6B4E', floorAlt: '#376245', floorGrid: '#2B4C38' },
-  dojo: { ...THEMES.hybrid, bg: '#0C1210', floor: '#3D6B4E', floorAlt: '#376245', floorGrid: '#2B4C38',
+  dojo: { ...THEMES.hybrid, bg: '#0A1018', floor: '#2E5A8C', floorAlt: '#2A527F', floorGrid: '#21456B',
     wall: '#5A4632', wallTop: '#6E5640', wallBorder: '#3E301F' },
   rocket: {
     bg: '#08082A', floor: '#6A7080', floorAlt: '#626870', floorGrid: '#5A6068',

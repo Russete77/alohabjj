@@ -49,7 +49,7 @@ export default function AgentTownView() {
       town = new AgentTown({
         container: ref.current,
         environment: "dojo",     // tatame aberto (academia AlohaBJJ)
-        officeSize: "medium",    // personagens maiores (kimono + faixa visíveis)
+        officeSize: "small",     // grid menor = personagens maiores (gi + faixa nítidos)
       });
       for (const a of AGENTS) {
         town.addAgent({ id: a.id, name: a.name, role: a.role, team: a.belt, status: "idle" });

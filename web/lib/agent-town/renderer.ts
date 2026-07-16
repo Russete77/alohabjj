@@ -176,6 +176,7 @@ export class Renderer {
     ctx.save();
     ctx.translate(ox, oy);
     this.drawFloor();
+    if (this.env === 'dojo') this.drawDojoDecor();
     // Peaked roofs removed — town now uses flat top-down roof tiles
     this.drawDecor();
     this.drawWorkstations();
@@ -221,6 +222,39 @@ export class Renderer {
       if (Math.abs(wx - (a.x + 0.5)) < 0.6 && Math.abs(wy - (a.y + 0.5)) < 0.6) return a;
     }
     return null;
+  }
+
+  /* ── dojo / academia: área de luta demarcada + rótulos de zona ─── */
+  private drawDojoDecor(): void {
+    const { ctx, ts } = this;
+    const W = this.world.gridWidth * ts;
+    const H = this.world.gridHeight * ts;
+    const third = W / 3;
+    const labels = ['TATAME · Fase A', 'ESCRITÓRIO · Vendas', 'ESTÚDIO · Arte/Vídeo'];
+    // tintes sutis: escritório acinzentado, estúdio avermelhado (tatame = piso azul)
+    ctx.fillStyle = 'rgba(120,124,132,0.14)';
+    ctx.fillRect(third + ts, ts, third - ts, H - ts * 2);
+    ctx.fillStyle = 'rgba(224,85,42,0.10)';
+    ctx.fillRect(2 * third + ts, ts, third - ts * 2, H - ts * 2);
+    // divisórias entre zonas
+    ctx.strokeStyle = 'rgba(255,255,255,0.10)';
+    ctx.lineWidth = 1;
+    for (let i = 1; i < 3; i++) {
+      ctx.beginPath();
+      ctx.moveTo(i * third, ts);
+      ctx.lineTo(i * third, H - ts);
+      ctx.stroke();
+    }
+    // rótulos das zonas
+    ctx.fillStyle = 'rgba(234,240,245,0.9)';
+    ctx.font = `bold ${Math.max(8, Math.floor(ts * 0.42))}px ui-monospace, monospace`;
+    ctx.textAlign = 'center';
+    for (let i = 0; i < 3; i++) ctx.fillText(labels[i], i * third + third / 2, ts * 1.7);
+    // área de luta demarcada (vermelha) no tatame
+    ctx.strokeStyle = 'rgba(226,42,42,0.9)';
+    ctx.lineWidth = Math.max(2, ts * 0.12);
+    ctx.strokeRect(third * 0.16, H * 0.4, third * 0.68, H * 0.42);
+    ctx.textAlign = 'start';
   }
 
   /* ── environment outfit palette ─────────────── */
