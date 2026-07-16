@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getDossiers, getDossier, getRelacionados } from "@/lib/dossiers";
+import { getPiece } from "@/lib/pieces";
 
 export function generateStaticParams() {
   return getDossiers().map((d) => ({ slug: d.slug }));
@@ -58,6 +59,16 @@ export default async function Artigo(
         {d.resumoParas.map((p, i) => (
           <p key={i}>{p}</p>
         ))}
+        {(() => {
+          const peca = getPiece(d.slug);
+          if (!peca || peca.estado !== "publicado") return null;
+          return (
+            <div className="carousel-note">
+              <div className="k">Carrossel publicado</div>
+              <b>Esta análise virou um carrossel de {peca.slides.length} slides no @bjjcomlucas.</b>
+            </div>
+          );
+        })()}
         <div className="abox">
           <div className="k">Quer evoluir além das notícias?</div>
           <h4>Curso 100kg – Domínio Absoluto</h4>
