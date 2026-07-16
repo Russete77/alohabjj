@@ -84,6 +84,19 @@ def _save_seen(seen: set[str]) -> None:
     SEEN.write_text(json.dumps(sorted(seen), ensure_ascii=False, indent=0), encoding="utf-8")
 
 
+def mark_urls_seen(urls) -> int:
+    """Marca URLs específicas como vistas (chamado APÓS resolver a pauta,
+    não na busca — assim uma falha não 'come' a pauta e ela é re-tentada)."""
+    urls = [u for u in urls if u]
+    if not urls:
+        return 0
+    seen = _load_seen()
+    n0 = len(seen)
+    seen.update(urls)
+    _save_seen(seen)
+    return len(seen) - n0
+
+
 def fetch_new_items(limit: int | None = None, mark_seen: bool = True) -> list[dict]:
     """Busca entradas novas de todos os feeds. Deduplica por URL."""
     seen = _load_seen()

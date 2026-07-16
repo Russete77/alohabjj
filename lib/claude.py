@@ -44,6 +44,12 @@ OPUS = Model("claude-opus-4-8", 5.00, 25.00)      # Analista / síntese de dossi
 
 CACHE_READ_FACTOR = 0.10   # cache-hit ≈ 10% do input
 
+# Erros transitórios da API que valem re-tentar com backoff exponencial.
+# 529 = Overloaded (visto no teste ao vivo no web_search do Pesquisador).
+RETRY_STATUS = {408, 409, 429, 500, 502, 503, 529}
+RETRY_MAX = 5
+RETRY_BASE_S = 2.0
+
 
 class SpendCapExceeded(RuntimeError):
     pass
@@ -72,6 +78,21 @@ class Claude:
         self.spend_cap = spend_cap_usd if spend_cap_usd is not None else float(
             os.getenv("SPEND_CAP_USD", "10")
         )
+
+    def _retry(self, fn, *, step: str, key: str, model: Model):
+        """Executa fn() com backoff exponencial em erros transitórios (529 etc.)."""
+        for attempt in range(RETRY_MAX + 1):
+            try:
+                return fn()
+            except (anthropic.APIStatusError, anthropic.APIConnectionError) as e:
+                code = getattr(e, "status_code", None)
+                transient = code in RETRY_STATUS or isinstance(e, anthropic.APIConnectionError)
+                if not (transient and attempt < RETRY_MAX):
+                    raise
+                wait = min(RETRY_BASE_S * (2 ** attempt), 60.0)
+                self.log.record(step, "retry", key=key, model=model.id,
+                                error=f"{code or 'conn'} — tentativa {attempt + 1}/{RETRY_MAX}, +{wait:.0f}s")
+                time.sleep(wait)
 
     def call(
         self,
@@ -113,13 +134,16 @@ class Claude:
 
         t0 = time.time()
         self.log.record(step, "running", key=key, model=model.id, t0=t0)  # ao vivo (ponte)
-        try:
+
+        def _do():
             # streaming só quando max_tokens é grande (evita timeout HTTP do SDK)
             if max_tokens > 16000:
                 with self.client.messages.stream(**params) as stream:
-                    msg = stream.get_final_message()
-            else:
-                msg = self.client.messages.create(**params)
+                    return stream.get_final_message()
+            return self.client.messages.create(**params)
+
+        try:
+            msg = self._retry(_do, step=step, key=key, model=model)
         except anthropic.APIStatusError as e:
             self.log.record(step, "errored", key=key, model=model.id,
                             t0=t0, t1=time.time(), error=f"{e.status_code}: {e.message}")
@@ -130,6 +154,15 @@ class Claude:
             raise RuntimeError(f"recusa do modelo em {key}")
 
         text = next((b.text for b in msg.content if b.type == "text"), "")
+        # Guard: com thinking ligado, um max_tokens curto pode ser TODO consumido pelo
+        # raciocínio, deixando o bloco de texto vazio. Falha claro (não um 'char 0' lá na frente).
+        if json_schema is not None and not text.strip():
+            self.log.record(step, "errored", key=key, model=model.id, t0=t0, t1=time.time(),
+                            error=f"saída JSON vazia (stop_reason={msg.stop_reason}); "
+                                  f"thinking provavelmente consumiu max_tokens={max_tokens}")
+            raise RuntimeError(
+                f"{step}/{key}: saída JSON vazia (stop_reason={msg.stop_reason}). "
+                f"Aumente max_tokens ou baixe effort.")
         u = msg.usage
         cache_read = getattr(u, "cache_read_input_tokens", 0) or 0
         cost = _cost(model, u.input_tokens, u.output_tokens, cache_read)
@@ -153,10 +186,12 @@ class Claude:
         in_tok = out_tok = 0
         extra = {"thinking": {"type": "adaptive"}, "output_config": {"effort": "high"}} if model.adaptive else {}
         for _ in range(6):  # limite de retomadas de pause_turn
-            msg = self.client.messages.create(
-                model=model.id, max_tokens=max_tokens, system=system,
-                messages=messages, tools=tools, **extra,
-            )
+            msg = self._retry(
+                lambda: self.client.messages.create(
+                    model=model.id, max_tokens=max_tokens, system=system,
+                    messages=messages, tools=tools, **extra,
+                ),
+                step=step, key=key, model=model)
             in_tok += msg.usage.input_tokens
             out_tok += msg.usage.output_tokens
             if msg.stop_reason == "pause_turn":
