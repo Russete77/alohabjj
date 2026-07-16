@@ -17,257 +17,288 @@ meta:
 # 1) PORTAIS DE NOTÍCIA — INTERNACIONAL (web / RSS)
 # ─────────────────────────────────────────────────────────────
 news_web_intl:
-  - name: FloGrappling
-    url: https://www.flograppling.com/
-    type: web
-    lang: en            # tem seção PT-BR também
-    category: news
-    priority: 1
-    notes: Maior cobertura de eventos/rankings; fonte primária.
+- name: FloGrappling
+  url: https://www.flograppling.com/
+  type: web
+  lang: en              # tem seção PT-BR também
+  category: news
+  priority: 1
+  notes: Maior cobertura de eventos/rankings; fonte primária.
 
-  - name: BJJ Heroes
-    url: https://www.bjjheroes.com/
-    rss: https://www.bjjheroes.com/feed
-    type: web
-    lang: en
-    category: news
-    priority: 1
-    notes: Notícias + base de atletas -> fonte-verdade p/ dados de atleta (validação).
+- name: BJJ Heroes
+  url: https://www.bjjheroes.com/
+  rss: https://www.bjjheroes.com/feed
+  type: web
+  lang: en
+  category: news
+  priority: 1
+  notes: Notícias + base de atletas -> fonte-verdade p/ dados de atleta 
+    (validação).
 
-  - name: BJJ News (agregador)
-    url: https://www.bjjnews.com/
-    type: web
-    lang: en
-    category: news
-    priority: 1
-    notes: Feed agregador de várias fontes; quase um Radar pronto.
+- name: BJJ News (agregador)
+  url: https://www.bjjnews.com/
+  type: web
+  lang: en
+  category: news
+  priority: 1
+  notes: Feed agregador de várias fontes; quase um Radar pronto.
 
-  - name: Jits Magazine
-    url: https://www.jitsmagazine.com/
-    type: web
-    lang: en
-    category: news
-    priority: 2
+- name: Jits Magazine
+  url: https://www.jitsmagazine.com/
+  type: web
+  lang: en
+  category: news
+  priority: 2
 
-  - name: Grappling Insider
-    url: https://grapplinginsider.com/
-    type: web
-    lang: en
-    category: news
-    priority: 2
+- name: Grappling Insider
+  url: https://grapplinginsider.com/
+  type: web
+  lang: en
+  category: news
+  priority: 2
 
 # ─────────────────────────────────────────────────────────────
 # 2) PORTAIS DE NOTÍCIA — NACIONAL (web / RSS, PT-BR)
 # ─────────────────────────────────────────────────────────────
 news_web_br:
-  - name: Tatame
-    url: https://tatame.com.br/
-    type: web
-    lang: pt-BR
-    category: news
-    priority: 1
-    notes: Jornalismo de BJJ/MMA desde 1994; notícias, resultados, calendário.
+- name: Tatame
+  url: https://tatame.com.br/
+  type: web
+  lang: pt-BR
+  category: news
+  priority: 1
+  notes: Jornalismo de BJJ/MMA desde 1994; notícias, resultados, calendário.
 
-  - name: Graciemag
-    url: https://www.graciemag.com/
-    rss: https://www.graciemag.com/feed/
-    type: web
-    lang: pt-BR
-    category: news
-    priority: 1
-    notes: Revista/portal clássico; notícias + histórico/análise.
+- name: Graciemag
+  url: https://www.graciemag.com/
+  rss: https://www.graciemag.com/feed/
+  type: web
+  lang: pt-BR
+  category: news
+  priority: 1
+  notes: Revista/portal clássico; notícias + histórico/análise.
 
-  - name: JIUJITSUBJJ
-    url: https://jiujitsubjj.com/
-    rss: https://jiujitsubjj.com/feed/
-    type: web
-    lang: pt-BR
-    category: news
-    priority: 2
+- name: JIUJITSUBJJ
+  url: https://jiujitsubjj.com/
+  rss: https://jiujitsubjj.com/feed/
+  type: web
+  lang: pt-BR
+  category: news
+  priority: 2
 
-  - name: Muito Mais Ação (portal)
-    url: https://www.muitomaisacaojiujitsu.com.br/
-    type: web
-    lang: pt-BR
-    category: news
-    priority: 2
-    notes: Portal do Jaime da Luz Jr.; ver também o canal no YouTube.
+- name: Muito Mais Ação (portal)
+  url: https://www.muitomaisacaojiujitsu.com.br/
+  type: web
+  lang: pt-BR
+  category: news
+  priority: 2
+  notes: Portal do Jaime da Luz Jr.; ver também o canal no YouTube.
 
-  - name: AlohaBJJNews (PRÓPRIO)
-    url: https://alohabjjnews.com/
-    rss: https://alohabjjnews.com/feed/
-    type: web
-    lang: pt-BR
-    category: own
-    priority: 1
-    notes: Seu site. Usar p/ (a) backfill da base e (b) evitar repetir o que já cobriu.
+- name: AlohaBJJNews (PRÓPRIO)
+  url: https://alohabjjnews.com/
+  rss: https://alohabjjnews.com/feed/
+  type: web
+  lang: pt-BR
+  category: own
+  priority: 1
+  notes: Seu site. Usar p/ (a) backfill da base e (b) evitar repetir o que já 
+    cobriu.
 
 # ─────────────────────────────────────────────────────────────
 # 3) ORGANIZAÇÕES / EVENTOS (fonte primária de resultados; web + YouTube)
 # ─────────────────────────────────────────────────────────────
 orgs:
-  - name: ADCC
-    url: https://adcombat.com/
-    youtube_handle: "@ADCC"
-    channel_id: null
-    category: org
-    priority: 1
-  - name: IBJJF
-    url: https://ibjjf.com/
-    youtube_handle: "@IBJJF"
-    channel_id: null
-    category: org
-    priority: 1
-  - name: CJI (Craig Jones Invitational)
-    url: https://www.craigjonesinvitational.com/
-    youtube_handle: "@B-TeamJiuJitsu"   # cobertura frequente via B-Team
-    channel_id: null
-    category: events
-    priority: 2
-  - name: Polaris
-    url: https://polaris-grappling.com/
-    youtube_handle: "@PolarisGrappling"
-    channel_id: null
-    category: events
-    priority: 2
-  - name: UFC BJJ / Fight Pass Invitational
-    url: https://www.ufc.com/
-    category: events
-    priority: 2
-  - name: BJJ Stars
-    url: https://bjjstars.com/
-    youtube_handle: "@bjjstarsoficial"
-    channel_id: null
-    category: events
-    priority: 2
-  - name: CBJJ / IBJJF Brasil
-    url: https://cbjj.com.br/
-    category: org
-    priority: 2
-  - name: Fight 2 Win (F2W)
-    url: https://www.fight2win.com/
-    category: events
-    priority: 3
-  - name: ADXC
-    url: https://adxc.com/
-    category: events
-    priority: 3
+- name: ADCC
+  url: https://adcombat.com/
+  youtube_handle: "@ADCC"
+  channel_id: UC4osr0nDXjyRZ18qINMPfmQ
+  category: org
+  priority: 1
+  rss: 
+    https://www.youtube.com/feeds/videos.xml?channel_id=UC4osr0nDXjyRZ18qINMPfmQ
+- name: IBJJF
+  url: https://ibjjf.com/
+  youtube_handle: "@IBJJF"
+  channel_id: UCuEclQFX1C12JpywNDNMHIg
+  category: org
+  priority: 1
+  rss: 
+    https://www.youtube.com/feeds/videos.xml?channel_id=UCuEclQFX1C12JpywNDNMHIg
+- name: CJI (Craig Jones Invitational)
+  url: https://www.craigjonesinvitational.com/
+  youtube_handle: "@B-TeamJiuJitsu"     # cobertura frequente via B-Team
+  channel_id:
+  category: events
+  priority: 2
+- name: Polaris
+  url: https://polaris-grappling.com/
+  youtube_handle: "@PolarisGrappling"
+  channel_id:
+  category: events
+  priority: 2
+- name: UFC BJJ / Fight Pass Invitational
+  url: https://www.ufc.com/
+  category: events
+  priority: 2
+- name: BJJ Stars
+  url: https://bjjstars.com/
+  youtube_handle: "@bjjstarsoficial"
+  channel_id: UCJIgxbCkaAKgYEtpB54oT-w
+  category: events
+  priority: 2
+  rss: 
+    https://www.youtube.com/feeds/videos.xml?channel_id=UCJIgxbCkaAKgYEtpB54oT-w
+- name: CBJJ / IBJJF Brasil
+  url: https://cbjj.com.br/
+  category: org
+  priority: 2
+- name: Fight 2 Win (F2W)
+  url: https://www.fight2win.com/
+  category: events
+  priority: 3
+- name: ADXC
+  url: https://adxc.com/
+  category: events
+  priority: 3
 
 # ─────────────────────────────────────────────────────────────
 # 4) YOUTUBE — CANAIS NACIONAIS (PT-BR)
 # ─────────────────────────────────────────────────────────────
 youtube_br:
-  - name: Xadrez Humano
-    youtube_handle: "@XadrezHumano"
-    channel_id: UC62rRqWUkgACf6Yyxy-L8iA        # já resolvido
-    rss: https://www.youtube.com/feeds/videos.xml?channel_id=UC62rRqWUkgACf6Yyxy-L8iA
-    lang: pt-BR
-    category: analysis
-    priority: 1
-    notes: Análise de BJJ/grappling/MMA com exemplos reais. (canal indicado por você)
+- name: Xadrez Humano
+  youtube_handle: "@XadrezHumano"
+  channel_id: UC62rRqWUkgACf6Yyxy-L8iA          # já resolvido
+  rss: 
+    https://www.youtube.com/feeds/videos.xml?channel_id=UC62rRqWUkgACf6Yyxy-L8iA
+  lang: pt-BR
+  category: analysis
+  priority: 1
+  notes: Análise de BJJ/grappling/MMA com exemplos reais. (canal indicado por 
+    você)
 
-  - name: Muito Mais Ação Jiu Jitsu
-    youtube_handle: "@muitomaisacaojiujitsu"
-    channel_id: null
-    lang: pt-BR
-    category: news
-    priority: 2
-    notes: Jaime da Luz Jr.; análises de luta, resultados, história do BJJ desde 2014.
+- name: Muito Mais Ação Jiu Jitsu
+  youtube_handle: "@muitomaisacaojiujitsu"
+  channel_id: UCqWr8jMmA5pOcmyhHxh7pWQ
+  lang: pt-BR
+  category: news
+  priority: 2
+  notes: Jaime da Luz Jr.; análises de luta, resultados, história do BJJ desde 
+    2014.
 
-  - name: Voūk Brasil
-    youtube_handle: "@voukbrasil"
-    channel_id: null
-    lang: pt-BR
-    category: technique
-    priority: 3
-    notes: "Canal de marca; posições, testes de luta, novidades. (curadoria: usar com peso menor)"
+  rss: 
+    https://www.youtube.com/feeds/videos.xml?channel_id=UCqWr8jMmA5pOcmyhHxh7pWQ
+- name: Voūk Brasil
+  youtube_handle: "@voukbrasil"
+  channel_id: UClnl1morHQgaFUo-sfG0MMg
+  lang: pt-BR
+  category: technique
+  priority: 3
+  notes: "Canal de marca; posições, testes de luta, novidades. (curadoria: usar com
+    peso menor)"
 
 # ─────────────────────────────────────────────────────────────
 # 5) YOUTUBE — CANAIS INTERNACIONAIS
 #    (a) EVENTOS/NOTÍCIA  (b) ANÁLISE/BREAKDOWN  (c) TÉCNICA/EDUCAÇÃO
 # ─────────────────────────────────────────────────────────────
+  rss: 
+    https://www.youtube.com/feeds/videos.xml?channel_id=UClnl1morHQgaFUo-sfG0MMg
 youtube_intl:
   # (a) eventos / notícia
-  - name: FloGrappling (YT)
-    youtube_handle: "@FloGrappling"
-    channel_id: null
-    lang: en
-    category: news
-    priority: 1
-  - name: IBJJF (YT oficial)
-    youtube_handle: "@IBJJF"
-    channel_id: null
-    lang: en
-    category: events
-    priority: 2
+- name: FloGrappling (YT)
+  youtube_handle: "@FloGrappling"
+  channel_id: UCfjGrUg4Y7T3Zf6fy38mAuw
+  lang: en
+  category: news
+  priority: 1
+  rss: 
+    https://www.youtube.com/feeds/videos.xml?channel_id=UCfjGrUg4Y7T3Zf6fy38mAuw
+- name: IBJJF (YT oficial)
+  youtube_handle: "@IBJJF"
+  channel_id: UCuEclQFX1C12JpywNDNMHIg
+  lang: en
+  category: events
+  priority: 2
 
   # (b) análise / breakdown — o ouro p/ dossiê técnico
-  - name: BJJ Scout
-    youtube_handle: "@bjjscout"
-    channel_id: null
-    lang: en
-    category: analysis
-    priority: 1
-    notes: Breakdowns aprofundados de lutas de elite; melhor fonte de análise tática.
-  - name: Jozef Chen Grappling
-    youtube_handle: "@JozefChen"
-    channel_id: null
-    lang: en
-    category: analysis
-    priority: 2
-    notes: Foco em análise sobre polimento.
-  - name: Keenan Online
-    youtube_handle: "@KeenanOnline"
-    channel_id: null
-    lang: en
-    category: analysis
-    priority: 3
+  rss: 
+    https://www.youtube.com/feeds/videos.xml?channel_id=UCuEclQFX1C12JpywNDNMHIg
+- name: BJJ Scout
+  youtube_handle: "@bjjscout"
+  channel_id: UCQMOJW7kgKQFrEioqgb53fA
+  lang: en
+  category: analysis
+  priority: 1
+  notes: Breakdowns aprofundados de lutas de elite; melhor fonte de análise 
+    tática.
+  rss: 
+    https://www.youtube.com/feeds/videos.xml?channel_id=UCQMOJW7kgKQFrEioqgb53fA
+- name: Jozef Chen Grappling
+  youtube_handle: "@JozefChen"
+  channel_id:
+  lang: en
+  category: analysis
+  priority: 2
+  notes: Foco em análise sobre polimento.
+- name: Keenan Online
+  youtube_handle: "@KeenanOnline"
+  channel_id:
+  lang: en
+  category: analysis
+  priority: 3
 
   # (c) técnica / educação / personalidade
-  - name: Chewjitsu
-    youtube_handle: "@Chewjitsu"
-    channel_id: null
-    lang: en
-    category: technique
-    priority: 2
-    notes: Nick Albin; técnica, Q&A, mentalidade, erros comuns. Muito popular.
-  - name: Jordan Teaches Jiujitsu
-    youtube_handle: "@JordanTeachesJiujitsu"
-    channel_id: null
-    lang: en
-    category: technique
-    priority: 2
-  - name: Bernardo Faria BJJ
-    youtube_handle: "@BernardoFariaBJJFanatics"
-    channel_id: null
-    lang: en
-    category: technique
-    priority: 3
-  - name: Stephan Kesting (Grapplearts)
-    youtube_handle: "@StephanKesting"
-    channel_id: null
-    lang: en
-    category: technique
-    priority: 3
-  - name: Gracie Breakdown
-    youtube_handle: "@GracieBreakdown"
-    channel_id: null
-    lang: en
-    category: technique
-    priority: 3
+- name: Chewjitsu
+  youtube_handle: "@Chewjitsu"
+  channel_id: UCuauqeukQLtUrucpitF4OGQ
+  lang: en
+  category: technique
+  priority: 2
+  notes: Nick Albin; técnica, Q&A, mentalidade, erros comuns. Muito popular.
+  rss: 
+    https://www.youtube.com/feeds/videos.xml?channel_id=UCuauqeukQLtUrucpitF4OGQ
+- name: Jordan Teaches Jiujitsu
+  youtube_handle: "@JordanTeachesJiujitsu"
+  channel_id: UCeAM4CsjU7Q5yG-OKZYsq2w
+  lang: en
+  category: technique
+  priority: 2
+  rss: 
+    https://www.youtube.com/feeds/videos.xml?channel_id=UCeAM4CsjU7Q5yG-OKZYsq2w
+- name: Bernardo Faria BJJ
+  youtube_handle: "@BernardoFariaBJJFanatics"
+  channel_id:
+  lang: en
+  category: technique
+  priority: 3
+- name: Stephan Kesting (Grapplearts)
+  youtube_handle: "@StephanKesting"
+  channel_id: UCXpu025o8edxR9b4NMbH11A
+  lang: en
+  category: technique
+  priority: 3
+  rss: 
+    https://www.youtube.com/feeds/videos.xml?channel_id=UCXpu025o8edxR9b4NMbH11A
+- name: Gracie Breakdown
+  youtube_handle: "@GracieBreakdown"
+  channel_id: UCNMZWa1QP42jHrmmzayFEeg
+  lang: en
+  category: technique
+  priority: 3
 
 # ─────────────────────────────────────────────────────────────
 # 6) DESCOBERTA AUTOMÁTICA DE NOVOS CANAIS (passo semanal do Radar)
 #    Propõe candidatos -> curadoria humana -> entra nas listas acima.
 # ─────────────────────────────────────────────────────────────
+  rss: 
+    https://www.youtube.com/feeds/videos.xml?channel_id=UCNMZWa1QP42jHrmmzayFEeg
 discovery:
   enabled: true
   cadence: weekly
   queries:
-    - "jiu-jitsu análise luta"
-    - "bjj breakdown match analysis"
-    - "grappling technique breakdown"
-    - "adcc / ibjjf análise"
+  - "jiu-jitsu análise luta"
+  - "bjj breakdown match analysis"
+  - "grappling technique breakdown"
+  - "adcc / ibjjf análise"
   min_subscribers: 5000        # filtro de relevância
   min_uploads_last_90d: 3      # canal ativo
   approval_required: true      # nunca entra sem seu ok

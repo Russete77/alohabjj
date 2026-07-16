@@ -23,6 +23,11 @@ import time
 import requests
 from ruamel.yaml import YAML
 
+try:
+    sys.stdout.reconfigure(encoding="utf-8")  # type: ignore[attr-defined]
+except Exception:
+    pass
+
 RSS = "https://www.youtube.com/feeds/videos.xml?channel_id={cid}"
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/124.0 Safari/537.36")
