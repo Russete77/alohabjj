@@ -30,7 +30,7 @@ A partir de um dossiê + o brief do Supervisor, escrever um **carrossel completo
 - `hero_prompt`: descreve **arte/atmosfera de combate**, com o vermelho da marca e espaço p/ texto. Regras duras:
   - **Nunca** rosto ou pessoa identificável (direito de imagem, §11/§22).
   - **Nunca** pose/luz que leia como íntima/sensual: evite dois corpos entrelaçados no chão em silhueta, guarda fechada em close, ou luz vermelha quente e difusa (névoa romântica). Isso lê como cena de sexo e é off-brand + risco de flag na plataforma.
-  - **Exija contexto inequívoco de esporte:** gi/kimono e faixa OU rashguard, tatame/arena visível, **ação atlética** (projeção, queda, clinch em pé, dinâmica). O vermelho entra como **aresta gráfica/luz dura**, não brilho romântico. Sombra fria, não névoa quente.
+  - **Exija contexto inequívoco de esporte de BJJ** (não judô, não MMA): gi/kimono e faixa OU rashguard, tatame/arena visível, **ação de BJJ** — scramble/troca no chão, passagem de guarda, OU retrato de atleta dominante. **Nunca** arremesso de judô em pé. Ver `config/bjj-visual.md` e o agente `art_director`. O vermelho entra como **aresta gráfica/luz dura**, não brilho romântico. Sombra fria, não névoa quente.
   - Se `hero_complexo:false`, `hero_prompt:""`.
 
 ## 7. Regras de estilo
