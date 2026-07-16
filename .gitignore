@@ -12,3 +12,4 @@ venv/
 # OS
 .DS_Store
 Thumbs.db
+.seen_urls.json

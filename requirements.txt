@@ -2,5 +2,6 @@
 requests>=2.31        # WP REST, resolve_channels
 beautifulsoup4>=4.12  # limpeza de HTML (usa html.parser nativo, sem lxml)
 ruamel.yaml>=0.18     # YAML preservando comentários (fontes.yaml)
+feedparser>=6.0       # Fase A: ingestão de RSS/YouTube (Radar)
 python-dotenv>=1.0    # carrega .env
 anthropic>=0.40       # cliente da API do Claude (etapas 3-4)
