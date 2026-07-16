@@ -105,10 +105,12 @@ class Claude:
         max_tokens: int = 8000,
         effort: str = "high",
         json_schema: dict | None = None,
+        image: str | None = None,
     ) -> tuple[str, dict]:
         """
         Uma chamada ao modelo. Retorna (texto, usage_dict).
         Se json_schema for dado, força saída JSON válida (output_config.format).
+        Se image (caminho) for dado, envia a imagem junto (visão) — o modelo "olha".
         Loga custo em jobs/; respeita o spend cap ANTES de gastar.
         """
         spent = self.log.total_cost()
@@ -117,11 +119,24 @@ class Claude:
                 f"spend cap atingido: ${spent:.4f} >= ${self.spend_cap:.2f} (run {self.log.run_id})"
             )
 
+        if image is not None:
+            import base64
+            p = Path(image)
+            mt = {"png": "image/png", "jpg": "image/jpeg", "jpeg": "image/jpeg",
+                  "webp": "image/webp", "gif": "image/gif"}.get(p.suffix.lower().lstrip("."), "image/jpeg")
+            b64 = base64.b64encode(p.read_bytes()).decode()
+            content: list | str = [
+                {"type": "image", "source": {"type": "base64", "media_type": mt, "data": b64}},
+                {"type": "text", "text": user},
+            ]
+        else:
+            content = user
+
         params: dict = {
             "model": model.id,
             "max_tokens": max_tokens,
             "system": system,
-            "messages": [{"role": "user", "content": user}],
+            "messages": [{"role": "user", "content": content}],
         }
         oc: dict = {}
         if model.adaptive:  # Opus/Sonnet suportam; Haiku 4.5 não (daria 400)
