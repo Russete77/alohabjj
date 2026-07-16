@@ -130,3 +130,34 @@ class Claude:
                         in_tok=u.input_tokens, out_tok=u.output_tokens,
                         cost_est=cost, t0=t0, t1=time.time())
         return text, {"in_tok": u.input_tokens, "out_tok": u.output_tokens, "cost": cost}
+
+    def research(self, *, model: Model, system: str, user: str, step: str, key: str,
+                 max_uses: int = 5, max_tokens: int = 8000) -> tuple[str, dict]:
+        """
+        Chamada com WebSearch server-side (Pesquisador, §5). Só fontes da web abertas;
+        o loop de busca roda no servidor. Trata pause_turn reenviando o histórico.
+        """
+        if self.log.total_cost() >= self.spend_cap:
+            raise SpendCapExceeded(f"spend cap atingido no run {self.log.run_id}")
+        tools = [{"type": "web_search_20260209", "name": "web_search", "max_uses": max_uses}]
+        messages: list = [{"role": "user", "content": user}]
+        t0 = time.time()
+        in_tok = out_tok = 0
+        for _ in range(6):  # limite de retomadas de pause_turn
+            msg = self.client.messages.create(
+                model=model.id, max_tokens=max_tokens, system=system,
+                messages=messages, tools=tools,
+                thinking={"type": "adaptive"}, output_config={"effort": "high"},
+            )
+            in_tok += msg.usage.input_tokens
+            out_tok += msg.usage.output_tokens
+            if msg.stop_reason == "pause_turn":
+                messages = [{"role": "user", "content": user},
+                            {"role": "assistant", "content": msg.content}]
+                continue
+            break
+        text = "".join(b.text for b in msg.content if b.type == "text")
+        cost = _cost(model, in_tok, out_tok)
+        self.log.record(step, "succeeded", key=key, model=model.id,
+                        in_tok=in_tok, out_tok=out_tok, cost_est=cost, t0=t0, t1=time.time())
+        return text, {"in_tok": in_tok, "out_tok": out_tok, "cost": cost}
