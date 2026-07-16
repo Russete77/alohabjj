@@ -25,6 +25,14 @@ export interface Piece {
   hero: boolean;
   slides: Slide[];
   caption: string;
+  platforms: PlatformPackages | null;
+}
+
+export interface PlatformPackages {
+  instagram_feed?: { caption: string; primeiro_comentario: string; hashtags: string[]; alt_text: string };
+  instagram_reels?: { caption: string; hook: string; hashtags: string[]; audio_sugestao: string };
+  tiktok?: { caption: string; hashtags: string[]; roteiro_fala: string; is_ai_generated: boolean };
+  youtube_shorts?: { titulo: string; descricao: string; tags: string[] };
 }
 
 function readJson<T>(file: string): T | null {
@@ -49,6 +57,7 @@ export function getPieces(): Piece[] {
     const slides = readJson<Slide[]>(path.join(OUTPUTS, slug, "slides.json")) ?? [];
     const capPath = path.join(OUTPUTS, slug, "caption.txt");
     const caption = fs.existsSync(capPath) ? fs.readFileSync(capPath, "utf-8") : "";
+    const platforms = readJson<PlatformPackages>(path.join(OUTPUTS, slug, "platforms.json"));
     const dossier = getDossier(slug);
     pieces.push({
       slug,
@@ -64,6 +73,7 @@ export function getPieces(): Piece[] {
       hero: Boolean(meta.hero),
       slides,
       caption,
+      platforms,
     });
   }
   return pieces;

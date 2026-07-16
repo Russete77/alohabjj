@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getPiece } from "@/lib/pieces";
 import { publicar, refazer } from "../actions";
+import PlatformTabs from "./PlatformTabs";
 
 export const dynamic = "force-dynamic";
 
@@ -71,6 +72,13 @@ export default async function Revisar({ params }: { params: Promise<{ slug: stri
           </div>
         </div>
       </div>
+
+      {p.platforms && (
+        <div className="pkg">
+          <div className="sec-h"><h2>Pronto para postar</h2><span className="c">copiar e colar por plataforma · sem editar</span></div>
+          <PlatformTabs platforms={p.platforms} />
+        </div>
+      )}
     </>
   );
 }
