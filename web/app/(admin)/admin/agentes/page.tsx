@@ -1,5 +1,6 @@
 import { getDossiers } from "@/lib/dossiers";
 import { getPieces } from "@/lib/pieces";
+import AgentTownView from "./AgentTownView";
 
 export const dynamic = "force-dynamic";
 
@@ -37,9 +38,18 @@ export default function Agentes() {
     <>
       <div className="a-top">
         <div>
-          <h1>Agentes</h1>
-          <p className="sub">O pipeline — 11 papéis, roteamento de modelo por etapa, custo observável</p>
+          <h1>Agentes · Academia AlohaBJJ</h1>
+          <p className="sub">Cada agente é um lutador — a faixa é a graduação (= nível do modelo)</p>
         </div>
+      </div>
+
+      <AgentTownView />
+      <div className="belt-legend">
+        <span><i style={{ background: "#111111" }} /> preta · Opus (Analista, Arte)</span>
+        <span><i style={{ background: "#6B3FA0" }} /> roxa · Sonnet</span>
+        <span><i style={{ background: "#6E4A34" }} /> marrom · Sonnet/código</span>
+        <span><i style={{ background: "#2F6BB0" }} /> azul · Haiku</span>
+        <span><i style={{ background: "#E8E2D5", border: "1px solid #999" }} /> branca · Haiku</span>
       </div>
 
       <div className="howto">
