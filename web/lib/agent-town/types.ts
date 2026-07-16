@@ -53,7 +53,7 @@ export type TileType =
 
 export type ThemeId = 'casual' | 'business' | 'hybrid';
 export type OfficeSize = 'small' | 'medium' | 'large' | 'wide' | 'xl';
-export type EnvironmentId = 'office' | 'rocket' | 'space_station' | 'farm' | 'hospital' | 'pirate_ship' | 'town';
+export type EnvironmentId = 'office' | 'rocket' | 'space_station' | 'farm' | 'hospital' | 'pirate_ship' | 'town' | 'dojo';
 
 export type ZoneType =
   // Office — semantic rooms

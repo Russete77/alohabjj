@@ -48,23 +48,23 @@ export default function AgentTownView() {
       if (!alive || !ref.current) return;
       town = new AgentTown({
         container: ref.current,
-        environment: "office",   // recolorido = academia / tatame
+        environment: "dojo",     // tatame aberto (academia AlohaBJJ)
         officeSize: "medium",    // personagens maiores (kimono + faixa visíveis)
       });
-      town.setRoomMode?.("free"); // tatame aberto, sem salas de kanban
       for (const a of AGENTS) {
         town.addAgent({ id: a.id, name: a.name, role: a.role, team: a.belt, status: "idle" });
       }
 
+      // simulação calma e sequencial do pipeline (só um "ativo" por vez)
       let i = 0;
       timer = setInterval(() => {
         if (!town) return;
         const step = STEPS[i % STEPS.length];
         const prev = STEPS[(i - 1 + STEPS.length) % STEPS.length];
-        town.updateAgent(prev.id, { status: "success", message: "feito ✓" });
+        town.updateAgent(prev.id, { status: "idle", message: null });
         town.updateAgent(step.id, { status: step.status, message: step.msg });
         i++;
-      }, 2200);
+      }, 2600);
     })();
 
     return () => {

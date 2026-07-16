@@ -258,7 +258,8 @@ export class Renderer {
           pants: '#5A4A32',
           shoes: '#3A2A1A',
         };
-      case 'office': {
+      case 'office':
+      case 'dojo': {
         // Academia AlohaBJJ: kimono (gi) branco ou azul + pés descalços (no tatame)
         const giBlue = i % 4 === 0;
         return {

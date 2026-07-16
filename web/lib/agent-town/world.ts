@@ -36,11 +36,32 @@ export class World {
     this.initFloor();
     this.addWalls();
 
-    // Always use kanban layout: town gets RPG buildings, others get kanban rooms
+    // town = prédios RPG; dojo = tatame aberto; demais = salas de kanban
     if (env === 'town') {
       this.buildTownRooms(cfg, stages);
+    } else if (env === 'dojo') {
+      this.buildDojo();
     } else {
       this.buildKanbanRooms(cfg, stages);
+    }
+  }
+
+  /** Dojo/academia: tatame aberto, sem salas de kanban — zonas espalhadas no mato */
+  private buildDojo(): void {
+    const room: Room = {
+      id: 1,
+      name: 'Tatame',
+      bounds: { x: 1, y: 1, w: this.gridWidth - 2, h: this.gridHeight - 2 },
+      doorways: [],
+    };
+    this.rooms.push(room);
+    const margin = 2;
+    const cx = this.gridWidth / 2;
+    for (let y = margin; y < this.gridHeight - margin; y += 3) {
+      for (let x = margin; x < this.gridWidth - margin; x += 3) {
+        if (Math.abs(x - cx) < 3) continue; // deixa a área de luta central livre
+        this.addZone('common_area', { x, y }, 1, 'down');
+      }
     }
   }
 

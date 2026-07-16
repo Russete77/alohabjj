@@ -75,6 +75,13 @@ const PHASE_ZONE_PREFS: Record<EnvironmentId, Record<WorkPhase, ZoneType[]>> = {
     validation: ['test_station', 'ci_monitor', 'town_bench_zone'],
     review: ['review_desk', 'pair_station', 'tavern_seat'],
   },
+  dojo: {
+    // tatame aberto: todas as fases usam pontos livres (common_area)
+    planning: ['common_area'],
+    execution: ['common_area'],
+    validation: ['common_area'],
+    review: ['common_area'],
+  },
 };
 
 /** Random messages for idle agents wandering in the common area */
