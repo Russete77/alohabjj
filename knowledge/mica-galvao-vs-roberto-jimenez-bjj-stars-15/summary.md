@@ -1,0 +1,7 @@
+# Mica Galvão vs Roberto Jimenez no BJJ Stars 15
+
+Essa não foi "só mais uma final". O Grand Prix No-Gi dos médios do BJJ Stars 15 fechou com Mica Galvão contra Roberto Jimenez — dois estilos que naturalmente criam caos: pressão e transição afiada de um lado, ataque constante e scramble imprevisível do outro. Desde o primeiro contato, tinha clima de morte súbita, aquele "ninguém quer piscar". Do lado do Mica, o fenômeno que vinha colecionando performance absurda; do lado do Roberto, um dos caras mais agressivos e perigosos do circuito.
+
+Segundo o relato da Aloha, Roberto tentou acelerar e criar oportunidade no caos — exatamente o território onde ele costuma ser mais letal. Só que o Mica mostrou o detalhe que separa a elite do resto: ele não só sobrevive ao caos, ele usa o caos como armadilha. A leitura de timing e o ajuste posicional foram cirúrgicos, e o armlock decisivo não caiu do céu — nasceu de controle de distância, ajuste de quadril e antecipação da tentativa de scramble do Roberto.
+
+No momento certo, Mica encaixou um armlock justíssimo e finalizou, levando o GP dos médios com cerca de 2m35s de combate. Fechar um GP desse tamanho com finalização não é vitória na margem — é declaração de quem está ditando o topo do No-Gi. E o Roberto? Segue sendo problema pra qualquer um: o estilo dele força troca, força risco e puxa o adversário pra decisão rápida. Por aqui a gente documenta cada capítulo dessa evolução.

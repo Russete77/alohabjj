@@ -8,34 +8,40 @@
 
 produtos:
   - id: curso
+    nome: "100kg – Domínio Absoluto"   # nome real do curso (do acervo)
     tipo: proprio            # curso digital gratuito hospedado no site
     prioridade: 1
-    url_base: https://alohabjjnews.com/
+    url_base: https://alohabjjnews.com/   # acesso pelo menu do site / link na bio
     margem: 1.0             # ~100% (digital, próprio)
     gancho: >
-      Curso completo e gratuito de BJJ — leva o público do conteúdo pro aprofundamento.
+      Curso gratuito "100kg – Domínio Absoluto": jogo de pressão e controle.
+      Leva o público do conteúdo pro aprofundamento.
     disclosure_obrigatorio: false   # produto próprio gratuito; sem relação de afiliação paga
-    cta_sugerido: "Curso completo grátis no link"
+    cta_sugerido: "Curso 100kg – Domínio Absoluto, grátis no link"
 
   - id: bjj3d
-    tipo: proprio            # produto próprio (Shopee)
+    nome: "Loja BJJ3D"
+    tipo: proprio            # loja própria
     prioridade: 2
-    url_base: null           # TODO: preencher URL da loja Shopee BJJ3D
+    url_base: null           # TODO: URL da loja BJJ3D (você tem)
     margem: null             # TODO: margem real
     gancho: >
-      BJJ3D — visualização/estudo de posições. Produto próprio.
+      Loja BJJ3D — produtos exclusivos para quem vive o Jiu-Jitsu dentro e fora do tatame.
     disclosure_obrigatorio: false
-    cta_sugerido: "BJJ3D no link"
+    cta_sugerido: "🛒 Loja BJJ3D no link"
 
   - id: hayabusa
+    nome: "Hayabusa"
     tipo: afiliado           # afiliado (comissão por performance)
     prioridade: 3
-    url_base: null           # TODO: link de afiliado Hayabusa
+    url_base: null           # TODO: link de afiliado Hayabusa (você tem)
+    cupom: "LUCAS"           # cupom real: -10%
+    desconto: "-10%"
     margem: null             # comissão real do programa
     gancho: >
-      Equipamento Hayabusa — kimono/rashguard para quem treina.
+      Equipamento Hayabusa de alto desempenho — cupom LUCAS -10%.
     disclosure_obrigatorio: true    # CONAR: afiliado = conteúdo promocional (§12)
-    cta_sugerido: "Hayabusa no link (parceria)"
+    cta_sugerido: "🥊 Hayabusa com cupom LUCAS -10% (parceria)"
 
 # Regras de CTA (Supervisor de Vendas):
 # - 1 CTA por peça.

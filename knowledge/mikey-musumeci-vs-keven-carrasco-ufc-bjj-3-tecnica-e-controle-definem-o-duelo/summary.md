@@ -1,0 +1,7 @@
+# Mikey Musumeci vs Keven Carrasco UFC BJJ 3 – Técnica e controle definem o duelo
+
+O UFC BJJ 3 voltou a entregar luta de alto nível, e o encontro entre Mikey Musumeci e Keven Carrasco foi puro contraste de filosofia. De um lado, o Mikey, referência mundial em técnica refinada e domínio de posições de submissão, especialmente no No-Gi. Do outro, o Carrasco, que vem construindo reputação sólida com jogo dinâmico e a manha de impor ritmo. Encontro assim revela mais que o placar: mostra como escolas diferentes de grappling se adaptam frente a frente no alto nível.
+
+Segundo a análise da Aloha, a leitura desde os primeiros instantes foi de controle e tempo. Musumeci trabalhou as entradas com paciência, caçando ângulo seguro antes de arriscar transição, apostando na pressão progressiva — dominando pegada e abrindo espaço sem perder base. Carrasco tentou o caminho oposto: acelerar, forçar scramble e criar espaço pra ataque rápido. A luta viveu de alternância de controle e troca estratégica, com os dois usando leitura de distância e timing pra neutralizar o rival na hora certa.
+
+Mais que resultado, o combate entrega um capítulo importante pros dois: Musumeci reafirma a técnica de elite, e Carrasco mostra que compete de igual pra igual com a nata do No-Gi atual. É o tipo de embate valioso pra quem estuda o esporte, porque prova como a mesma situação pode premiar estratégias opostas dependendo da leitura. Por aqui a gente documenta cada capítulo dessa evolução.

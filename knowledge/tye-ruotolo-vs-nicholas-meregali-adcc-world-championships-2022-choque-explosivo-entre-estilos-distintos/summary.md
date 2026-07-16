@@ -1,0 +1,7 @@
+# Tye Ruotolo vs Nicholas Meregali no ADCC 2022: choque explosivo entre estilos distintos
+
+O ADCC World Championships 2022 entregou um dos confrontos mais eletrizantes do evento: Tye Ruotolo contra Nicholas Meregali. Dois dos nomes mais empolgantes do grappling moderno se enfrentando num duelo que misturou explosão, técnica e estratégia com intensidade do início ao fim — e no palco mais respeitado do No-Gi mundial, onde só os maiores estrategistas se encontram.
+
+Segundo a Aloha, o duelo foi um choque de filosofias. Ruotolo, com seu jogo rápido, criativo e imprevisível, pressionou a leitura de distância e timing do adversário desde o começo, apostando em transições rápidas, scrambles frequentes e mudança de níveis. Meregali respondeu com o que faz de melhor: controle de pegadas, precisão técnica e paciência estratégica pra esperar o momento certo de atacar, neutralizando a explosão do rival. O combate teve troca de domínio, com os dois ajustando a estratégia conforme a luta progredia — um verdadeiro estudo de adaptação em tempo real.
+
+Mais que um combate, esse encontro virou referência de como o grappling moderno evoluiu. Técnica refinada, leitura de movimento e capacidade de se adaptar sob pressão são os elementos que se destacam e inspiram a comunidade competitiva inteira. É o tipo de luta que a gente documenta com prazer — porque o Jiu-Jitsu está evoluindo, e cada capítulo merece ser registrado.

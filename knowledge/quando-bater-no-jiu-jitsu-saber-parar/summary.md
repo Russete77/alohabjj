@@ -1,0 +1,7 @@
+# Quando Bater no Jiu-Jitsu
+
+Saber lutar também é saber parar. No jiu-jitsu, muita gente aprende a atacar, defender e pressionar, mas poucos entendem uma das habilidades mais importantes do tatame: saber a hora de bater. O AlohaBJJNews crava que esse é o erro mais perigoso dentro do tatame — não bater na hora certa. O ego entra em cena, a vontade de escapar fala mais alto, a competição interna assume o controle. E é aí que surgem as lesões.
+
+O jiu-jitsu é arte de controle, mas controle não é só dominar o adversário — é dominar a própria decisão. Quando você insiste em escapar de uma finalização encaixada, mesmo sabendo que está ajustada, transforma treino em risco desnecessário. Ligamento não avisa duas vezes, articulação não tem ego, lesão atrasa evolução. Bater não é fraqueza, bater é inteligência. Você deve bater quando a finalização está ajustada e você perdeu a defesa técnica, quando sente pressão real na articulação, quando o risco supera o aprendizado e quando o parceiro executou corretamente. Treino não é campeonato mundial — treino é construção.
+
+O verdadeiro praticante entende que evolução é longo prazo. Saber a hora de bater demonstra maturidade técnica, consciência corporal, respeito pelo parceiro e visão de evolução contínua. Quem aprende a parar na hora certa treina por anos; quem insiste por ego muitas vezes para antes do tempo. A pergunta que separa o impulso da inteligência é simples: você bateria ou tentaria escapar até o fim? Controle real não é só pressão física — é tomada de decisão.

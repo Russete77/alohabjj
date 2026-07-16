@@ -1,0 +1,7 @@
+# Mikey Musumeci vs Bruno Malfacine World Championship 2021 – Choque de gerações no tatame
+
+Tem confronto que já nasce com cara de aula, e o Mundial de 2021 entregou um dos mais aguardados entre gerações do Jiu-Jitsu: Mikey Musumeci contra o lendário Bruno Malfacine. Dois gigantes, trajetórias e estilos diferentes, mas dominantes cada um na sua época — o tipo de duelo que junta quem treina e quem só acompanha o esporte de longe.
+
+Segundo a análise da Aloha, o Malfacine é um dos maiores da história do peso-galo, com montanha de títulos mundiais e um jogo de base sólida, pressão e transição afiada. Do outro lado, o Musumeci representa a geração moderna: técnica refinada, leitura de movimento e finalização cirúrgica. A luta virou o clássico "experiência vs inovação". No tatame, o ritmo mostrou equilíbrio técnico — Malfacine forçando o Mikey a resolver quebra-cabeças com base e controle, e o Mikey respondendo com transição rápida e variação tática sem perder posição.
+
+O que impressionou foi o ajuste dos dois ao longo do combate: Malfacine impondo sua estrutura tradicional, Musumeci canalizando pressão sem perder velocidade. Esse tipo de luta é ouro puro pra quem estuda Jiu-Jitsu, porque ensina a casar controle posicional, timing e criatividade quando o nível está extremamente parelho. Mais que resultado, o duelo entrou pra galeria das lutas que marcam época. Por aqui a gente documenta cada capítulo dessa evolução.
