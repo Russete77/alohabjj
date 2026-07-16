@@ -106,6 +106,7 @@ class Claude:
             params["output_config"]["format"] = {"type": "json_schema", "schema": json_schema}
 
         t0 = time.time()
+        self.log.record(step, "running", key=key, model=model.id, t0=t0)  # ao vivo (ponte)
         try:
             # streaming só quando max_tokens é grande (evita timeout HTTP do SDK)
             if max_tokens > 16000:
@@ -142,6 +143,7 @@ class Claude:
         tools = [{"type": "web_search_20260209", "name": "web_search", "max_uses": max_uses}]
         messages: list = [{"role": "user", "content": user}]
         t0 = time.time()
+        self.log.record(step, "running", key=key, model=model.id, t0=t0)  # ao vivo (ponte)
         in_tok = out_tok = 0
         for _ in range(6):  # limite de retomadas de pause_turn
             msg = self.client.messages.create(

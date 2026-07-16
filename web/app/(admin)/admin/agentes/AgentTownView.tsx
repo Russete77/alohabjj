@@ -42,6 +42,7 @@ export default function AgentTownView() {
   useEffect(() => {
     let town: any;
     let timer: ReturnType<typeof setInterval>;
+    let pollTimer: ReturnType<typeof setInterval>;
     let alive = true;
 
     (async () => {
@@ -57,12 +58,27 @@ export default function AgentTownView() {
         town.addAgent({ id: a.id, name: a.name, role: a.role, team: a.belt, status: a.status, message: a.thoughts[0] });
       }
 
-      // balões de pensamento sempre visíveis: só troca a MENSAGEM (não o status → não anda)
+      // ponte com o pipeline real: quando algum agente estiver rodando (jobs/),
+      // o balão mostra o trabalho de verdade; senão, cai no roteiro demo.
+      const live = new Map<string, string>();
+      const poll = async () => {
+        try {
+          const r = await fetch("/api/agents/activity", { cache: "no-store" });
+          const d = await r.json();
+          live.clear();
+          for (const [id, v] of Object.entries<any>(d.agents ?? {})) live.set(id, v.message);
+        } catch { /* offline: usa demo */ }
+      };
+      poll();
+      pollTimer = setInterval(poll, 2500);
+
+      // balões sempre visíveis: só troca a MENSAGEM (não o status → não anda)
       let tick = 0;
       timer = setInterval(() => {
         if (!town) return;
         for (const a of AGENTS) {
-          town.updateAgent(a.id, { message: a.thoughts[tick % a.thoughts.length] });
+          const msg = live.get(a.id) ?? a.thoughts[tick % a.thoughts.length];
+          town.updateAgent(a.id, { message: msg });
         }
         tick++;
       }, 3500);
@@ -71,6 +87,7 @@ export default function AgentTownView() {
     return () => {
       alive = false;
       clearInterval(timer);
+      clearInterval(pollTimer);
       town?.destroy?.();
     };
   }, []);
