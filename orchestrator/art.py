@@ -218,40 +218,58 @@ def art_for_piece(claude: Claude, slug: str, headlines: list[str], log: JobLog) 
     brief = art_brief(claude, resumo, headlines[0] if headlines else "", slug)
     print(f"  ✓ Diretor de Arte: modo {brief['modo']} · {brief['traje']} · “{brief['posicao'][:50]}”")
 
-    # referência do protagonista: biblioteca própria (refs/) OU imagem relacionada da web
-    refs = []
-    if brief.get("usar_referencia") and brief.get("protagonista"):
-        refs = reference_for(brief["protagonista"])
-        if refs:
-            print(f"  ✓ referência (biblioteca) de {brief['protagonista']}: {len(refs)} → recontextualização")
-        elif not imagegen.which().startswith("nenhum"):
-            try:
-                from lib import heroimg
-                hit = heroimg.hero_for(_sources(slug), out_dir / "ref_web.jpg")
-                if hit:
-                    refs = [str(hit["path"])]
-                    print(f"  ✓ referência (web) de {hit['credito']} → recontextualização do assunto")
-                else:
-                    print(f"  · sem imagem relacionada de {brief['protagonista']} — geração sem semelhança")
-            except Exception as e:  # noqa: BLE001
-                print(f"  · busca de imagem web falhou ({e})")
-
-    # 1) IA (modo A, com chave): recontextualiza o assunto → vira o FUNDO da arte
-    hero = None
-    if brief["modo"] == "A" and not brief.get("needs_reference"):
-        hero = generate_hero(claude, brief, out_dir / "hero_ia.png", slug, references=refs or None)
-
+    import os as _os
     story = out_dir / "story.png"
-    if hero:
-        headline = coherent_headline(claude, hero, headlines, resumo, slug)
-        # arte = FUNDO (assunto recontextualizado) + frame AlohaBJJ por cima
+
+    # 1) IMAGEM REAL do assunto (biblioteca própria OU web) — SEM IA. Caminho feliz.
+    #    A gente JÁ busca a imagem; não faz sentido pagar IA pra "recriar". Pega e trata.
+    src_img, credito = None, None
+    if brief.get("protagonista"):
+        r = reference_for(brief["protagonista"])
+        if r:
+            src_img, credito = r[0], "biblioteca"
+            print(f"  ✓ imagem (biblioteca) de {brief['protagonista']}")
+    if not src_img:
+        try:
+            from lib import heroimg
+            hit = heroimg.hero_for(_sources(slug), out_dir / "ref_web.jpg")
+            if hit:
+                src_img, credito = str(hit["path"]), hit["credito"]
+                print(f"  ✓ imagem (web · {credito}) do assunto — vai ser TRATADA, não gerada")
+            else:
+                print("  · sem imagem-fonte do assunto — cai no frame próprio")
+        except Exception as e:  # noqa: BLE001
+            print(f"  · busca de imagem web falhou ({e})")
+
+    # 2) TRATAMENTO determinístico (sharp) → vira o fundo. Zero token de IA.
+    hero_bg, source = None, None
+    if src_img:
+        enhanced = out_dir / "hero_bg.png"
+        if _node("scripts/enhance.mjs",
+                 ["--in", src_img, "--out", str(enhanced), "--w", "1080", "--h", "1350"],
+                 slug, log, "enhance"):
+            hero_bg, source = enhanced, "foto-tratada"
+            print(f"  ✓ imagem tratada (grade editorial · nitidez · vinheta) ← {credito}")
+
+    # 3) IA só como ÚLTIMO recurso e SÓ se explicitamente ligada (IMAGE_AI_FALLBACK=1)
+    if not hero_bg and _os.getenv("IMAGE_AI_FALLBACK") == "1" \
+            and brief["modo"] == "A" and not brief.get("needs_reference"):
+        hero = generate_hero(claude, brief, out_dir / "hero_ia.png", slug, references=None)
+        if hero:
+            hero_bg, source = hero, "ia-bg"
+
+    # 4) render com fundo; headline coerente por visão só no caso de IA (na foto real usa a 1ª)
+    if hero_bg:
+        headline = headlines[0] if headlines else slug
+        if source == "ia-bg":
+            headline = coherent_headline(claude, hero_bg, headlines, resumo, slug)
         ok = _node("scripts/render_story.mjs",
-                   ["--headline", headline, "--bg", str(hero), "--out", str(story)],
+                   ["--headline", headline, "--bg", str(hero_bg), "--out", str(story)],
                    slug, log, "arte-fundo")
         if ok:
-            print(f"  ✓ arte (fundo do assunto + frame) ← “{headline}”")
-            log.record("arte", "succeeded", key=slug, note="source=ia-bg")
-            return {"source": "ia-bg", "headline": headline, "story": "story.png"}
+            print(f"  ✓ arte ({source}) ← “{headline}”")
+            log.record("arte", "succeeded", key=slug, note=f"source={source} credito={credito or ''}")
+            return {"source": source, "headline": headline, "story": "story.png", "credito": credito}
 
     # 2) fallback: FRAME PRÓPRIO (nunca foto de terceiro)
     headline = headlines[0] if headlines else slug
