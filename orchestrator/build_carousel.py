@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -137,10 +138,12 @@ def main() -> int:
         print(f"[carrossel] {e}")
         return 1
 
-    # 1) Supervisor de Vendas
+    # 1) Supervisor de Vendas — recebe a MEMÓRIA DE CONVERSÃO (aprende o que vende)
+    from lib.tracking import conversion_memory
+    mem = conversion_memory()
     brief_txt, _ = claude.call(
         model=SONNET, system=_sys("sales_supervisor"),
-        user=f"CATÁLOGO:\n{catalogo}\n\nDOSSIÊ:\n{dossier['summary']}\n\nÂNGULOS:\n{dossier['angles']}",
+        user=f"CATÁLOGO:\n{catalogo}\n\n{mem}\n\nDOSSIÊ:\n{dossier['summary']}\n\nÂNGULOS:\n{dossier['angles']}",
         step="supervisor", key=args.slug, json_schema=BRIEF_SCHEMA, max_tokens=1500)
     brief = json.loads(brief_txt)
     print(f"  ✓ Supervisor: produto={brief['produto_id']} ({brief.get('relevancia_motivo','')[:50]}) "
@@ -185,7 +188,7 @@ def main() -> int:
         "palavra_manychat": brief.get("palavra_manychat", ""),
         "link_afiliado": brief.get("link_afiliado", ""), "produto_titulo": brief.get("produto_titulo", ""),
         "cta": brief["cta_texto"], "caption": car["caption"], "hashtags": car["hashtags"],
-        "tracked_url": f"?utm_source=ig&utm_content={args.slug}",
+        "tracked_url": f"{os.getenv('PORTAL_URL', 'https://alohabjjnews.com').rstrip('/')}/r/{args.slug}",
         "disclosure": brief["disclosure_texto"] if brief["disclosure_obrigatorio"] else None,
         "is_ai_generated": True,
         "quality": {"nota": ver["nota"], "aprovado": ver["aprovado"]},

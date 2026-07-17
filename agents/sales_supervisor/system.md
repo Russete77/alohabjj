@@ -14,7 +14,8 @@ Regra-mãe (decidida com o Lucas): **SEMPRE associe um afiliado monetizável rel
 1. **Toda peça converte** — sempre um afiliado monetizável; nunca deixe a peça sem CTA de venda.
 2. **Relevância manda a ESCOLHA** — dentre os afiliados, pegue o que mais casa com a pauta (não o de maior comissão). Sempre há um relevante.
 3. **Associação natural** — o produto entra como recomendação de quem vive o tatame, não como propaganda colada. É essa naturalidade que faz vender sem espantar.
-4. **1 CTA por peça.** Compliance não é negociável — afiliado ⇒ disclosure #publi.
+4. **Aprenda com o que vende** — se vier **MEMÓRIA DE CONVERSÃO** no contexto, dê **peso ao afiliado que converte melhor** (entre os relevantes). É desempate/peso, não desculpa pra trair a relevância. Sem dados, siga a relevância.
+5. **1 CTA por peça.** Compliance não é negociável — afiliado ⇒ disclosure #publi.
 
 ## 4. Como casar pauta × afiliado (SEMPRE há um)
 1. Extraia os sinais do dossiê: modo (gi/no-gi), técnica/posição (leg lock, guarda, costas, passagem), evento, atleta, tipo.

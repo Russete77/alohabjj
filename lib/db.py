@@ -126,5 +126,10 @@ def upsert_products(rows: list[dict]) -> None:
     _enqueue("products", rows, on_conflict="id")
 
 
+def insert_event(row: dict) -> None:
+    """Evento de conversão (click/conversion) → tabela events."""
+    _enqueue("events", [{k: v for k, v in row.items() if v is not None}])
+
+
 if __name__ == "__main__":
     print(f"[db] Supabase dual-write: {'ATIVO (assíncrono)' if enabled() else 'off (sem SUPABASE_URL/SERVICE_ROLE_KEY)'}")
