@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { parse as parseYaml } from "yaml";
 
 // Edição de config pelo /admin: prompts dos agentes (agents/*/system.md),
 // docs de config (config/*.md) e chaves do .env. O pipeline Python lê esses
@@ -41,6 +42,26 @@ export function writeDoc(kind: "agent" | "config", name: string, content: string
     if (!CONFIG_DOCS.includes(name)) throw new Error("doc de config inválido");
     fs.writeFileSync(path.join(CONFIG, name), content, "utf-8");
   }
+}
+
+// Config YAML bruta editável no painel (fontes RSS etc). Valida o YAML antes de salvar
+// pra não corromper o arquivo que o pipeline Python lê.
+const RAW_CONFIGS = ["fontes.yaml"];
+
+export function readRawConfig(name: string): string {
+  if (!RAW_CONFIGS.includes(name)) throw new Error("config inválida");
+  const f = path.join(CONFIG, name);
+  return fs.existsSync(f) ? fs.readFileSync(f, "utf-8") : "";
+}
+
+export function writeRawConfig(name: string, content: string): void {
+  if (!RAW_CONFIGS.includes(name)) throw new Error("config inválida");
+  try {
+    parseYaml(content); // valida — lança se YAML inválido
+  } catch (e) {
+    throw new Error("YAML inválido: " + (e as Error).message);
+  }
+  fs.writeFileSync(path.join(CONFIG, name), content, "utf-8");
 }
 
 export function readEnv(): EnvVar[] {

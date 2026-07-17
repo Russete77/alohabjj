@@ -17,23 +17,38 @@ no comentário → manda a DM com o link. Você configura **um fluxo por palavra
 | `LOJA` | Loja BJJ3D (própria) | link da loja |
 | `PRO`  | **(futuro)** cursos PAGOS | checkout do curso pago |
 
-## Como montar cada fluxo no ManyChat (uma vez por palavra)
+## O link é ESTÁVEL: `alohabjjnews.com/k/<PALAVRA>`
+Você **não** troca o link no ManyChat a cada post. Cada palavra tem um **link fixo** que o
+sistema resolve sozinho: `.../k/GI`, `.../k/NOGI`, `.../k/PERNA`, etc. Essa rota:
+1. acha o produto com aquela palavra no catálogo (`/admin/catalogo`),
+2. **registra o clique** (aparece em `/admin/conversao`),
+3. redireciona pro **link de afiliado atual** (`url_base`) daquele produto.
+
+Trocou o link de afiliado no `/admin/catalogo`? Todas as DMs daquela palavra já apontam pro
+novo destino — **sem tocar no ManyChat**. Sem link cadastrado, cai no portal (curso grátis).
+
+## Como montar cada fluxo no ManyChat (uma vez por palavra — nunca mais mexe)
 1. ManyChat → **Automation** → **New Automation** → gatilho **Instagram → Comments** (ou "Keyword").
 2. Trigger: quando o comentário **contém** a palavra (ex.: `GI`).
 3. Ação: **Send Message (DM)** com:
    - a **divulgação #publi** na 1ª linha (afiliado): "Conteúdo com parceria paga 🤝";
-   - o **link** do produto (afiliado/curso);
+   - o **link fixo**: `https://alohabjjnews.com/k/GI` (troque só a palavra por fluxo);
    - opcional: pedir e-mail (captura o lead p/ vender os **cursos pagos** depois).
 4. (Recomendado) responder o comentário publicamente ("Te mandei no direct! 📲") — alcance.
+
+> São 8 fluxos (CURSO, GI, NOGI, PERNA, GUARDA, COSTAS, GEAR, LOJA), cada um mandando
+> `.../k/<PALAVRA>`. Feito uma vez, o sistema cuida do resto.
 
 ## Regra de ouro (compliance)
 A DM de produto afiliado/remunerado **precisa** da divulgação clara (#publi / "parceria paga")
 na 1ª linha — igual à caption. "Link na bio" e "mando no direct" **não** dispensam a divulgação.
 
-## Integração automática (próximo nível — opcional)
-O ManyChat tem **API**. Dá pra o pipeline, quando publicar, criar/atualizar o fluxo da palavra
-e injetar o link de afiliado do momento (o `link_afiliado` do `meta.json`). Por ora: fluxos fixos
-por palavra (setup manual, reusável) + o sistema escolhe a palavra certa por peça.
+## Por que não usar a API do ManyChat pra criar os fluxos?
+A API pública do ManyChat **não cria growth tools / gatilhos de comentário** (isso é só na UI).
+Ela envia conteúdo e mexe em campos de assinante. Por isso a arquitetura certa é o **link estável
+`/k/<PALAVRA>`**: o fluxo no ManyChat é fixo, e a inteligência (qual link, tracking, trocar o
+destino) fica do nosso lado — testável, versionado e editável no `/admin/catalogo`. Zero
+dependência de API pra converter.
 
 ## Funil grátis → pago
 `CURSO` (grátis) capta o lead no ManyChat → sequência de nutrição → quando lançar os
