@@ -51,6 +51,7 @@ produtos:
     prioridade: 3
     tags: [equipamento, gear, kimono, luva, protecao, marca-parceira]
     gatilho: "pauta sobre equipamento/gear de alto desempenho em geral"
+    busca: "hayabusa jiu jitsu"          # query pros marketplaces (afiliado busca o campeão)
     url_base: null           # TODO: link de afiliado Hayabusa
     cupom: "LUCAS"
     desconto: "-10%"
@@ -64,6 +65,7 @@ produtos:
     prioridade: 3
     tags: [gi, kimono, competicao, mundial, ibjjf, faixa-preta, absoluto]
     gatilho: "pauta de GI / campeonato IBJJF / final de Mundial / disputa no kimono"
+    busca: "kimono jiu jitsu competição trançado"
     url_base: null           # TODO: link afiliado do gi campeão de vendas
     cupom: ""
     disclosure_obrigatorio: true
@@ -76,6 +78,7 @@ produtos:
     prioridade: 3
     tags: [nogi, no-gi, adcc, grappling, rashguard, submission, superluta]
     gatilho: "pauta No-Gi / ADCC / superluta de grappling"
+    busca: "rashguard jiu jitsu no gi manga longa"
     url_base: null           # TODO: link afiliado do rashguard/gear no-gi
     cupom: ""
     disclosure_obrigatorio: true

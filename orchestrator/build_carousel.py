@@ -36,6 +36,32 @@ def _sys(name: str) -> str:
     return (AGENTS / name / "system.md").read_text(encoding="utf-8")
 
 
+def _catalog_product(pid: str) -> dict | None:
+    from ruamel.yaml import YAML
+    data = YAML(typ="safe", pure=True).load((ROOT / "config" / "catalogo.yaml").read_text(encoding="utf-8"))
+    return next((p for p in data.get("produtos", []) if p.get("id") == pid), None)
+
+
+def _attach_affiliate(brief: dict, slug: str, log: JobLog) -> dict:
+    """Se o produto é afiliado e tem `busca`, procura o campeão de vendas e injeta o link real."""
+    prod = _catalog_product(brief.get("produto_id", ""))
+    if not prod or prod.get("tipo") != "afiliado" or not prod.get("busca"):
+        return brief
+    try:
+        from lib import affiliates
+        if not affiliates.which():
+            return brief   # sem credencial → segue com precisa_link=True
+        hit = affiliates.best_product(prod["busca"], log=log, key=slug)
+        if hit:
+            brief["link_afiliado"] = hit["url"]
+            brief["produto_titulo"] = hit["titulo"]
+            brief["precisa_link"] = False
+            print(f"  ✓ Afiliado: {hit['fonte']} → {hit['titulo'][:44]} ({hit['url'][:40]}…)")
+    except Exception as e:  # noqa: BLE001
+        print(f"  · afiliado não plugado ({e}); mantém precisa_link")
+    return brief
+
+
 def _load_dossier(slug: str) -> dict:
     d = KNOWLEDGE / slug
     if not (d / "metadata.json").exists():
@@ -120,6 +146,9 @@ def main() -> int:
     brief = json.loads(brief_txt)
     print(f"  ✓ Supervisor: produto={brief['produto_id']} ({brief.get('relevancia_motivo','')[:50]}) "
           f"disclosure={brief['disclosure_obrigatorio']}{' · PRECISA LINK' if brief.get('precisa_link') else ''}")
+    # 1b) afiliação: busca o link do campeão de vendas (Amazon/ML/Shopee) se houver credencial
+    brief = _attach_affiliate(brief, args.slug, log)
+    brief_txt = json.dumps(brief, ensure_ascii=False)  # Carrossel recebe o brief COM o link
 
     # 2) Carrossel
     car_txt, _ = claude.call(
@@ -163,6 +192,7 @@ def main() -> int:
     meta = {
         "dossie": args.slug, "formato": brief["formato"], "produto_id": brief["produto_id"],
         "relevancia_motivo": brief.get("relevancia_motivo", ""), "precisa_link": brief.get("precisa_link", False),
+        "link_afiliado": brief.get("link_afiliado", ""), "produto_titulo": brief.get("produto_titulo", ""),
         "cta": brief["cta_texto"], "caption": car["caption"], "hashtags": car["hashtags"],
         "tracked_url": f"?utm_source=ig&utm_content={args.slug}",
         "disclosure": brief["disclosure_texto"] if brief["disclosure_obrigatorio"] else None,
