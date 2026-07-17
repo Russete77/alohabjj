@@ -55,7 +55,7 @@ export default async function Artigo(
           <span>{tempoLeitura} min de leitura</span>
           {d.evento && <span>{d.evento}</span>}
         </div>
-        <div className="ahero" />
+        <div className="ahero" style={d.imagem ? { backgroundImage: `url("${d.imagem}")` } : undefined} />
         {d.resumoParas.map((p, i) => (
           <p key={i}>{p}</p>
         ))}
@@ -89,8 +89,9 @@ export default async function Artigo(
           <div className="pgrid">
             {relacionados.map((r) => (
               <a className={`acard ${r.categoria}`} key={r.slug} href={`/artigo/${r.slug}`}>
-                <div className="thumb">
-                  <span className={`badge cat ${r.categoria}`}>{r.categoriaLabel}</span>
+                <div className="thumb"
+                     style={r.imagem ? { backgroundImage: `url("${r.imagem}")` } : undefined}>
+                  <span className="badge">{r.categoriaLabel}</span>
                 </div>
                 <h3>{r.titulo}</h3>
                 <div className="meta">{r.atletas.join(" · ") || "Educacional"}</div>

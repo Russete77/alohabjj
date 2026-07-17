@@ -23,7 +23,8 @@ export default function Home() {
     <main className="pwrap">
       {destaque && (
         <section className="hero">
-          <a className="feat" href={`/artigo/${destaque.slug}`}>
+          <a className="feat" href={`/artigo/${destaque.slug}`}
+             style={destaque.imagem ? { backgroundImage: `url("${destaque.imagem}")` } : undefined}>
             <span className={`cat ${destaque.categoria}`}>{destaque.categoriaLabel} · em destaque</span>
             <h2>{destaque.titulo}</h2>
             <p>{destaque.resumoParas[0]?.slice(0, 160)}…</p>
@@ -56,8 +57,9 @@ export default function Home() {
             <div className="pgrid">
               {itens.map((d) => (
                 <a className={`acard ${d.categoria}`} key={d.slug} href={`/artigo/${d.slug}`}>
-                  <div className="thumb">
-                    <span className={`badge cat ${d.categoria}`}>{d.categoriaLabel}</span>
+                  <div className="thumb"
+                       style={d.imagem ? { backgroundImage: `url("${d.imagem}")` } : undefined}>
+                    <span className="badge">{d.categoriaLabel}</span>
                   </div>
                   <h3>{d.titulo}</h3>
                   <div className="meta">{d.atletas.join(" · ") || "Educacional"}{d.evento ? ` · ${d.evento}` : ""}</div>
