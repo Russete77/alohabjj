@@ -48,6 +48,33 @@ def reference_for(protagonista: str) -> list[str]:
     return [str(p) for p in sorted(hits)[:3]]
 
 
+import re as _re  # noqa: E402
+_URL = _re.compile(r"https?://[^\s)\]\"']+")
+
+
+def _sources(slug: str) -> list[str]:
+    """URLs de artigo do dossiê (metadata.source_url + facts) — imagem relacionada da web."""
+    d = KNOWLEDGE / slug
+    urls: list[str] = []
+    mp = d / "metadata.json"
+    if mp.exists():
+        try:
+            m = json.loads(mp.read_text(encoding="utf-8"))
+            if isinstance(m.get("source_url"), str):
+                urls.append(m["source_url"])
+        except Exception:  # noqa: BLE001
+            pass
+    fp = d / "facts.md"
+    if fp.exists():
+        urls += _URL.findall(fp.read_text(encoding="utf-8"))
+    seen, out = set(), []
+    for u in urls:
+        u = u.rstrip(".,;")
+        if u.startswith("http") and u not in seen:
+            seen.add(u); out.append(u)
+    return out
+
+
 def _sys(name: str) -> str:
     return (AGENTS / name / "system.md").read_text(encoding="utf-8")
 
@@ -188,16 +215,25 @@ def art_for_piece(claude: Claude, slug: str, headlines: list[str], log: JobLog) 
     brief = art_brief(claude, resumo, headlines[0] if headlines else "", slug)
     print(f"  ✓ Diretor de Arte: modo {brief['modo']} · {brief['traje']} · “{brief['posicao'][:50]}”")
 
-    # referência do protagonista (só se a marca tem direito à foto na biblioteca)
+    # referência do protagonista: biblioteca própria (refs/) OU imagem relacionada da web
     refs = []
     if brief.get("usar_referencia") and brief.get("protagonista"):
         refs = reference_for(brief["protagonista"])
         if refs:
-            print(f"  ✓ referência de {brief['protagonista']}: {len(refs)} foto(s) → recontextualização")
-        else:
-            print(f"  · sem foto com direito de {brief['protagonista']} em refs/ — geração sem semelhança")
+            print(f"  ✓ referência (biblioteca) de {brief['protagonista']}: {len(refs)} → recontextualização")
+        elif not imagegen.which().startswith("nenhum"):
+            try:
+                from lib import heroimg
+                hit = heroimg.hero_for(_sources(slug), out_dir / "ref_web.jpg")
+                if hit:
+                    refs = [str(hit["path"])]
+                    print(f"  ✓ referência (web) de {hit['credito']} → recontextualização do assunto")
+                else:
+                    print(f"  · sem imagem relacionada de {brief['protagonista']} — geração sem semelhança")
+            except Exception as e:  # noqa: BLE001
+                print(f"  · busca de imagem web falhou ({e})")
 
-    # 1) caminho IA (modo A, sem reference técnica, com chave). Recontextualiza se houver referência.
+    # 1) IA (modo A, com chave): recontextualiza o assunto → vira o FUNDO da arte
     hero = None
     if brief["modo"] == "A" and not brief.get("needs_reference"):
         hero = generate_hero(claude, brief, out_dir / "hero_ia.png", slug, references=refs or None)
@@ -205,14 +241,14 @@ def art_for_piece(claude: Claude, slug: str, headlines: list[str], log: JobLog) 
     story = out_dir / "story.png"
     if hero:
         headline = coherent_headline(claude, hero, headlines, resumo, slug)
-        ok = _node("scripts/render_card.mjs",
-                   ["--hero", str(hero), "--headline", headline, "--out", str(story)]
-                   + (["--lucas", str(LUCAS)] if LUCAS.exists() else []),
-                   slug, log, "card")
+        # arte = FUNDO (assunto recontextualizado) + frame AlohaBJJ por cima
+        ok = _node("scripts/render_story.mjs",
+                   ["--headline", headline, "--bg", str(hero), "--out", str(story)],
+                   slug, log, "arte-fundo")
         if ok:
-            print(f"  ✓ card (arte IA própria) ← “{headline}”")
-            log.record("arte", "succeeded", key=slug, note="source=ia")
-            return {"source": "ia", "headline": headline, "story": "story.png"}
+            print(f"  ✓ arte (fundo do assunto + frame) ← “{headline}”")
+            log.record("arte", "succeeded", key=slug, note="source=ia-bg")
+            return {"source": "ia-bg", "headline": headline, "story": "story.png"}
 
     # 2) fallback: FRAME PRÓPRIO (nunca foto de terceiro)
     headline = headlines[0] if headlines else slug
