@@ -151,7 +151,9 @@ def main() -> int:
             print(f"[plataformas] teto de gasto na arte: {e} (peça segue sem story.png)")
         if art_res:
             platforms["arte"] = {"story_png": art_res["story"], "fonte": art_res["source"],
-                                 "headline": art_res["headline"]}
+                                 "headline": art_res["headline"],
+                                 "story9x16_png": art_res.get("story9x16"),
+                                 "credito": art_res.get("credito")}
             (out / "platforms.json").write_text(
                 json.dumps(platforms, ensure_ascii=False, indent=2), encoding="utf-8")
 

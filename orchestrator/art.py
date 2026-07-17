@@ -267,9 +267,21 @@ def art_for_piece(claude: Claude, slug: str, headlines: list[str], log: JobLog) 
                    ["--headline", headline, "--bg", str(hero_bg), "--out", str(story)],
                    slug, log, "arte-fundo")
         if ok:
-            print(f"  ✓ arte ({source}) ← “{headline}”")
+            # 9:16 (Stories/Reels): trata a MESMA foto no formato vertical + render 1080x1920
+            story9 = out_dir / "story9x16.png"
+            bg9 = out_dir / "hero_bg_9x16.png"
+            has9 = _node("scripts/enhance.mjs",
+                         ["--in", src_img or str(hero_bg), "--out", str(bg9), "--w", "1080", "--h", "1920"],
+                         slug, log, "enhance-9x16") if src_img else False
+            if has9:
+                _node("scripts/render_story9x16.mjs",
+                      ["--headline", headline, "--bg", str(bg9), "--out", str(story9)],
+                      slug, log, "arte-9x16")
+            print(f"  ✓ arte ({source}) 4:5 + 9:16 ← “{headline}”")
             log.record("arte", "succeeded", key=slug, note=f"source={source} credito={credito or ''}")
-            return {"source": source, "headline": headline, "story": "story.png", "credito": credito}
+            return {"source": source, "headline": headline, "story": "story.png",
+                    "story9x16": "story9x16.png" if (out_dir / "story9x16.png").exists() else None,
+                    "credito": credito}
 
     # 2) fallback: FRAME PRÓPRIO (nunca foto de terceiro)
     headline = headlines[0] if headlines else slug
@@ -278,10 +290,15 @@ def art_for_piece(claude: Claude, slug: str, headlines: list[str], log: JobLog) 
                    ["--headline", headline, "--out", str(story), "--frame", str(FRAME)],
                    slug, log, "frame")
         if ok:
-            motivo = "sem chave de imagem" if imagegen.which().startswith("nenhum") else "arte IA reprovada/modo B"
-            print(f"  ✓ frame próprio ({motivo}) ← “{headline}”")
+            story9 = out_dir / "story9x16.png"
+            _node("scripts/render_story9x16.mjs",
+                  ["--headline", headline, "--out", str(story9), "--frame", str(FRAME)],
+                  slug, log, "frame-9x16")
+            motivo = "sem imagem-fonte" if imagegen.which().startswith("nenhum") else "arte IA off/modo B"
+            print(f"  ✓ frame próprio 4:5 + 9:16 ({motivo}) ← “{headline}”")
             log.record("arte", "succeeded", key=slug, note="source=frame")
-            return {"source": "frame", "headline": headline, "story": "story.png"}
+            return {"source": "frame", "headline": headline, "story": "story.png",
+                    "story9x16": "story9x16.png" if (out_dir / "story9x16.png").exists() else None}
 
     print("  · nenhuma arte gerada (sem frame e sem IA)")
     return None
