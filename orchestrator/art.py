@@ -18,7 +18,7 @@ import json
 import subprocess
 from pathlib import Path
 
-from lib.claude import Claude, SONNET, HAIKU
+from lib.claude import Claude, SONNET, HAIKU, SpendCapExceeded
 from lib.jobs import JobLog
 from lib import imagegen
 
@@ -179,10 +179,13 @@ def generate_hero(claude: Claude, brief: dict, out_path: Path, slug: str,
         try:
             imagegen.generate_image(prompt, out_path, ratio=ratio, references=references,
                                     log=claude.log, key=slug)
-        except Exception as e:  # noqa: BLE001
-            print(f"  ! imagegen falhou: {e}")
+            v = qc_image(claude, out_path, brief["posicao"], slug)
+        except SpendCapExceeded:
+            print("  · teto de gasto na arte IA — cai pro frame próprio")
             return None
-        v = qc_image(claude, out_path, brief["posicao"], slug)
+        except Exception as e:  # noqa: BLE001
+            print(f"  ! imagegen/QC falhou: {e}")
+            return None
         if v.get("aprovado"):
             print(f"  ✓ arte IA aprovada (nota {v.get('nota')}, tentativa {attempt}/{max_tries})")
             return out_path

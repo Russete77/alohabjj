@@ -24,7 +24,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from lib.claude import Claude, SONNET  # noqa: E402
+from lib.claude import Claude, SONNET, SpendCapExceeded  # noqa: E402
 from lib.jobs import JobLog  # noqa: E402
 from orchestrator import art  # noqa: E402
 
@@ -145,7 +145,10 @@ def main() -> int:
     # 4) Arte estruturada (Diretor → IA+QC → headline coerente → card, ou frame próprio)
     art_res = None
     if not args.no_art and ig.get("headline_capa"):
-        art_res = art.art_for_piece(claude, args.slug, ig["headline_capa"], log)
+        try:
+            art_res = art.art_for_piece(claude, args.slug, ig["headline_capa"], log)
+        except SpendCapExceeded as e:
+            print(f"[plataformas] teto de gasto na arte: {e} (peça segue sem story.png)")
         if art_res:
             platforms["arte"] = {"story_png": art_res["story"], "fonte": art_res["source"],
                                  "headline": art_res["headline"]}

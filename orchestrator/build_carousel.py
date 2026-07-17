@@ -169,20 +169,11 @@ def main() -> int:
     if not ver["aprovado"]:
         print(f"    motivos: {'; '.join(ver['motivos'])}")
 
-    # 4) hero complexo (opcional)
+    # 4) A ARTE não é gerada aqui — vai pela orchestrator.art (Diretor de Arte + Art QC +
+    #    Capa Visão) no build_platforms. O hero_prompt do Carrossel é ignorado de propósito
+    #    (bypassava o QC e produzia a foto proibida). Ver docs/AUDITORIA-CTO.md.
     out = OUTPUTS / args.slug
     out.mkdir(parents=True, exist_ok=True)
-    hero_path = None
-    if car["hero_complexo"] and car["hero_prompt"]:
-        try:
-            from lib.imagegen import generate_image, which
-            if which() != "nenhum (sem chave)":
-                hero_path = generate_image(car["hero_prompt"], out / "hero.png", ratio="3:4", log=log, key=args.slug)
-                print(f"  ✓ hero: {hero_path.name} (via {which()})")
-            else:
-                print("  · hero_complexo pedido, mas nenhum provedor de imagem tem chave — pulado")
-        except Exception as e:  # noqa: BLE001
-            print(f"  ! hero falhou: {e}")
 
     # 5) grava outputs
     (out / "slides.json").write_text(json.dumps(car["slides"], ensure_ascii=False, indent=2), encoding="utf-8")
@@ -196,7 +187,7 @@ def main() -> int:
         "cta": brief["cta_texto"], "caption": car["caption"], "hashtags": car["hashtags"],
         "tracked_url": f"?utm_source=ig&utm_content={args.slug}",
         "disclosure": brief["disclosure_texto"] if brief["disclosure_obrigatorio"] else None,
-        "is_ai_generated": True, "hero": hero_path.name if hero_path else None,
+        "is_ai_generated": True,
         "quality": {"nota": ver["nota"], "aprovado": ver["aprovado"]},
         "estado": "aprovado" if ver["aprovado"] else "rejeitado",
     }
