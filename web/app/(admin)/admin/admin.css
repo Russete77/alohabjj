@@ -136,3 +136,9 @@
 .belt-legend{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:24px;font-size:12px;color:var(--muted);font-family:var(--font-mono)}
 .belt-legend span{display:flex;align-items:center;gap:6px}
 .belt-legend i{width:22px;height:8px;border-radius:2px;display:inline-block}
+
+/* prévia da arte REAL (PNGs gerados) + banner de rascunho */
+.draft-banner{background:rgba(216,35,42,.14);border:1px solid rgba(216,35,42,.42);color:var(--red);border-radius:10px;padding:12px 16px;margin:0 0 18px;font-size:13.5px}
+.art{margin:0 0 16px}
+.art-lab{font-family:var(--font-mono);font-size:10.5px;color:var(--faint);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:6px}
+.art img{width:100%;border-radius:10px;border:1px solid var(--line);display:block;background:#0e140f}

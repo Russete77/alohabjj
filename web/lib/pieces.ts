@@ -24,6 +24,8 @@ export interface Piece {
   disclosure: string | null;
   hero: boolean;
   slides: Slide[];
+  slidePngs: string[];      // arquivos slide-NN.png gerados (arte REAL)
+  storyPng: string | null;  // story.png (arte de capa) se existir
   caption: string;
   platforms: PlatformPackages | null;
 }
@@ -58,6 +60,9 @@ export function getPieces(): Piece[] {
     const capPath = path.join(OUTPUTS, slug, "caption.txt");
     const caption = fs.existsSync(capPath) ? fs.readFileSync(capPath, "utf-8") : "";
     const platforms = readJson<PlatformPackages>(path.join(OUTPUTS, slug, "platforms.json"));
+    const files = fs.readdirSync(path.join(OUTPUTS, slug));
+    const slidePngs = files.filter((f) => /^slide-\d+\.png$/.test(f)).sort();
+    const storyPng = files.includes("story.png") ? "story.png" : null;
     const dossier = getDossier(slug);
     pieces.push({
       slug,
@@ -72,6 +77,8 @@ export function getPieces(): Piece[] {
       disclosure: meta.disclosure ?? null,
       hero: Boolean(meta.hero),
       slides,
+      slidePngs,
+      storyPng,
       caption,
       platforms,
     });

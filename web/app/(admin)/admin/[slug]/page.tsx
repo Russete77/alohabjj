@@ -34,19 +34,40 @@ export default async function Revisar({ params }: { params: Promise<{ slug: stri
         ))}
       </div>
 
+      {!publicado && (
+        <div className="draft-banner">
+          <b>RASCUNHO</b> — nada foi publicado ainda. Isto é a prévia da arte gerada. Revise e clique em <b>Aprovar e publicar</b> quando estiver pronto.
+        </div>
+      )}
+
       <div className="rev">
         <div className="slides">
-          {p.slides.map((s, i) => (
-            <div className={`slide ${s.cta ? "cta" : ""}`} key={i}>
-              <div className="s-top"><span>AlohaBJJ</span><span className="bg">@bjjcomlucas</span></div>
-              <div className="s-body">
-                <div className="s-kick">{s.kicker}</div>
-                <h3>{s.titulo}</h3>
-                <p>{s.corpo}</p>
+          {p.storyPng && (
+            <figure className="art">
+              <figcaption className="art-lab">Arte de capa (Story / Reel)</figcaption>
+              <img src={`/api/art/${p.slug}/${p.storyPng}`} alt="arte de capa" />
+            </figure>
+          )}
+          {p.slidePngs.length > 0 ? (
+            p.slidePngs.map((f, i) => (
+              <figure className="art" key={f}>
+                <figcaption className="art-lab">Slide {i + 1}/{p.slidePngs.length} · 1080×1350 (feed)</figcaption>
+                <img src={`/api/art/${p.slug}/${f}`} alt={`slide ${i + 1}`} />
+              </figure>
+            ))
+          ) : (
+            p.slides.map((s, i) => (
+              <div className={`slide ${s.cta ? "cta" : ""}`} key={i}>
+                <div className="s-top"><span>AlohaBJJ</span><span className="bg">@bjjcomlucas</span></div>
+                <div className="s-body">
+                  <div className="s-kick">{s.kicker}</div>
+                  <h3>{s.titulo}</h3>
+                  <p>{s.corpo}</p>
+                </div>
+                <div className="s-strip">{p.slides.map((_, n) => <i key={n} className={n <= i ? "on" : ""} />)}</div>
               </div>
-              <div className="s-strip">{p.slides.map((_, n) => <i key={n} className={n <= i ? "on" : ""} />)}</div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
 
         <div className="side">
