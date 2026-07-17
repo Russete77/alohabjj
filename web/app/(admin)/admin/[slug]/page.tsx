@@ -44,14 +44,20 @@ export default async function Revisar({ params }: { params: Promise<{ slug: stri
         <div className="slides">
           {p.storyPng && (
             <figure className="art">
-              <figcaption className="art-lab">Arte de capa (Story / Reel)</figcaption>
+              <figcaption className="art-lab">
+                Arte de capa (Story / Reel)
+                <a className="art-dl" href={`/api/art/${p.slug}/${p.storyPng}`} download>baixar alta ↓</a>
+              </figcaption>
               <img src={`/api/art/${p.slug}/${p.storyPng}`} alt="arte de capa" />
             </figure>
           )}
           {p.slidePngs.length > 0 ? (
             p.slidePngs.map((f, i) => (
               <figure className="art" key={f}>
-                <figcaption className="art-lab">Slide {i + 1}/{p.slidePngs.length} · 1080×1350 (feed)</figcaption>
+                <figcaption className="art-lab">
+                  Slide {i + 1}/{p.slidePngs.length} · 1080×1350 (feed)
+                  <a className="art-dl" href={`/api/art/${p.slug}/${f}`} download>baixar alta ↓</a>
+                </figcaption>
                 <img src={`/api/art/${p.slug}/${f}`} alt={`slide ${i + 1}`} />
               </figure>
             ))
@@ -90,6 +96,15 @@ export default async function Revisar({ params }: { params: Promise<{ slug: stri
                 <form action={publicar.bind(null, p.slug)}><button className="btn primary">Aprovar e publicar no portal</button></form>
               </div>
             )}
+          </div>
+
+          <div className="card">
+            <div className="c-h"><h3>Postar no Instagram</h3></div>
+            <ol className="howto-list">
+              <li>Baixe os slides em alta (botão <b>baixar alta ↓</b> em cada arte).</li>
+              <li>Copie a legenda na aba <b>Pronto para postar</b> abaixo.</li>
+              <li>Instagram → novo <b>carrossel</b> → selecione os slides na ordem → cole a legenda.</li>
+            </ol>
           </div>
         </div>
       </div>
