@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./admin.css";
+import { logout } from "./actions";
+import { authEnabled } from "@/lib/auth";
 
 export const metadata: Metadata = { title: "Painel", robots: { index: false } };
 
@@ -19,7 +21,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <a href="/admin#base">Base de conhecimento</a>
           <a href="/" className="a-back">← Ver o portal público</a>
         </nav>
-        <div className="a-foot"><span className="pdot" /> Loop diário ativo · 06:00</div>
+        <div className="a-foot">
+          <span className="pdot" /> Loop diário ativo · 06:00
+          {authEnabled() && (
+            <form action={logout} className="a-logout">
+              <button type="submit">Sair</button>
+            </form>
+          )}
+        </div>
       </aside>
       <main className="a-main">{children}</main>
     </div>

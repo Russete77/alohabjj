@@ -10,6 +10,7 @@ const GROUPS: { titulo: string; match: RegExp }[] = [
   { titulo: "Imagem", match: /^(IMAGE_PROVIDER_ORDER|GEMINI|OPENAI|RUNWAY)/ },
   { titulo: "Afiliados", match: /^(AFFILIATE|AMAZON|ML_|SHOPEE)/ },
   { titulo: "Banco (Supabase)", match: /SUPABASE/ },
+  { titulo: "Acesso ao painel", match: /^ADMIN_/ },
   { titulo: "Teto de gasto & outros", match: /.*/ },
 ];
 

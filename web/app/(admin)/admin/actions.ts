@@ -1,8 +1,31 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { setEstado } from "@/lib/pieces";
 import { writeDoc, writeEnvKey } from "@/lib/config";
+import { checkPassword, sessionToken, cookieName } from "@/lib/auth";
+
+export async function login(formData: FormData) {
+  const pw = String(formData.get("password") || "");
+  const next = String(formData.get("next") || "/admin");
+  if (!checkPassword(pw)) redirect("/admin/login?erro=1");
+  const token = await sessionToken();
+  (await cookies()).set(cookieName(), token, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: 60 * 60 * 24 * 30,
+  });
+  redirect(next.startsWith("/admin") ? next : "/admin");
+}
+
+export async function logout() {
+  (await cookies()).delete(cookieName());
+  redirect("/admin/login");
+}
 
 export async function publicar(slug: string) {
   setEstado(slug, "publicado");

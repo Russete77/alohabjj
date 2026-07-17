@@ -190,3 +190,19 @@
 .cvr.hi{background:rgba(34,161,92,.16);color:#22A15C}
 .cvr.mid{background:rgba(224,160,48,.16);color:var(--amber)}
 .cvr.lo{background:var(--elevated);color:var(--faint)}
+
+/* login + logout */
+.login-wrap{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:var(--bg);padding:24px}
+.login-card{width:100%;max-width:360px;display:flex;flex-direction:column;gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:30px}
+.login-brand{font-weight:800;font-size:20px;color:var(--ink)}
+.login-brand span{color:var(--red)}
+.login-brand em{font-style:normal;font-weight:500;color:var(--muted);font-size:14px}
+.login-sub{font-size:13px;color:var(--muted);margin:-4px 0 4px}
+.login-err{background:var(--red-soft);color:var(--red);border:1px solid rgba(216,35,42,.3);border-radius:8px;padding:8px 12px;font-size:13px}
+.login-card input{height:42px;background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:0 14px;font-size:14px;color:var(--ink)}
+.login-card input:focus{outline:none;border-color:var(--red)}
+.login-card button{height:42px;background:var(--red);color:#fff;border:none;border-radius:9px;font-weight:700;font-size:14px;cursor:pointer}
+.login-card button:hover{filter:brightness(1.08)}
+.a-logout{margin-top:10px}
+.a-logout button{background:none;border:1px solid var(--line);color:var(--muted);border-radius:7px;padding:5px 12px;font-size:12px;cursor:pointer}
+.a-logout button:hover{border-color:var(--red);color:var(--red)}
