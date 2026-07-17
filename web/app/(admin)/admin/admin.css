@@ -178,3 +178,15 @@
 .cfg-in{height:36px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:0 12px;font-family:var(--font-mono);font-size:13px;color:var(--ink)}
 .cfg-in:focus{outline:none;border-color:var(--red)}
 .cfg-save{min-width:70px}
+
+/* painel de conversão */
+.conv-tbl{width:100%;border-collapse:collapse;margin:0 0 26px;font-size:13.5px}
+.conv-tbl th{text-align:left;font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);font-weight:600;padding:8px 12px;border-bottom:1px solid var(--line)}
+.conv-tbl td{padding:11px 12px;border-bottom:1px solid var(--line);color:var(--ink)}
+.conv-tbl td.pn{font-weight:600}
+.conv-tbl td.pn a:hover{color:var(--red)}
+.conv-tbl tr:hover{background:var(--panel)}
+.cvr{font-family:var(--font-mono);font-size:12px;font-weight:700;padding:2px 8px;border-radius:5px}
+.cvr.hi{background:rgba(34,161,92,.16);color:#22A15C}
+.cvr.mid{background:rgba(224,160,48,.16);color:var(--amber)}
+.cvr.lo{background:var(--elevated);color:var(--faint)}

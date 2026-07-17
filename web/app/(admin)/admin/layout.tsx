@@ -12,6 +12,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </a>
         <nav className="a-nav">
           <a href="/admin">Fila de aprovação</a>
+          <a href="/admin/conversao">Conversão</a>
           <a href="/admin/agentes">Agentes (academia)</a>
           <a href="/admin/prompts">Prompts dos agentes</a>
           <a href="/admin/config">Chaves & config</a>
