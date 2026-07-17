@@ -1,49 +1,125 @@
 # config/catalogo.yaml
 # Catálogo de conversão — BjjcomLucas AI Platform (PRD §9.2, §12)
-# Prioridade decidida: curso (margem ~100%, digital) > BJJ3D próprio > afiliado.
-# Relevância acima de margem; sem encaixe honesto, o Supervisor NÃO força CTA.
 #
-# disclosure_obrigatorio: true  -> Supervisor injeta divulgação CONAR na 1ª linha da caption
-#                                  (selo "parceria paga"/"conteúdo promocional" + #publi).
+# Estratégia (decidida com o Lucas):
+#  1) TODA peça de conteúdo tenta ASSOCIAR um produto RELEVANTE à pauta (afiliado campeão
+#     de vendas que tenha a ver com a notícia — ex.: luta No-Gi de leg lock → instrucional de
+#     leg lock; final de gi no Mundial → kimono de competição).
+#  2) Também existem peças FOCADAS em venda (produto no centro), formato `separado`.
+#  Prioridade quando há empate de relevância: curso (margem ~100%) > BJJ3D próprio > afiliado.
+#  Relevância acima de margem — sem encaixe honesto, o Supervisor NÃO força CTA.
+#
+# Casamento por `tags` + `gatilho`: o Supervisor cruza as tags do dossiê (modo gi/no-gi,
+# técnicas, evento, atleta) com as tags do produto e escolhe o de maior aderência.
+# disclosure_obrigatorio: true -> divulgação CONAR na 1ª linha da caption (#publi).
+# url_base: null = VOCÊ preenche com o link real (afiliado/loja). Sem link real, o Supervisor
+# ainda associa o produto mas marca `precisa_link: true` pra você completar antes de publicar.
 
 produtos:
+  # ─────────────── PRÓPRIOS (âncoras) ───────────────
   - id: curso
-    nome: "100kg – Domínio Absoluto"   # nome real do curso (do acervo)
-    tipo: proprio            # curso digital gratuito hospedado no site
+    nome: "100kg – Domínio Absoluto"
+    tipo: proprio
     prioridade: 1
-    url_base: https://alohabjjnews.com/   # acesso pelo menu do site / link na bio
-    margem: 1.0             # ~100% (digital, próprio)
-    gancho: >
-      Curso gratuito "100kg – Domínio Absoluto": jogo de pressão e controle.
-      Leva o público do conteúdo pro aprofundamento.
-    disclosure_obrigatorio: false   # produto próprio gratuito; sem relação de afiliação paga
+    tags: [controle, pressao, base, guarda, passagem, fundamentos, gi, nogi, iniciante, evergreen]
+    gatilho: "conteúdo técnico/didático de controle, pressão, base ou leitura de jogo"
+    url_base: https://alohabjjnews.com/
+    margem: 1.0
+    cupom: ""
+    disclosure_obrigatorio: false
+    gancho: "Curso gratuito de jogo de pressão e controle — leva do conteúdo ao aprofundamento."
     cta_sugerido: "Curso 100kg – Domínio Absoluto, grátis no link"
 
   - id: bjj3d
     nome: "Loja BJJ3D"
-    tipo: proprio            # loja própria
+    tipo: proprio
     prioridade: 2
-    url_base: null           # TODO: URL da loja BJJ3D (você tem)
-    margem: null             # TODO: margem real
-    gancho: >
-      Loja BJJ3D — produtos exclusivos para quem vive o Jiu-Jitsu dentro e fora do tatame.
+    tags: [produto, loja, lifestyle, presente, marca]
+    gatilho: "quando não há afiliado específico melhor e cabe um produto de marca própria"
+    url_base: null           # TODO: URL da loja BJJ3D
+    margem: null
+    cupom: ""
     disclosure_obrigatorio: false
+    gancho: "Loja BJJ3D — produtos exclusivos pra quem vive o Jiu-Jitsu dentro e fora do tatame."
     cta_sugerido: "🛒 Loja BJJ3D no link"
 
+  # ─────────────── AFILIADOS CAMPEÕES DE VENDAS (por categoria/gatilho) ───────────────
+  # Preencha url_base/cupom com os campeões de venda reais dos seus programas de afiliado.
   - id: hayabusa
-    nome: "Hayabusa"
-    tipo: afiliado           # afiliado (comissão por performance)
+    nome: "Equipamento Hayabusa"
+    tipo: afiliado
     prioridade: 3
-    url_base: null           # TODO: link de afiliado Hayabusa (você tem)
-    cupom: "LUCAS"           # cupom real: -10%
+    tags: [equipamento, gear, kimono, luva, protecao, marca-parceira]
+    gatilho: "pauta sobre equipamento/gear de alto desempenho em geral"
+    url_base: null           # TODO: link de afiliado Hayabusa
+    cupom: "LUCAS"
     desconto: "-10%"
-    margem: null             # comissão real do programa
-    gancho: >
-      Equipamento Hayabusa de alto desempenho — cupom LUCAS -10%.
-    disclosure_obrigatorio: true    # CONAR: afiliado = conteúdo promocional (§12)
+    disclosure_obrigatorio: true
+    gancho: "Equipamento Hayabusa de alto desempenho — cupom LUCAS -10%."
     cta_sugerido: "🥊 Hayabusa com cupom LUCAS -10% (parceria)"
 
+  - id: gi-competicao
+    nome: "Kimono de competição (campeão de vendas)"
+    tipo: afiliado
+    prioridade: 3
+    tags: [gi, kimono, competicao, mundial, ibjjf, faixa-preta, absoluto]
+    gatilho: "pauta de GI / campeonato IBJJF / final de Mundial / disputa no kimono"
+    url_base: null           # TODO: link afiliado do gi campeão de vendas
+    cupom: ""
+    disclosure_obrigatorio: true
+    gancho: "O kimono que aguenta um campeonato inteiro — resistência e caimento de competição."
+    cta_sugerido: "🥋 Kimono de competição (parceria) — link"
+
+  - id: rashguard-nogi
+    nome: "Rashguard / gear No-Gi (campeão de vendas)"
+    tipo: afiliado
+    prioridade: 3
+    tags: [nogi, no-gi, adcc, grappling, rashguard, submission, superluta]
+    gatilho: "pauta No-Gi / ADCC / superluta de grappling"
+    url_base: null           # TODO: link afiliado do rashguard/gear no-gi
+    cupom: ""
+    disclosure_obrigatorio: true
+    gancho: "Rashguard que segura pegada e suor numa guerra de No-Gi."
+    cta_sugerido: "Rashguard No-Gi (parceria) — link"
+
+  - id: instrucional-leglock
+    nome: "Instrucional de leg locks (campeão de vendas)"
+    tipo: afiliado
+    prioridade: 3
+    tags: [leglock, leg-lock, heelhook, heel-hook, ankle-lock, nogi, finalizacao, perna]
+    gatilho: "pauta com leg lock / heel hook / finalização de perna"
+    url_base: null           # TODO: link afiliado do instrucional (ex.: BJJ Fanatics)
+    cupom: ""
+    disclosure_obrigatorio: true
+    gancho: "Aprofunde o jogo de perna com quem domina — instrucional dos melhores."
+    cta_sugerido: "📚 Instrucional de leg locks (parceria) — link"
+
+  - id: instrucional-guarda
+    nome: "Instrucional de guarda/passagem (campeão de vendas)"
+    tipo: afiliado
+    prioridade: 3
+    tags: [guarda, passagem, de-la-riva, x-guard, meia-guarda, raspagem, gi, tecnica]
+    gatilho: "breakdown técnico de guarda, passagem ou raspagem"
+    url_base: null           # TODO: link afiliado do instrucional de guarda/passagem
+    cupom: ""
+    disclosure_obrigatorio: true
+    gancho: "Sistematize sua guarda/passagem com um instrucional de referência."
+    cta_sugerido: "📚 Instrucional de guarda/passagem (parceria) — link"
+
+  - id: instrucional-costas
+    nome: "Instrucional de pegada nas costas / mata-leão (campeão de vendas)"
+    tipo: afiliado
+    prioridade: 3
+    tags: [costas, back-control, mata-leao, estrangulamento, finalizacao]
+    gatilho: "pauta sobre pegada nas costas, mata-leão ou estrangulamento"
+    url_base: null           # TODO: link afiliado
+    cupom: ""
+    disclosure_obrigatorio: true
+    gancho: "Feche o jogo pelas costas com um sistema testado no alto nível."
+    cta_sugerido: "📚 Instrucional de costas/mata-leão (parceria) — link"
+
 # Regras de CTA (Supervisor de Vendas):
-# - 1 CTA por peça.
-# - Formato integrado (CTA suave no último slide) OU peça de venda separada, por dossiê.
-# - Aprende com tracking/clicks.csv qual produto x ângulo x formato converte.
+# - 1 CTA por peça. Formato `integrado` (CTA suave no último slide) ou `separado` (peça de venda).
+# - Associar SEMPRE que houver produto relevante à pauta; sem encaixe honesto → curso ou sem_cta.
+# - Afiliado/remunerado => disclosure CONAR + #publi na 1ª linha. "Link na bio" não conta.
+# - Aprende com tracking/clicks.csv qual produto × ângulo × formato converte.
