@@ -15,10 +15,19 @@ function Header() {
   );
 }
 
+function Ticker() {
+  return (
+    <div className="ticker">
+      <div className="wrap">Cobertura ao vivo · Mundial IBJJF · ADCC · resultados, superlutas e análises · @bjjcomlucas</div>
+    </div>
+  );
+}
+
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
       <Header />
+      <Ticker />
       {children}
       <footer className="pfoot">
         <div className="in">
