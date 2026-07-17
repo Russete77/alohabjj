@@ -277,6 +277,12 @@ def art_for_piece(claude: Claude, slug: str, headlines: list[str], log: JobLog) 
                 _node("scripts/render_story9x16.mjs",
                       ["--headline", headline, "--bg", str(bg9), "--out", str(story9)],
                       slug, log, "arte-9x16")
+            # re-renderiza os SLIDES do carrossel com a MESMA foto tratada de fundo
+            # (o build_carousel gerou teal; agora que temos a foto, ela entra no topo)
+            if (out_dir / "slides.json").exists():
+                _node("scripts/render_slides.mjs",
+                      ["--slug", slug, "--bg", str(hero_bg)], slug, log, "slides-bg")
+                print("  ✓ slides do carrossel re-renderizados com a foto de fundo")
             print(f"  ✓ arte ({source}) 4:5 + 9:16 ← “{headline}”")
             log.record("arte", "succeeded", key=slug, note=f"source={source} credito={credito or ''}")
             return {"source": source, "headline": headline, "story": "story.png",

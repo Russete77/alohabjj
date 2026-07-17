@@ -52,7 +52,7 @@ function overlaySVG(sl, idx, total) {
   const bodyLines = wrap(sl.corpo || "", 34).slice(0, 4);
   const bodyH = bodyLines.length * 42;
   const titleH = tl.length * tlh;
-  const blockBottom = 1120;                         // fim do bloco (acima do URL ~1284)
+  const blockBottom = 1168;                         // fim do bloco (texto DESCE — mais foto no topo)
   const bodyTop = blockBottom - bodyH;
   const titleBottom = bodyTop - 26;
   const titleTop = titleBottom - titleH;
@@ -69,8 +69,8 @@ function overlaySVG(sl, idx, total) {
     prod = `<text x="${TX}" y="${blockBottom + 34}" font-family="${S}" font-weight="700" font-size="24" fill="#ffe0e0">👉 ${esc(meta.produto_titulo)}</text>`;
   }
 
-  // rodapé: URL do site DESCE e alinha no eixo Y do botão SIGA (canto esq.)
-  const footY = 1276;
+  // rodapé: URL do site DESCE um pouco mais (pedido do Lucas), perto da faixa
+  const footY = 1290;
   return `<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">
     <text x="${W - 56}" y="132" font-family="${S}" font-weight="800" font-size="26" fill="rgba(255,255,255,.9)" text-anchor="end">${idx + 1}/${total}</text>
     <rect x="${LINE_X}" y="${lineTop}" width="9" height="${lineH}" fill="${RED}"/>
