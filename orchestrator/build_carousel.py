@@ -96,9 +96,8 @@ CAROUSEL_SCHEMA = {
             "required": ["kicker", "titulo", "corpo", "cta"]}},
         "caption": {"type": "string"}, "hashtags": {"type": "array", "items": {"type": "string"}},
         "primeiro_comentario": {"type": "string"},
-        "hero_complexo": {"type": "boolean"}, "hero_prompt": {"type": "string"},
     },
-    "required": ["slides", "caption", "hashtags", "primeiro_comentario", "hero_complexo", "hero_prompt"],
+    "required": ["slides", "caption", "hashtags", "primeiro_comentario"],
 }
 
 VERDICT_SCHEMA = {
@@ -157,7 +156,7 @@ def main() -> int:
               f"BRIEF DO SUPERVISOR:\n{brief_txt}\n\nGere um carrossel de {args.slides} slides."),
         step="carrossel", key=args.slug, json_schema=CAROUSEL_SCHEMA, max_tokens=4000)
     car = json.loads(car_txt)
-    print(f"  ✓ Carrossel: {len(car['slides'])} slides, hero_complexo={car['hero_complexo']}")
+    print(f"  ✓ Carrossel: {len(car['slides'])} slides")
 
     # 3) Avaliador (quality gate)
     ver_txt, _ = claude.call(

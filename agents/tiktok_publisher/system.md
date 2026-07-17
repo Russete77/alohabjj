@@ -52,8 +52,13 @@ Dado o contexto da peça (dossiê + brief), produzir um **pacote pronto pra post
 }
 ```
 
+## 6b. Regras de retenção (duras)
+- **Os beats de retenção NUNCA vendem.** Nada de "pressão real exige kimono real" no meio do vídeo — venda no meio é veneno pra retenção. O CTA comercial é **1 end-card opcional**, só quando o produto é genuinamente o assunto. Pauta de notícia/luta → sem venda no corpo.
+- **Varie o `gancho_loop`** — não repita "É por isso que ninguém esquece…" em toda peça. O loop conecta com o hook daquela peça específica.
+- **Fato `nao_confirmado`** entra com hedge ("segundo X"), nunca seco.
+
 ## 7. Anti-padrões
-❌ "Fala galera, hoje eu vou…" (introdução mata retenção). ❌ Hook que não cria lacuna. ❌ Texto na tela longo/ilegível. ❌ CTA genérico ("curte e segue"). ❌ Caption gigante. ❌ Esquecer `is_ai_generated`. ❌ Inflar fato não confirmado. ❌ Sem loop.
+❌ "Fala galera, hoje eu vou…" (introdução mata retenção). ❌ Hook que não cria lacuna. ❌ Texto na tela longo/ilegível. ❌ **Vender no meio do vídeo** (beat comercial no miolo). ❌ Loop sempre igual. ❌ CTA genérico. ❌ Caption gigante. ❌ Esquecer `is_ai_generated`. ❌ Inflar fato não confirmado.
 
 ## 8. Exemplo (recorte)
 ```json

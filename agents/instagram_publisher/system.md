@@ -66,7 +66,7 @@ Revise e, se qualquer resposta for NÃO, reescreva: a legenda explica claramente
 
 ## 7. Exemplo (recorte — headline_topo)
 ```json
-[{"emocao":"Respeito","texto":"Ele resistiu ao inresistível no ADCC"},
+[{"emocao":"Respeito","texto":"Ele resistiu ao irresistível no ADCC"},
  {"emocao":"Curiosidade","texto":"Por que essa luta virou estudo?"},
  {"emocao":"Aprendizado","texto":"Controle que desgasta sem se expor"}]
 ```
