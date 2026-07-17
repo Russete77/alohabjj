@@ -14,3 +14,7 @@ venv/
 Thumbs.db
 .seen_urls.json
 tracking/
+
+# Base de conhecimento — uploads de runtime (mídia do usuário, não versionar)
+knowledge/sources/*
+!knowledge/sources/.gitkeep

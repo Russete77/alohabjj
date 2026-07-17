@@ -124,6 +124,10 @@ def main() -> int:
     dossier = _load_dossier(args.slug)
     catalogo = (ROOT / "config" / "catalogo.yaml").read_text(encoding="utf-8")
     voz = (ROOT / "config" / "voz.md").read_text(encoding="utf-8")
+    # base de conhecimento (fontes cadastradas no /admin/conhecimento)
+    from lib import sources as _src
+    know_sup = _src.text_for("sales_supervisor")
+    know_car = _src.text_for("carousel")
     print(f"[carrossel] dossiê={args.slug} slides={args.slides}")
 
     if args.dry_run:
@@ -143,7 +147,7 @@ def main() -> int:
     mem = conversion_memory()
     brief_txt, _ = claude.call(
         model=SONNET, system=_sys("sales_supervisor"),
-        user=f"CATÁLOGO:\n{catalogo}\n\n{mem}\n\nDOSSIÊ:\n{dossier['summary']}\n\nÂNGULOS:\n{dossier['angles']}",
+        user=f"CATÁLOGO:\n{catalogo}\n\n{mem}\n\n{know_sup}\n\nDOSSIÊ:\n{dossier['summary']}\n\nÂNGULOS:\n{dossier['angles']}",
         step="supervisor", key=args.slug, json_schema=BRIEF_SCHEMA, max_tokens=1500)
     brief = json.loads(brief_txt)
     print(f"  ✓ Supervisor: produto={brief['produto_id']} ({brief.get('relevancia_motivo','')[:50]}) "
@@ -155,7 +159,7 @@ def main() -> int:
     # 2) Carrossel
     car_txt, _ = claude.call(
         model=SONNET, system=_sys("carousel"),
-        user=(f"VOZ DA MARCA:\n{voz}\n\nDOSSIÊ:\n{dossier['summary']}\n\nÂNGULOS:\n{dossier['angles']}\n\n"
+        user=(f"VOZ DA MARCA:\n{voz}\n\n{know_car}\n\nDOSSIÊ:\n{dossier['summary']}\n\nÂNGULOS:\n{dossier['angles']}\n\n"
               f"BRIEF DO SUPERVISOR:\n{brief_txt}\n\nGere um carrossel de {args.slides} slides."),
         step="carrossel", key=args.slug, json_schema=CAROUSEL_SCHEMA, max_tokens=4000)
     car = json.loads(car_txt)

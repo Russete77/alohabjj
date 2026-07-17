@@ -6,6 +6,7 @@ import { cookies } from "next/headers";
 import { setEstado } from "@/lib/pieces";
 import { writeDoc, writeEnvKey, writeRawConfig } from "@/lib/config";
 import { saveProduct, addProduct } from "@/lib/catalog";
+import { addSource, removeSource, type SrcType } from "@/lib/sources";
 import { checkPassword, sessionToken, cookieName } from "@/lib/auth";
 
 export async function login(formData: FormData) {
@@ -72,6 +73,42 @@ export async function novoProduto(id: string, nome: string, manychat: string) {
   try {
     addProduct(id, nome, manychat);
     revalidatePath("/admin/catalogo");
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, erro: (e as Error).message };
+  }
+}
+
+// base de conhecimento (fontes da IA: imagem/áudio/vídeo/texto/link)
+export async function subirFonte(formData: FormData) {
+  try {
+    const type = String(formData.get("type") || "") as SrcType;
+    const file = formData.get("file");
+    let filePayload: { name: string; bytes: Buffer } | undefined;
+    if (file && file instanceof File && file.size > 0) {
+      filePayload = { name: file.name, bytes: Buffer.from(await file.arrayBuffer()) };
+    }
+    addSource({
+      type,
+      title: String(formData.get("title") || ""),
+      notes: String(formData.get("notes") || ""),
+      tags: String(formData.get("tags") || "").split(",").map((t) => t.trim()).filter(Boolean),
+      agents: formData.getAll("agents").map((a) => String(a)),
+      url: String(formData.get("url") || "") || undefined,
+      atleta: String(formData.get("atleta") || "") || undefined,
+      file: filePayload,
+    });
+    revalidatePath("/admin/conhecimento");
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, erro: (e as Error).message };
+  }
+}
+
+export async function excluirFonte(id: string) {
+  try {
+    removeSource(id);
+    revalidatePath("/admin/conhecimento");
     return { ok: true };
   } catch (e) {
     return { ok: false, erro: (e as Error).message };

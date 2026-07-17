@@ -23,4 +23,4 @@ export async function middleware(req: NextRequest) {
   return NextResponse.redirect(url);
 }
 
-export const config = { matcher: ["/admin/:path*", "/api/art/:path*"] };
+export const config = { matcher: ["/admin/:path*", "/api/art/:path*", "/api/fonte/:path*"] };
