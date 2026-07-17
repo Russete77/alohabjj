@@ -10,6 +10,7 @@
 meta:
   timezone: America/Sao_Paulo
   localize_to: pt-BR          # dossiê final sempre em PT-BR (feito no Analista)
+  max_age_days: 21            # SÓ pauta dos últimos N dias (corta conteúdo velho). Editável aqui.
   rss_default_suffix: "/feed/"  # WordPress
   youtube_rss_pattern: "https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}"
 
