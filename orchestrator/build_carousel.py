@@ -166,6 +166,19 @@ def main() -> int:
         "estado": "aprovado" if ver["aprovado"] else "rejeitado",
     }
     (out / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    # 6) render dos slides como PNG 1080x1350 (feed IG) — post-ready
+    try:
+        import subprocess
+        r = subprocess.run(["node", "scripts/render_slides.mjs", "--slug", args.slug],
+                           cwd=str(ROOT / "web"), capture_output=True, text=True, timeout=90)
+        if r.returncode == 0:
+            print(f"  ✓ {r.stdout.strip()}")
+        else:
+            print(f"  ! render de slides falhou: {r.stderr.strip() or r.stdout.strip()}")
+    except Exception as e:  # noqa: BLE001
+        print(f"  ! render de slides falhou: {e}")
+
     print(f"[carrossel] OK → {out} · custo ≈ ${log.total_cost():.4f}")
     return 0
 
