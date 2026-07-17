@@ -21,7 +21,11 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
       <Header />
       {children}
       <footer className="pfoot">
-        O Jiu-Jitsu está evoluindo. E nós documentamos cada capítulo. · AlohaBJJ · @bjjcomlucas
+        <div className="in">
+          <div className="fbrand">Aloha<span>BJJ</span></div>
+          <div className="tag">O Jiu-Jitsu está evoluindo. E nós documentamos cada capítulo.</div>
+          <div className="soc">@<span>bjjcomlucas</span></div>
+        </div>
       </footer>
     </>
   );
