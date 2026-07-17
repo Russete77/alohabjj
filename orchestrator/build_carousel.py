@@ -202,6 +202,21 @@ def main() -> int:
     }
     (out / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
 
+    # dual-write da peça no Supabase (no-op sem credencial)
+    try:
+        from lib import db
+        db.upsert_piece({
+            "slug": args.slug, "formato": brief["formato"], "produto_id": brief["produto_id"],
+            "relevancia_motivo": brief.get("relevancia_motivo"), "precisa_link": brief.get("precisa_link", False),
+            "link_afiliado": brief.get("link_afiliado") or None, "produto_titulo": brief.get("produto_titulo") or None,
+            "cta": brief["cta_texto"], "caption": car["caption"], "hashtags": car["hashtags"],
+            "is_ai_generated": True, "quality_nota": ver["nota"], "quality_aprovado": ver["aprovado"],
+            "estado": "aprovado" if ver["aprovado"] else "rejeitado", "slides": car["slides"],
+            "artifact_path": f"outputs/{args.slug}/",
+        })
+    except Exception:  # noqa: BLE001
+        pass
+
     # 6) render dos slides como PNG 1080x1350 (feed IG) — post-ready
     try:
         import subprocess

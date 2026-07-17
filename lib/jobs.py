@@ -73,6 +73,12 @@ class JobLog:
         entry = {k: v for k, v in entry.items() if v is not None}
         with self.path.open("a", encoding="utf-8") as f:
             f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+        # dual-write best-effort no Supabase (no-op sem credencial; nunca quebra o run)
+        try:
+            from lib import db
+            db.log_step(entry)
+        except Exception:  # noqa: BLE001
+            pass
 
     def total_cost(self) -> float:
         """Soma cost_est das linhas deste run (para spend cap / relatório)."""

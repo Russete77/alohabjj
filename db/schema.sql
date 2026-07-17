@@ -123,7 +123,7 @@ create table if not exists dossier_tags (
 create table if not exists pieces (
   id            uuid primary key default gen_random_uuid(),
   dossier_id    uuid references dossiers(id) on delete set null,  -- 1 dossiê → N peças
-  slug          text,
+  slug          text unique,
   formato       text,                            -- integrado | separado | carrossel ...
   produto_id    text references products(id),
   angle_id      uuid references dossier_angles(id),               -- ângulo usado (conversão)
@@ -187,7 +187,7 @@ create table if not exists agent_runs (
 create table if not exists agent_steps (             -- 1 linha por passo de agente (append-heavy)
   id bigint generated always as identity primary key,
   run_id text references agent_runs(run_id) on delete cascade,
-  step agent_step_enum not null, status run_status not null,
+  step text not null, status run_status not null,   -- text (não enum): os passos evoluem
   key text,                                       -- slug ou 'lote'
   custom_id text, model text, prompt_version text,
   in_tok int default 0, out_tok int default 0, cost_est numeric default 0,

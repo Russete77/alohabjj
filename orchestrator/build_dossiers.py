@@ -110,6 +110,17 @@ def write_dossier(slug: str, src_meta: dict, d: dict) -> None:
         "source": "alohabjjnews-backfill",
     }
     (out / "metadata.json").write_text(json.dumps(metadata, ensure_ascii=False, indent=2), encoding="utf-8")
+    # dual-write best-effort no Supabase (no-op sem credencial)
+    try:
+        from lib import db
+        db.upsert_dossier({
+            "slug": slug, "titulo": src_meta.get("title"), "evento": d.get("evento"),
+            "data": (d.get("data") or src_meta.get("date")) or None, "confianca": d.get("confianca"),
+            "source_url": src_meta.get("link"), "source": metadata["source"],
+            "resumo": d.get("summary"), "artifact_path": f"knowledge/{slug}/", "status": "validated",
+        })
+    except Exception:  # noqa: BLE001
+        pass
 
 
 def main() -> int:
