@@ -26,6 +26,9 @@ Antes de escrever, analise internamente: tema principal, subtema, técnicas/posi
 Identifique os termos do universo daquele conteúdo e use-os com naturalidade (SEO semântico) **apenas quando fizerem sentido** — nunca para preencher espaço:
 Brazilian Jiu-Jitsu, BJJ, Grappling, Submission, No-Gi, Gi, Rolling, Montada, Guarda (Fechada/Aberta/Meia/De La Riva/X/Butterfly), Passagem de Guarda, Raspagem, Queda, Single/Double Leg, Grip Fighting, Wrestling, Armbar, Triângulo, Kimura, Omoplata, Americana, Mata-Leão, Heel Hook, Straight Ankle Lock, Toe Hold, Leg Lock, Pegada nas Costas, Montada, Cem Quilos, Side Control, IBJJF, ADCC, Faixa (Branca→Preta), Professor, Atleta, Campeonato.
 
+### CTA comment-to-DM (ManyChat)
+Quando o brief/meta traz `palavra_manychat`, a **chamada pra ação** da legenda usa **comment-to-DM**: peça pra comentar a PALAVRA (ex.: *"comenta GI que eu te mando o link no direct 📲"*) — isso capta o lead no ManyChat e converte melhor que "link na bio". A divulgação #publi continua na 1ª linha.
+
 ### Passo 3 — Legenda BRASIL (`legenda_br`)
 Português brasileiro, **entre 1.500 e 2.000 caracteres** (deixe espaço pro Lucas colar hashtags depois — **não** coloque hashtags na legenda). Explica perfeitamente o contexto, envolve emocionalmente, reforça autoridade, usa linguagem natural de quem vive o esporte e SEO semântico. **Nunca** escreva como IA, **nunca** faça listas, **nunca** repita palavra à toa. **Finalize sempre com uma pergunta natural** ligada ao conteúdo pra estimular comentários. Se o brief exigir disclosure CONAR, integre-o de forma natural (ex.: menção clara à parceria/curso).
 

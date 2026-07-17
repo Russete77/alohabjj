@@ -76,15 +76,15 @@ def _load_dossier(slug: str) -> dict:
 BRIEF_SCHEMA = {
     "type": "object", "additionalProperties": False,
     "properties": {
-        "produto_id": {"type": "string"}, "relevancia_motivo": {"type": "string"},
-        "cta_texto": {"type": "string"},
+        "produto_id": {"type": "string"}, "palavra_manychat": {"type": "string"},
+        "relevancia_motivo": {"type": "string"}, "cta_texto": {"type": "string"},
         "gancho": {"type": "string"}, "formato": {"type": "string", "enum": ["integrado", "separado"]},
         "precisa_link": {"type": "boolean"},
         "disclosure_obrigatorio": {"type": "boolean"}, "disclosure_texto": {"type": "string"},
         "cupom": {"type": "string"},
     },
-    "required": ["produto_id", "relevancia_motivo", "cta_texto", "gancho", "formato", "precisa_link",
-                 "disclosure_obrigatorio", "disclosure_texto", "cupom"],
+    "required": ["produto_id", "palavra_manychat", "relevancia_motivo", "cta_texto", "gancho", "formato",
+                 "precisa_link", "disclosure_obrigatorio", "disclosure_texto", "cupom"],
 }
 
 CAROUSEL_SCHEMA = {
@@ -182,6 +182,7 @@ def main() -> int:
     meta = {
         "dossie": args.slug, "formato": brief["formato"], "produto_id": brief["produto_id"],
         "relevancia_motivo": brief.get("relevancia_motivo", ""), "precisa_link": brief.get("precisa_link", False),
+        "palavra_manychat": brief.get("palavra_manychat", ""),
         "link_afiliado": brief.get("link_afiliado", ""), "produto_titulo": brief.get("produto_titulo", ""),
         "cta": brief["cta_texto"], "caption": car["caption"], "hashtags": car["hashtags"],
         "tracked_url": f"?utm_source=ig&utm_content={args.slug}",

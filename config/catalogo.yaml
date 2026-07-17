@@ -18,6 +18,7 @@
 produtos:
   # ─────────────── PRÓPRIOS (âncoras) ───────────────
   - id: curso
+    manychat: "CURSO"
     nome: "100kg – Domínio Absoluto"
     tipo: proprio
     prioridade: 1
@@ -31,6 +32,7 @@ produtos:
     cta_sugerido: "Curso 100kg – Domínio Absoluto, grátis no link"
 
   - id: bjj3d
+    manychat: "LOJA"
     nome: "Loja BJJ3D"
     tipo: proprio
     prioridade: 2
@@ -46,6 +48,7 @@ produtos:
   # ─────────────── AFILIADOS CAMPEÕES DE VENDAS (por categoria/gatilho) ───────────────
   # Preencha url_base/cupom com os campeões de venda reais dos seus programas de afiliado.
   - id: hayabusa
+    manychat: "GEAR"
     nome: "Equipamento Hayabusa"
     tipo: afiliado
     prioridade: 3
@@ -60,6 +63,7 @@ produtos:
     cta_sugerido: "🥊 Hayabusa com cupom LUCAS -10% (parceria)"
 
   - id: gi-competicao
+    manychat: "GI"
     nome: "Kimono de competição (campeão de vendas)"
     tipo: afiliado
     prioridade: 3
@@ -73,6 +77,7 @@ produtos:
     cta_sugerido: "🥋 Kimono de competição (parceria) — link"
 
   - id: rashguard-nogi
+    manychat: "NOGI"
     nome: "Rashguard / gear No-Gi (campeão de vendas)"
     tipo: afiliado
     prioridade: 3
@@ -86,6 +91,7 @@ produtos:
     cta_sugerido: "Rashguard No-Gi (parceria) — link"
 
   - id: instrucional-leglock
+    manychat: "PERNA"
     nome: "Instrucional de leg locks (campeão de vendas)"
     tipo: afiliado
     prioridade: 3
@@ -98,6 +104,7 @@ produtos:
     cta_sugerido: "📚 Instrucional de leg locks (parceria) — link"
 
   - id: instrucional-guarda
+    manychat: "GUARDA"
     nome: "Instrucional de guarda/passagem (campeão de vendas)"
     tipo: afiliado
     prioridade: 3
@@ -110,6 +117,7 @@ produtos:
     cta_sugerido: "📚 Instrucional de guarda/passagem (parceria) — link"
 
   - id: instrucional-costas
+    manychat: "COSTAS"
     nome: "Instrucional de pegada nas costas / mata-leão (campeão de vendas)"
     tipo: afiliado
     prioridade: 3

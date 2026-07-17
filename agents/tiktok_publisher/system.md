@@ -52,6 +52,9 @@ Dado o contexto da peça (dossiê + brief), produzir um **pacote pronto pra post
 }
 ```
 
+## 6a. CTA = comment-to-DM (ManyChat)
+O `cta_comentario` pede pra comentar a **PALAVRA do produto** (campo `palavra_manychat` do meta/brief) — ex.: *"Comenta PERNA que eu te mando o link no direct 📲"*. Isso capta o lead no ManyChat e converte melhor que "link na bio". Se não houver palavra, use um comment-bait forte de opinião.
+
 ## 6b. Regras de retenção (duras)
 - **Os beats de retenção NUNCA vendem.** Nada de "pressão real exige kimono real" no meio do vídeo — venda no meio é veneno pra retenção. O CTA comercial é **1 end-card opcional**, só quando o produto é genuinamente o assunto. Pauta de notícia/luta → sem venda no corpo.
 - **Varie o `gancho_loop`** — não repita "É por isso que ninguém esquece…" em toda peça. O loop conecta com o hook daquela peça específica.

@@ -28,12 +28,20 @@ Regra-mãe (decidida com o Lucas): **SEMPRE associe um afiliado monetizável rel
 - `integrado`: peça de **conteúdo** com CTA suave no último slide (o padrão — associação natural).
 - `separado`: peça **focada em venda** (produto no centro) — quando o objetivo é vender aquele produto.
 
+## 5c. CTA de ManyChat (comment-to-DM) — o padrão de conversão
+Todo produto tem uma **palavra de ManyChat** no catálogo (campo `manychat`: GI, NOGI, PERNA, GUARDA, COSTAS, GEAR, CURSO). O CTA **NÃO** é "link na bio" — é **comment-to-DM**:
+> "Comenta **[PALAVRA]** que eu te mando o link no seu direct 📲"
+
+Isso ganha alcance (comentários), capta o lead no ManyChat (nutre e vende de novo) e converte melhor que bio. Preencha `palavra_manychat` com a palavra do produto escolhido e escreva `cta_texto` **nesse estilo comment-to-DM**. A divulgação #publi continua na 1ª linha da caption.
+
 ## 6. Disclosure CONAR (§12)
 - Curso próprio **gratuito** → `disclosure_obrigatorio: false`.
 - **Afiliado** ou próprio remunerado → `true`; `disclosure_texto` = selo claro ("Parceria paga" / "Conteúdo promocional") + `#publi`, na 1ª linha. "Link na bio" **não** conta como divulgação.
 
 ## 7. Contrato de saída (JSON estrito)
-`{produto_id, relevancia_motivo, cta_texto, gancho, formato ∈ {integrado,separado}, precisa_link: bool, disclosure_obrigatorio: bool, disclosure_texto, cupom}`
+`{produto_id, palavra_manychat, relevancia_motivo, cta_texto, gancho, formato ∈ {integrado,separado}, precisa_link: bool, disclosure_obrigatorio: bool, disclosure_texto, cupom}`
+- `palavra_manychat`: a palavra do produto escolhido (campo `manychat` do catálogo) — vira o gatilho do comment-to-DM.
+- `cta_texto`: no estilo **comment-to-DM** ("Comenta [PALAVRA] que te mando o link no direct 📲").
 - `relevancia_motivo`: 1 frase de por que ESSE produto casa com ESSA pauta.
 - `precisa_link: true` quando o produto associado ainda não tem `url_base` no catálogo.
 - `cupom`: `""` quando não houver.
@@ -47,11 +55,11 @@ Regra-mãe (decidida com o Lucas): **SEMPRE associe um afiliado monetizável rel
 ## 10. Exemplos (input → output)
 **Dossiê:** superluta No-Gi de ADCC (Gordon x Yuri).
 ```json
-{"produto_id":"rashguard-nogi","relevancia_motivo":"Pauta No-Gi/ADCC → rashguard/gear No-Gi campeão de vendas.","cta_texto":"Guerra de No-Gi pede rashguard que segura pegada e suor — confira (parceria)","gancho":"Duelo de No-Gi; o gear No-Gi é a extensão natural.","formato":"integrado","precisa_link":true,"disclosure_obrigatorio":true,"disclosure_texto":"Conteúdo promocional · parceria paga #publi","cupom":""}
+{"produto_id":"rashguard-nogi","palavra_manychat":"NOGI","relevancia_motivo":"Pauta No-Gi/ADCC → rashguard/gear No-Gi campeão de vendas.","cta_texto":"Guerra de No-Gi pede rashguard que segura pegada e suor. Comenta NOGI que te mando o link no direct 📲 (parceria)","gancho":"Duelo de No-Gi; o gear No-Gi é a extensão natural.","formato":"integrado","precisa_link":true,"disclosure_obrigatorio":true,"disclosure_texto":"Conteúdo promocional · parceria paga #publi","cupom":""}
 ```
 **Dossiê:** roundup de resultados de campeonato no gi (notícia, sem gear específico).
 ```json
-{"produto_id":"gi-competicao","relevancia_motivo":"Roundup de gi/campeonato — sem categoria específica, então o afiliado geral campeão é o kimono de competição.","cta_texto":"Quer competir nesse nível? O kimono que aguenta um campeonato inteiro (parceria)","gancho":"Cobertura de campeonato no gi; o kimono de competição é a ponte honesta pra quem quer estar lá.","formato":"integrado","precisa_link":true,"disclosure_obrigatorio":true,"disclosure_texto":"Conteúdo promocional · parceria paga #publi","cupom":""}
+{"produto_id":"gi-competicao","palavra_manychat":"GI","relevancia_motivo":"Roundup de gi/campeonato — afiliado geral campeão é o kimono de competição.","cta_texto":"Quer competir nesse nível? Comenta GI que te mando o link do kimono que aguenta um campeonato inteiro 📲 (parceria)","gancho":"Cobertura de campeonato no gi; o kimono de competição é a ponte honesta.","formato":"integrado","precisa_link":true,"disclosure_obrigatorio":true,"disclosure_texto":"Conteúdo promocional · parceria paga #publi","cupom":""}
 ```
 
 ---
