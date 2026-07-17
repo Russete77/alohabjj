@@ -64,25 +64,23 @@ class GeminiImageProvider(ImageProvider):
         from google.genai import types
 
         client = genai.Client(api_key=os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY"))
-        # nano-banana-pro (Gemini image) aceita imagens de referência via generate_content;
-        # com referência, recontextualiza preservando o sujeito. Sem, texto->imagem puro.
-        if references:
-            parts: list = [prompt]
-            for r in references:
-                data = Path(r).read_bytes() if Path(r).exists() else None
-                if data:
-                    parts.append(types.Part.from_bytes(data=data, mime_type="image/jpeg"))
-            resp = client.models.generate_content(model=os.getenv("GEMINI_IMAGE_MODEL", "gemini-3-pro-image"),
-                                                  contents=parts)
-            for part in resp.candidates[0].content.parts:
-                if getattr(part, "inline_data", None):
-                    return part.inline_data.data
-            raise RuntimeError("gemini não retornou imagem")
-        resp = client.models.generate_images(
-            model=self.model, prompt=prompt,
-            config=types.GenerateImagesConfig(number_of_images=1, aspect_ratio=ratio),
-        )
-        return resp.generated_images[0].image.image_bytes
+        model = os.getenv("GEMINI_IMAGE_MODEL", "gemini-3-pro-image")  # usa generateContent
+        # generate_content unificado: com referência recontextualiza (preserva o sujeito),
+        # sem referência é texto->imagem. (Modelos gemini-*-image usam generateContent, não predict.)
+        contents: list = [prompt]
+        for r in (references or []):
+            if Path(r).exists():
+                contents.append(types.Part.from_bytes(data=Path(r).read_bytes(), mime_type="image/jpeg"))
+        try:
+            cfg = types.GenerateContentConfig(response_modalities=["IMAGE"],
+                                              image_config=types.ImageConfig(aspect_ratio=ratio))
+        except Exception:  # noqa: BLE001 — SDK sem ImageConfig
+            cfg = types.GenerateContentConfig(response_modalities=["IMAGE"])
+        resp = client.models.generate_content(model=model, contents=contents, config=cfg)
+        for part in resp.candidates[0].content.parts:
+            if getattr(part, "inline_data", None) and part.inline_data.data:
+                return part.inline_data.data
+        raise RuntimeError("gemini: resposta sem imagem")
 
 
 class OpenAIImageProvider(ImageProvider):
@@ -169,24 +167,27 @@ def generate_image(prompt: str, out_path: str | Path, *, ratio: str = "3:4",
     Levanta RuntimeError se nenhum provedor tiver chave.
     """
     log = log or JobLog(prefix="imagegen")
-    prov = select_provider()
-    if prov is None:
-        raise RuntimeError(
-            "Nenhum provedor de imagem disponível. Configure GEMINI_API_KEY ou OPENAI_API_KEY no .env."
-        )
     out = Path(out_path)
     out.parent.mkdir(parents=True, exist_ok=True)
-    t0 = time.time()
-    try:
-        data = prov.generate(prompt, ratio, references=references)
-    except Exception as e:  # noqa: BLE001
-        log.record(step, "errored", key=key, model=prov.name, t0=t0, t1=time.time(), error=str(e))
-        raise
-    out.write_bytes(data)
-    cost = COST_PER_IMAGE.get(prov.name, 0.04)
-    log.record(step, "succeeded", key=key, model=prov.name, cost_est=cost, t0=t0, t1=time.time(),
-               note=f"bytes={len(data)} ratio={ratio}")
-    return out
+    errs: list[str] = []
+    # tenta os provedores na ordem; se um falha (429/sem crédito), CAI pro próximo
+    for name in [p.strip() for p in os.getenv("IMAGE_PROVIDER_ORDER", "gemini,openai,runway").split(",")]:
+        prov = PROVIDERS.get(name)
+        if not prov or not prov.available():
+            continue
+        t0 = time.time()
+        try:
+            data = prov.generate(prompt, ratio, references=references)
+        except Exception as e:  # noqa: BLE001
+            errs.append(f"{name}: {str(e)[:100]}")
+            log.record(step, "errored", key=key, model=name, t0=t0, t1=time.time(), error=str(e)[:200])
+            continue
+        out.write_bytes(data)
+        cost = COST_PER_IMAGE.get(name, 0.04)
+        log.record(step, "succeeded", key=key, model=name, cost_est=cost, t0=t0, t1=time.time(),
+                   note=f"bytes={len(data)} ratio={ratio}")
+        return out
+    raise RuntimeError("nenhum provedor gerou imagem — " + (" | ".join(errs) if errs else "sem chave/crédito"))
 
 
 def which() -> str:
