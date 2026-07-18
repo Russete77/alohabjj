@@ -62,7 +62,10 @@ export default function Home() {
                     <span className="badge">{d.categoriaLabel}</span>
                   </div>
                   <h3>{d.titulo}</h3>
-                  <div className="meta">{d.atletas.join(" · ") || "Educacional"}{d.evento ? ` · ${d.evento}` : ""}</div>
+                  <div className="meta">
+                    {d.data && <span className="cdate">{fmtData(d.data)}</span>}
+                    <span className="cwho">{d.atletas.slice(0, 3).join(" · ") || d.evento || "Educacional"}</span>
+                  </div>
                 </a>
               ))}
             </div>
