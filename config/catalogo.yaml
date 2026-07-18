@@ -24,7 +24,7 @@ produtos:
     prioridade: 1
     tags: [controle, pressao, base, guarda, passagem, fundamentos, gi, nogi, iniciante, evergreen]
     gatilho: "conteúdo técnico/didático de controle, pressão, base ou leitura de jogo"
-    url_base: https://alohabjjnews.com/
+    url_base: /curso            # página do curso no portal (grátis, isca)
     margem: 1.0
     cupom: ""
     disclosure_obrigatorio: false
@@ -38,7 +38,7 @@ produtos:
     prioridade: 2
     tags: [produto, loja, lifestyle, presente, marca]
     gatilho: "quando não há afiliado específico melhor e cabe um produto de marca própria"
-    url_base: null           # TODO: URL da loja BJJ3D
+    url_base: https://shopee.com.br/bjj3doficial
     margem: null
     cupom: ""
     disclosure_obrigatorio: false
@@ -55,7 +55,7 @@ produtos:
     tags: [equipamento, gear, kimono, luva, protecao, marca-parceira]
     gatilho: "pauta sobre equipamento/gear de alto desempenho em geral"
     busca: "hayabusa jiu jitsu"          # query pros marketplaces (afiliado busca o campeão)
-    url_base: null           # TODO: link de afiliado Hayabusa
+    url_base: https://lcshop.co/EeJo0L    # afiliado Hayabusa (real)
     cupom: "LUCAS"
     desconto: "-10%"
     disclosure_obrigatorio: true

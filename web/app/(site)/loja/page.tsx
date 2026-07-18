@@ -44,7 +44,11 @@ export default async function Loja() {
                   {p.descricao && <p className="loja-desc">{p.descricao}</p>}
                   <div className="loja-foot">
                     <span className="loja-preco">{preco(p)}</span>
-                    <a className="loja-btn" href={`/p/${p.id}`} target="_blank" rel="noreferrer">{cta(p)}</a>
+                    {p.url_base && p.url_base.startsWith("/") ? (
+                      <a className="loja-btn" href={p.url_base}>{cta(p)}</a>
+                    ) : (
+                      <a className="loja-btn" href={`/p/${p.id}`} target="_blank" rel="noreferrer">{cta(p)}</a>
+                    )}
                   </div>
                   {p.cupom && <div className="loja-cupom">cupom <b>{p.cupom}</b></div>}
                 </div>

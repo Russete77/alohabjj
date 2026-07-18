@@ -10,7 +10,7 @@ function Header() {
         <a href="/#analises" className="link cat analises">Análises</a>
         <a href="/#tecnica" className="link cat tecnica">Técnica</a>
         <a href="/loja" className="link">Loja</a>
-        <a href="/loja" className="curso">Curso grátis</a>
+        <a href="/curso" className="curso">Curso grátis</a>
       </nav>
     </header>
   );
