@@ -130,7 +130,8 @@ a{color:inherit;text-decoration:none}
 .loja-nota{margin-top:26px;font-size:12px;color:var(--faint,#565b64)}
 
 /* ───────── Página do Curso 100KG ───────── */
-.curso-pg{max-width:900px;margin:0 auto;padding:0 22px 90px}
+.curso-pg{max-width:1180px;margin:0 auto;padding:0 22px 90px}
+.curso-hero{max-width:760px;margin-left:auto;margin-right:auto}
 .curso-hero{text-align:center;padding:56px 0 44px;border-bottom:1px solid var(--line,#23252b)}
 .curso-flag{display:inline-block;font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--red,#D8232A);background:var(--red-soft,rgba(216,35,42,.12));padding:6px 14px;border-radius:20px;margin-bottom:20px}
 .curso-hero h1{font-family:var(--font-display,'Anton',sans-serif);font-size:clamp(40px,8vw,84px);line-height:.95;letter-spacing:.5px;margin:0 0 16px}
@@ -165,7 +166,7 @@ a{color:inherit;text-decoration:none}
 
 /* player do curso (self-contained) */
 .curso-stat{color:var(--faint,#565b64);font-size:13px;font-weight:600;letter-spacing:.03em}
-.cp{display:grid;grid-template-columns:1fr 350px;gap:26px;padding:36px 0}
+.cp{display:grid;grid-template-columns:1fr 320px;gap:26px;padding:36px 0;align-items:start}
 .cp-video{position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:14px;overflow:hidden;border:1px solid var(--line,#23252b)}
 .cp-video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
 .cp-soon{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--muted,#8a8f98);text-align:center;padding:20px}
