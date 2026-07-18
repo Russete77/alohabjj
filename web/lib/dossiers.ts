@@ -90,7 +90,7 @@ export function getDossiers(): Dossier[] {
       evento: meta.evento ?? "",
       data: (meta.data ?? back.date ?? "").slice(0, 10),
       resumoParas: parseSummary(summary),
-      imagem: back.featured_image ?? null,
+      imagem: meta.imagem ?? back.featured_image ?? null,
       fonteUrl: meta.source_url ?? back.link ?? null,
       confianca: meta.confianca ?? "media",
       tags: meta.tags ?? [],

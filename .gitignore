@@ -18,3 +18,7 @@ tracking/
 # Base de conhecimento — uploads de runtime (mídia do usuário, não versionar)
 knowledge/sources/*
 !knowledge/sources/.gitkeep
+
+# Imagens de capa das noticias (baixadas da fonte, runtime)
+web/public/hero/*
+!web/public/hero/.gitkeep

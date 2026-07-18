@@ -80,6 +80,24 @@ def _try_stdout_utf8():
         pass
 
 
+def portal_image(url: str | None, slug: str) -> str | None:
+    """Baixa a og:image do artigo-fonte pro portal (grátis, sem IA) e devolve o caminho
+    servível /hero/<slug>.jpg. Sem imagem → None (portal usa o degradê)."""
+    if not url:
+        return None
+    try:
+        from lib import heroimg
+        og = heroimg.og_image(url)
+        if not og:
+            return None
+        hero_dir = KNOWLEDGE.parent / "web" / "public" / "hero"
+        hero_dir.mkdir(parents=True, exist_ok=True)
+        got = heroimg.download(og, hero_dir / f"{slug}.jpg")
+        return f"/hero/{slug}.jpg" if got else None
+    except Exception:  # noqa: BLE001
+        return None
+
+
 def write_dossier(slug: str, src_meta: dict, d: dict) -> None:
     out = KNOWLEDGE / slug
     out.mkdir(parents=True, exist_ok=True)
@@ -107,6 +125,7 @@ def write_dossier(slug: str, src_meta: dict, d: dict) -> None:
         "angulos_usados": d["angulos_usados"],
         "embedding_ref": None,          # dedupe por embedding vem em fase futura
         "source_url": src_meta.get("link"),
+        "imagem": portal_image(src_meta.get("link"), slug),   # foto real do artigo → portal
         "source": "alohabjjnews-backfill",
     }
     (out / "metadata.json").write_text(json.dumps(metadata, ensure_ascii=False, indent=2), encoding="utf-8")
