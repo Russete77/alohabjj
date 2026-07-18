@@ -13,15 +13,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           Aloha<span>BJJ</span> <em>painel</em>
         </a>
         <nav className="a-nav">
-          <a href="/admin">Fila de aprovação</a>
-          <a href="/admin/conversao">Conversão</a>
-          <a href="/admin/produtos">Produtos (scout)</a>
-          <a href="/admin/catalogo">Catálogo & afiliados</a>
-          <a href="/admin/conhecimento">Base de conhecimento</a>
-          <a href="/admin/fontes">Fontes do Radar</a>
-          <a href="/admin/agentes">Agentes (academia)</a>
-          <a href="/admin/prompts">Prompts dos agentes</a>
-          <a href="/admin/config">Chaves & config</a>
+          <div className="a-group">Conteúdo</div>
+          <a href="/admin"><span className="a-ic">📥</span>Fila de aprovação</a>
+          <a href="/admin/conhecimento"><span className="a-ic">🧠</span>Base de conhecimento</a>
+          <a href="/admin/fontes"><span className="a-ic">📡</span>Fontes do Radar</a>
+
+          <div className="a-group">Loja & vendas</div>
+          <a href="/admin/conversao"><span className="a-ic">📊</span>Conversão</a>
+          <a href="/admin/produtos"><span className="a-ic">🛒</span>Produtos (scout)</a>
+          <a href="/admin/catalogo"><span className="a-ic">🔗</span>Catálogo & afiliados</a>
+
+          <div className="a-group">Agentes de IA</div>
+          <a href="/admin/agentes"><span className="a-ic">🥋</span>Agentes (academia)</a>
+          <a href="/admin/prompts"><span className="a-ic">✍️</span>Prompts dos agentes</a>
+
+          <div className="a-group">Config</div>
+          <a href="/admin/config"><span className="a-ic">🔑</span>Chaves & config</a>
           <a href="/" className="a-back">← Ver o portal público</a>
         </nav>
         <div className="a-foot">

@@ -302,3 +302,11 @@
 .cnd-tag{font-size:10px;text-transform:uppercase;font-weight:700;padding:2px 8px;border-radius:5px}
 .cnd-tag.aprovado{background:rgba(34,161,92,.16);color:#22A15C}
 .cnd-tag.rejeitado{background:var(--elevated);color:var(--faint)}
+
+/* nav agrupada (Fase 4 — admin claro) */
+.a-nav .a-group{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);font-weight:700;padding:14px 12px 5px}
+.a-nav .a-group:first-child{padding-top:4px}
+.a-nav a{display:flex;align-items:center;gap:9px}
+.a-ic{font-size:14px;width:18px;text-align:center;flex:none;filter:grayscale(.2)}
+
+@media(max-width:860px){.a-nav .a-group{display:none}.a-nav a{gap:6px}}
