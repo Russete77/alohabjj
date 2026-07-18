@@ -395,3 +395,7 @@
 .pctl-con.done{border-color:#22A15C}
 .pctl-cursor{animation:blink 1s steps(2) infinite;color:var(--red)}
 @keyframes blink{50%{opacity:0}}
+
+/* fix dropdown sem contraste (select + option) */
+.pctl-row select{background:var(--panel);color:var(--ink);color-scheme:light dark}
+.admin select option,.pctl-row select option{background:var(--panel);color:var(--ink)}

@@ -85,6 +85,8 @@ class MercadoLivreProvider(AffiliateProvider):
     SITE = os.getenv("ML_SITE", "MLB")  # MLB = Brasil
 
     def available(self) -> bool:
+        # A busca do ML fechou o acesso anônimo (403); agora exige OAuth. Liga quando
+        # tiver o app/token do ML configurado + o tag de afiliado.
         return bool(os.getenv("ML_AFFILIATE_TAG"))
 
     def _affiliate(self, permalink: str) -> str:
@@ -100,12 +102,13 @@ class MercadoLivreProvider(AffiliateProvider):
         import json as _json
         with urllib.request.urlopen(req, timeout=15) as r:
             data = _json.loads(r.read().decode("utf-8", "ignore"))
+        tem_tag = bool(os.getenv("ML_AFFILIATE_TAG"))
         out = []
         for it in data.get("results", [])[:limit]:
             out.append(Produto(
                 titulo=it.get("title", query), url=self._affiliate(it.get("permalink", "")),
                 fonte="mercadolivre", preco=f"R$ {it.get('price', '')}",
-                imagem=it.get("thumbnail", ""),
+                imagem=it.get("thumbnail", ""), afiliado=tem_tag,  # link só é afiliado com o tag
             ))
         return out
 

@@ -61,6 +61,25 @@ def _sys(name: str) -> str:
     return (AGENTS / name / "system.md").read_text(encoding="utf-8")
 
 
+def _json_extract(text: str) -> dict | None:
+    """Pega o 1º objeto JSON balanceado do texto (a busca web pode vir com preâmbulo)."""
+    start = text.find("{")
+    while start != -1:
+        depth = 0
+        for i in range(start, len(text)):
+            if text[i] == "{":
+                depth += 1
+            elif text[i] == "}":
+                depth -= 1
+                if depth == 0:
+                    try:
+                        return json.loads(text[start:i + 1])
+                    except Exception:  # noqa: BLE001
+                        break
+        start = text.find("{", start + 1)
+    return None
+
+
 def _hit(query: str):
     """Campeão real do marketplace (ou None sem credencial)."""
     try:
@@ -105,34 +124,41 @@ def main() -> int:
         print(f"[scout] {e}")
         return 1
 
-    catalogo_sys = _sys("product_scout")
+    scout_sys = _sys("product_scout")
     ok = 0
     for q, c in alvos:
-        h = _hit_dict(_hit(q))
-        ctx = (f"CATEGORIA: {c}\nQUERY DE MERCADO: {q}\n\n"
-               f"PRODUTO REAL ENCONTRADO:\n" +
-               (json.dumps(h, ensure_ascii=False) if h else "(nenhum — sem credencial de afiliado; "
-                "proponha o produto-tipo campeão e a query que o encontra)"))
+        h = _hit_dict(_hit(q))  # API de afiliado (se houver credencial)
         try:
-            txt, _ = claude.call(model=SONNET, system=catalogo_sys,
-                                 user=ctx, step="scout", key=q[:40],
-                                 json_schema=SCOUT_SCHEMA, max_tokens=1200)
+            if h.get("url"):
+                # caminho com credencial: classifica o produto real da API (JSON garantido)
+                ctx = (f"CATEGORIA: {c}\nPRODUTO REAL (marketplace):\n"
+                       f"{json.dumps(h, ensure_ascii=False)}\nClassifique e escreva a copy. SÓ JSON.")
+                txt, _ = claude.call(model=SONNET, system=scout_sys, user=ctx, step="scout",
+                                     key=q[:40], json_schema=SCOUT_SCHEMA, max_tokens=1200)
+                data = json.loads(txt)
+                data.update({"fonte": h.get("fonte", ""), "external_url": h.get("url", ""),
+                             "imagem_url": h.get("imagem", ""), "preco": h.get("preco", "")})
+            else:
+                # SEM credencial: o agente BUSCA NA WEB o campeão real (web_search)
+                ctx = (f"CATEGORIA: {c}\nQUERY BASE: {q}\n\nBusque na web o produto CAMPEÃO de "
+                       "vendas dessa categoria em marketplace do Brasil (Mercado Livre, Amazon, "
+                       "Shopee). Escolha UM real e bem avaliado. Devolva SOMENTE o JSON do "
+                       "candidato, com external_url (link real), fonte e preco.")
+                txt, _ = claude.research(model=SONNET, system=scout_sys, user=ctx, step="scout",
+                                         key=q[:40], max_uses=5, max_tokens=1600)
+                data = _json_extract(txt)
+                if not data:
+                    print(f"  ! '{q}': não consegui extrair JSON da busca"); continue
         except SpendCapExceeded as e:
-            print(f"[scout] PARADO: {e}")
-            break
+            print(f"[scout] PARADO: {e}"); break
         except Exception as e:  # noqa: BLE001
-            print(f"  ! '{q}': {e}")
-            continue
-        data = json.loads(txt)
-        data.update({
-            "fonte": h.get("fonte", ""), "external_url": h.get("url", ""),
-            "imagem_url": h.get("imagem", ""), "preco": h.get("preco", ""),
-            "precisa_link": not h.get("url"),
-        })
+            print(f"  ! '{q}': {e}"); continue
+        data["precisa_link"] = not data.get("external_url")
         cand.add(data)
         ok += 1
-        print(f"  ✓ candidato: {data['id_sugerido']} (nota {data['score']}) "
-              f"{'← ' + h['fonte'] if h.get('fonte') else '· precisa link'}")
+        fonte = data.get("fonte") or ("via API" if h.get("url") else "via web")
+        print(f"  ✓ candidato: {data.get('id_sugerido','?')} (nota {data.get('score','?')}) "
+              f"← {fonte}{' · PRECISA LINK' if data['precisa_link'] else ''}")
 
     print(f"\n[scout] {ok} candidato(s) → data/product_candidates.json · custo ≈ ${log.total_cost():.4f}")
     print("        Aprove/reprove em /admin/produtos.")
