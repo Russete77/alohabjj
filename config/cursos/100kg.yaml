@@ -1,0 +1,33 @@
+# config/cursos/100kg.yaml — Curso hospedado no nosso site (self-contained).
+# Cada aula tem `video` (URL do YouTube) — cole aqui ou no /admin/cursos e o player embeda.
+# Vazio = "em breve". O agente course_builder também escreve/edita este arquivo.
+slug: 100kg
+titulo: 100KG Domínio Absoluto
+subtitulo: Curso 100% gratuito de domínio, pressão e controle da posição 100KG
+descricao: >-
+  O sistema de domínio, pressão e controle da posição 100KG. Aprenda a dominar antes de
+  atacar e pressionar antes de finalizar — do jeito que trava o adversário.
+gratis: true
+badge: "Grátis · aulas diárias às 20h"
+capa: ""            # imagem de capa (URL) — opcional
+
+modulos:
+  - titulo: Domínio e Controle
+    aulas:
+      - { titulo: "Eliminando espaço no primeiro contato", video: "", descricao: "" }
+      - { titulo: "Princípio da substituição", video: "", descricao: "" }
+      - { titulo: "Concentração de peso e controle do quadril", video: "", descricao: "" }
+      - { titulo: "Ponto onde o adversário para de reagir", video: "", descricao: "" }
+      - { titulo: "Transformação de pressão em controle absoluto", video: "", descricao: "" }
+      - { titulo: "Conexão contínua entre posições", video: "", descricao: "" }
+  - titulo: Ataques que Nascem do Domínio
+    aulas:
+      - { titulo: "Estrangulamentos inevitáveis", video: "", descricao: "" }
+      - { titulo: "Armlocks pela reação do adversário", video: "", descricao: "" }
+      - { titulo: "Americanas sem força bruta", video: "", descricao: "" }
+      - { titulo: "Bônus: Mão de vaca invisível", video: "", descricao: "" }
+
+# Produtos recomendados dentro do curso (links de afiliado — monetização honesta)
+recomendados:
+  - { nome: "Hayabusa Fightwear", url: "https://lcshop.co/EeJo0L", desc: "Kimono e gear de alto desempenho — cupom LUCAS." }
+  - { nome: "Loja BJJ3D", url: "https://shopee.com.br/bjj3doficial", desc: "Produtos 3D exclusivos AlohaBJJ." }
