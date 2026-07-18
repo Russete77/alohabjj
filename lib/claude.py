@@ -198,10 +198,12 @@ class Claude:
         return text, {"in_tok": u.input_tokens, "out_tok": u.output_tokens, "cost": cost}
 
     def research(self, *, model: Model, system: str, user: str, step: str, key: str,
-                 max_uses: int = 5, max_tokens: int = 8000) -> tuple[str, dict]:
+                 max_uses: int = 4, max_tokens: int = 6000, effort: str = "low") -> tuple[str, dict]:
         """
         Chamada com WebSearch server-side (Pesquisador, §5). Só fontes da web abertas;
         o loop de busca roda no servidor. Trata pause_turn reenviando o histórico.
+        `effort` baixo por padrão: buscar na web é COLETAR, não precisa de raciocínio
+        profundo — foi o que estava caro (effort high em web_search).
         """
         if self.log.total_cost() >= self.spend_cap:
             raise SpendCapExceeded(f"spend cap atingido no run {self.log.run_id}")
@@ -211,7 +213,7 @@ class Claude:
         t0 = time.time()
         self.log.record(step, "running", key=key, model=model.id, t0=t0)  # ao vivo (ponte)
         in_tok = out_tok = c_read = c_write = 0
-        extra = {"thinking": {"type": "adaptive"}, "output_config": {"effort": "high"}} if model.adaptive else {}
+        extra = {"thinking": {"type": "adaptive"}, "output_config": {"effort": effort}} if model.adaptive else {}
         for _ in range(6):  # limite de retomadas de pause_turn
             msg = self._retry(
                 lambda: self.client.messages.create(

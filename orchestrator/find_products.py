@@ -183,7 +183,7 @@ def main() -> int:
                        "external_url (link real), fonte, preco, imagem, e as IDEIAS DE CONTEÚDO "
                        "(ideia_tiktok, ideia_instagram) que convertem em venda.")
                 txt, _ = claude.research(model=SONNET, system=scout_sys, user=ctx, step="scout",
-                                         key=q[:40], max_uses=6, max_tokens=1800)
+                                         key=q[:40], max_uses=4, max_tokens=1500)
                 data = _json_extract(txt)
                 if not data:
                     print(f"  ! '{q}': não consegui extrair JSON da busca"); continue

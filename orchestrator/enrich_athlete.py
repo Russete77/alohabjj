@@ -72,7 +72,7 @@ def main() -> int:
                 "perfil em markdown no formato do sistema. Fatos com fonte; sem inventar.")
         try:
             txt, _ = claude.research(model=SONNET, system=system, user=user,
-                                     step="athlete_scout", key=a["slug"], max_uses=6, max_tokens=3000)
+                                     step="athlete_scout", key=a["slug"], max_uses=4, max_tokens=2600)
         except SpendCapExceeded as e:
             print(f"[atleta] PARADO: {e}"); break
         except Exception as e:  # noqa: BLE001

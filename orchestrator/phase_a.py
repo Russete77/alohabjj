@@ -82,7 +82,7 @@ def process_topic(claude: Claude, item: dict, slug: str) -> bool:
         model=SONNET, system=_sys("researcher"),
         user=f"PAUTA: {item['titulo']}\nURL da fonte: {item['url']}\nResumo: {item.get('resumo','')}\n\n"
              "Apure em ≥2 fontes independentes da web e devolva o material com procedência.",
-        step="pesquisador", key=slug)
+        step="pesquisador", key=slug, effort="medium", max_uses=4)  # medium: base do dossiê
 
     # Validação é extração factual — effort baixo + folga de tokens (thinking não pode
     # consumir todo o orçamento e deixar o JSON vazio; ver guard em lib/claude).
