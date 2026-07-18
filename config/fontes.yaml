@@ -46,17 +46,21 @@ news_web_intl:
 
 - name: Jits Magazine
   url: https://www.jitsmagazine.com/
+  rss: https://jitsmagazine.com/feed
   type: web
   lang: en
   category: news
-  priority: 2
+  priority: 1
+  notes: Cobre UFC BJJ, ADCC, WNO — feed RSS ativo.
 
 - name: Grappling Insider
   url: https://grapplinginsider.com/
+  rss: https://grapplinginsider.com/feed
   type: web
   lang: en
   category: news
-  priority: 2
+  priority: 1
+  notes: Cobertura diária de grappling + UFC BJJ.
 
 # ─────────────────────────────────────────────────────────────
 # 2) PORTAIS DE NOTÍCIA — NACIONAL (web / RSS, PT-BR)
@@ -137,10 +141,15 @@ orgs:
   channel_id:
   category: events
   priority: 2
-- name: UFC BJJ / Fight Pass Invitational
-  url: https://www.ufc.com/
+- name: UFC BJJ (oficial)
+  url: https://www.ufc.com.br/ufcbjj
+  rss: https://www.ufc.com.br/rss.xml
+  type: web
+  lang: pt-BR
   category: events
-  priority: 2
+  priority: 1
+  notes: Feed geral do UFC BR (sem RSS só de BJJ); o Radar filtra o que é UFC BJJ/grappling.
+    Está em alta — prioridade máxima.
 - name: BJJ Stars
   url: https://bjjstars.com/
   youtube_handle: "@bjjstarsoficial"
