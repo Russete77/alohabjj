@@ -1,33 +1,53 @@
 # config/cursos/100kg.yaml — Curso hospedado no nosso site (self-contained).
-# Cada aula tem `video` (URL do YouTube) — cole aqui ou no /admin/cursos e o player embeda.
-# Vazio = "em breve". O agente course_builder também escreve/edita este arquivo.
+# Conteúdo + vídeos reais importados de alohabjjnews.com/100kg-dominio-absoluto.
+# Cada aula toca aqui (embed do YouTube). O agente course_builder também edita este arquivo.
 slug: 100kg
 titulo: 100KG Domínio Absoluto
 subtitulo: Curso 100% gratuito de domínio, pressão e controle da posição 100KG
 descricao: >-
-  O sistema de domínio, pressão e controle da posição 100KG. Aprenda a dominar antes de
-  atacar e pressionar antes de finalizar — do jeito que trava o adversário.
+  Sistema de domínio, pressão e controle da posição 100KG. Aprenda a dominar antes de
+  atacar e pressionar antes de finalizar — do jeito que trava o adversário. Aulas liberadas
+  diariamente às 20h.
 gratis: true
-badge: "Grátis · aulas diárias às 20h"
-capa: ""            # imagem de capa (URL) — opcional
+badge: "Grátis · 10 aulas · liberação diária às 20h"
+capa: ""
 
 modulos:
-  - titulo: Domínio e Controle
+  - titulo: Módulo 1 — Domínio e Controle
     aulas:
-      - { titulo: "Eliminando espaço no primeiro contato", video: "", descricao: "" }
-      - { titulo: "Princípio da substituição", video: "", descricao: "" }
-      - { titulo: "Concentração de peso e controle do quadril", video: "", descricao: "" }
-      - { titulo: "Ponto onde o adversário para de reagir", video: "", descricao: "" }
-      - { titulo: "Transformação de pressão em controle absoluto", video: "", descricao: "" }
-      - { titulo: "Conexão contínua entre posições", video: "", descricao: "" }
-  - titulo: Ataques que Nascem do Domínio
+      - titulo: "Aula 1 — Como eliminar o espaço desde o primeiro contato"
+        video: "https://youtu.be/kSFSUqqdB1U"
+        descricao: "A base de todo o sistema. O foco está no controle inicial, no ajuste de distância e no posicionamento do corpo para impedir a movimentação do adversário e criar uma estrutura sólida de pressão."
+      - titulo: "Aula 2 — O princípio da substituição: nada sai antes que algo entre"
+        video: "https://youtu.be/p2rFJjmU5Gk"
+        descricao: "O conceito que sustenta todo o controle do sistema: criar uma base sólida usando posicionamento e pressão para gerar desconforto antes de qualquer avanço. Sem base não existe pressão, e sem pressão não existe progressão segura."
+      - titulo: "Aula 3 — Como concentrar peso sem perder base e equilíbrio"
+        video: "https://youtu.be/2WA-vZU-AAQ"
+        descricao: "Controlar o ponto mais importante do corpo do adversário: o quadril. Posicionamento correto e distribuição de peso pra travar a mobilidade do quadril, limitando pontes, giros e escapes."
+      - titulo: "Aula 4 — O ponto onde o adversário para de reagir"
+        video: "https://youtu.be/ZxhOMqUwp0c"
+        descricao: "Onde a pressão vira rendição: usar posicionamento e pressão para gerar desconforto e chegar ao ponto em que o adversário deixa de reagir, abrindo o caminho do domínio."
+      - titulo: "Aula 5 — Quando a pressão vira controle absoluto"
+        video: "https://youtu.be/g1LzDZfFmHE"
+        descricao: "Transformar o controle em ameaça constante. Ajustes de pressão e posicionamento que limitam as opções do adversário e abrem caminhos naturais de progressão — você conduz o jogo sempre um passo à frente."
+      - titulo: "Aula 6 — A conexão contínua: transitar pelo sistema sem perder o domínio"
+        video: "https://youtu.be/pU2nKAN-bAo"
+        descricao: "O professor percorre todo o sistema conectando cada etapa de forma fluida e estratégica — como as posições, ajustes de pressão e transições se encaixam numa lógica única, sem movimentos isolados."
+  - titulo: Módulo 2 — Ataques que Nascem do Domínio
     aulas:
-      - { titulo: "Estrangulamentos inevitáveis", video: "", descricao: "" }
-      - { titulo: "Armlocks pela reação do adversário", video: "", descricao: "" }
-      - { titulo: "Americanas sem força bruta", video: "", descricao: "" }
-      - { titulo: "Bônus: Mão de vaca invisível", video: "", descricao: "" }
+      - titulo: "Aula 7 — Transformando pressão em estrangulamentos inevitáveis"
+        video: "https://youtu.be/DUs0y6xrXSs"
+        descricao: "Como o domínio construído nos módulos anteriores vira estrangulamento: a pressão contínua e a conexão do sistema expõem o pescoço como consequência natural do controle."
+      - titulo: "Aula 8 — Armlocks que surgem da reação do adversário"
+        video: "https://youtu.be/VQgwOWAt_7k"
+        descricao: "Transformar a pressão da Posição 3 num armlock inevitável. O foco está na manutenção do quadril flutuante, na base sólida e nos ajustes de conexão que expõem o braço como consequência do domínio."
+      - titulo: "Aula 9 — Americanas construídas com o corpo, não com os braços"
+        video: "https://youtu.be/nmdFd38XvXw"
+        descricao: "O domínio das etapas anteriores se transforma em finalização: pressão contínua, controle estrutural e leitura das reações conduzem à americana sem força nem movimentos isolados."
+      - titulo: "Aula 10 (Bônus) — O ataque invisível que nasce do domínio total"
+        video: "https://youtu.be/gSdGl7vg9yY"
+        descricao: "A mão de vaca que surge de forma invisível a partir da própria defesa do adversário. Pressão contínua, controle silencioso e alinhamento do corpo transformam a reação dele em finalização."
 
-# Produtos recomendados dentro do curso (links de afiliado — monetização honesta)
 recomendados:
   - { nome: "Hayabusa Fightwear", url: "https://lcshop.co/EeJo0L", desc: "Kimono e gear de alto desempenho — cupom LUCAS." }
   - { nome: "Loja BJJ3D", url: "https://shopee.com.br/bjj3doficial", desc: "Produtos 3D exclusivos AlohaBJJ." }
