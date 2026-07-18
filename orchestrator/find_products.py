@@ -61,6 +61,30 @@ def _sys(name: str) -> str:
     return (AGENTS / name / "system.md").read_text(encoding="utf-8")
 
 
+def _product_info(url: str) -> dict:
+    """Abre a página do produto pra pegar a FOTO (og:image) e checar se está ATIVO
+    (não pausado/finalizado). Best-effort — nunca levanta."""
+    import re as _re
+    import urllib.request as _u
+    info: dict = {"imagem": "", "ativo": True}
+    if not url or not url.startswith("http"):
+        return info
+    try:
+        req = _u.Request(url, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"})
+        html = _u.urlopen(req, timeout=12).read().decode("utf-8", "ignore")
+    except Exception:  # noqa: BLE001
+        return info
+    m = _re.search(r'<meta[^>]+property=["\']og:image["\'][^>]+content=["\']([^"\']+)', html, _re.I)
+    if m:
+        info["imagem"] = m.group(1)
+    low = html.lower()
+    if any(s in low for s in ("anúncio pausado", "anuncio pausado", "publicação pausada",
+                              "está pausado", "anúncio finalizado", "não está disponível",
+                              "no longer available", "currently unavailable")):
+        info["ativo"] = False
+    return info
+
+
 def _json_extract(text: str) -> dict | None:
     """Pega o 1º objeto JSON balanceado do texto (a busca web pode vir com preâmbulo)."""
     start = text.find("{")
@@ -153,12 +177,20 @@ def main() -> int:
             print(f"[scout] PARADO: {e}"); break
         except Exception as e:  # noqa: BLE001
             print(f"  ! '{q}': {e}"); continue
+        # foto: a do agente (da busca) ou a og:image da página (Amazon etc.; ML bloqueia bot).
+        # status: o ML não deixa checar por bot — o gate humano confirma clicando no link.
+        info = _product_info(data.get("external_url", "")) if data.get("external_url") else {"imagem": "", "ativo": True}
+        data["imagem_url"] = data.get("imagem") or info.get("imagem") or ""
+        if data.get("ativo") is False or not info.get("ativo", True):
+            data["motivo"] = "⚠ verifique: pode estar pausado/indisponível. " + (data.get("motivo") or "")
+            data["score"] = min(int(data.get("score") or 5), 4)
         data["precisa_link"] = not data.get("external_url")
         cand.add(data)
         ok += 1
         fonte = data.get("fonte") or ("via API" if h.get("url") else "via web")
+        flag = " · PAUSADO" if "PAUSADA" in (data.get("motivo") or "") else (" · PRECISA LINK" if data["precisa_link"] else "")
         print(f"  ✓ candidato: {data.get('id_sugerido','?')} (nota {data.get('score','?')}) "
-              f"← {fonte}{' · PRECISA LINK' if data['precisa_link'] else ''}")
+              f"← {fonte}{flag}{' · c/ foto' if data.get('imagem_url') else ''}")
 
     print(f"\n[scout] {ok} candidato(s) → data/product_candidates.json · custo ≈ ${log.total_cost():.4f}")
     print("        Aprove/reprove em /admin/produtos.")
