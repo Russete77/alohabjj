@@ -1,84 +1,196 @@
-# Auditoria de CTO — BjjcomLucas / AlohaBJJ
-
-> Estado em 2026-07-16. Auditoria completa em 4 frentes (design, backend/pipeline, dados/banco, segurança/produção) antes de: repaginar o design → desenhar o banco → hardening de produção. Prioridades **P0** (bloqueia produção), **P1** (importante), **P2** (hardening/custo).
-
-## Resumo executivo
-O pipeline **funciona ponta a ponta** e a engenharia é sólida (roteamento de modelo, backoff, seen-log correto, portão de visão, guardrails). O que falta é **maturidade de produção**: o teto de gasto não é global, o custo de imagem é invisível, faltam banco/tracking (o Supervisor não consegue aprender), o `/admin` não tem autenticação, e — o mais sério — **a arte reposta foto de terceiros (risco de direito autoral)**, contrariando a nossa própria `regras.md §1`. O design tem bons ossos mas alguns "tells" de protótipo/IA. Nada disso é retrabalho grande; é fechar as pontas na ordem certa.
+# 🥋 Auditoria de CTO — Ecossistema AlohaBJJ
+*Revisão completa do estado atual vs. a visão de "máquina de vendas do BJJ". — 17/07/2026*
 
 ---
 
-## 🔴 P0 — Crítico (resolver antes de deploy/escala)
+## 1. A visão (o que estamos construindo)
 
-| # | Frente | Achado | Evidência | Correção |
-|---|---|---|---|---|
-| P0-1 | Segurança/Legal | **Repostar foto de imprensa = violação de direito autoral.** Atribuição ("Foto: flgrappling") não é licença; com CTA pra curso pago/afiliado, cai a defesa de fair-use. Contraria a nossa `regras.md §1`. | `lib/heroimg.py`, `render_card.mjs:36`, fontes FloGrappling/IBJJF | Inverter: **arte própria/IA/licenciada como caminho feliz**; nunca repostar foto scrapeada. Allowlist de domínios licenciados. |
-| P0-2 | Segurança | **`/admin` publica sem autenticação.** `layout.tsx` só põe `noindex`; `actions.ts publicar()` não checa auth. Ao subir na Vercel, o portão de aprovação fica aberto na internet. | `web/app/(admin)/admin/layout.tsx`, `actions.ts` | Auth real (middleware + Supabase Auth) antes de qualquer deploy. |
-| P0-3 | Backend/Custo | **Teto de gasto é por-run, não global.** Cron/loop de falha gasta `SPEND_CAP` a cada invocação, sem teto diário. E **custo de imagem não entra no teto** (invisível). | `lib/claude.py`, `lib/jobs.py total_cost()`, `lib/imagegen.py` (sem `cost_est`) | Teto diário (`DAILY_SPEND_CAP_USD`) somando janela 24h + logar `cost_est` da imagem. |
+Um **ecossistema interligado** que transforma notícia de BJJ em venda:
+
+```
+FONTES (RSS/web/YouTube)
+      │
+      ▼
+  RADAR + DOSSIÊ (inteligência)
+      │
+      ├──► PORTAL público de notícias  ──┐
+      │                                   │  (linka)
+      ├──► INSTAGRAM  (notícias)          │
+      ├──► TIKTOK     (notícia+curiosidade+humor)
+      ├──► YOUTUBE    (shorts + vídeo longo)
+      │        │
+      │        ▼  CTA comment-to-DM (ManyChat)
+      │        │
+      └──►  LOJA  ◄──────────────────────┘
+           ├─ Cursos digitais (nossos)
+           ├─ Impressão 3D (nossos)
+           └─ Afiliados campeões (Shopee/ML/Amazon)
+                    │
+                    ▼
+              VENDA + TRACKING ──► Supervisor APRENDE o que converte
+```
+
+**Regra de ouro:** tudo interligado, tudo fácil de mexer e entender, e cada peça de conteúdo empurra pra uma venda.
 
 ---
 
-## 🟡 P1 — Importante
+## 2. Veredito executivo (a real)
 
-| # | Frente | Achado | Correção |
+| | |
+|---|---|
+| 🟢 **Motor de conteúdo** | **Forte.** Pipeline Fase A→B roda ponta a ponta, com frescor, arte com foto real (grátis) e tracking. |
+| 🟡 **Operação (admin)** | **Confuso.** 8 seções sem hierarquia. Precisa reorganizar em blocos claros. |
+| 🔴 **Camada de vendas (loja + agentes de produto)** | **Não existe.** É o maior buraco pro "máquina de vendas". |
+| 🟡 **Infra (banco, billing, deploy)** | **Meio-caminho.** Schema pronto mas Supabase não ligado; IA/texto travada em billing. |
+
+**Resumo:** temos um ótimo *jornal automatizado*. Falta virar *loja automatizada*.
+
+---
+
+## 3. Estado por camada (honesto, item a item)
+
+| Camada | O que existe | Funciona? | Gap / risco |
 |---|---|---|---|
-| P1-1 | Backend | **Sem resume mid-chain:** Analista falha → re-cobra os ~$0.60 do Pesquisador+Validador. | Persistir `_research.json` por slug; pular etapa já `succeeded`. |
-| P1-2 | Backend/Seg | **`web_search` sem `allowed_domains`** — viola a §5 (allowlist documentada, não imposta). Também é vetor de SSRF. | Passar domínios do `fontes.yaml` no bloco do web_search. |
-| P1-3 | Backend | **Bug: `_sources` lê `source` em vez de `source_url`** — a foto real vinha "por sorte" via `facts.md`. | Trocar pra `m.get("source_url")` (1 palavra). |
-| P1-4 | Compliance | **Disclosure CONAR só tem juiz-LLM (Haiku).** Pro afiliado Hayabusa, disclosure faltando = violação regulatória. | Checagem **determinística**: se `disclosure_obrigatorio`, falhar build sem `#publi` na 1ª linha. |
-| P1-5 | Produção | **Sem alerta em run desatendido.** Falha às 6h vai pro log e ninguém sabe. | Hook Stop → e-mail/webhook em `errored`/`refused`/exit≠0. |
-| P1-6 | Backend | **Dedupe "enriquecer" não implementado** — pauta de follow-up é descartada. | Implementar o append no dossiê existente. |
-| P1-7 | Backend | **`build_dossiers` aborta tudo em erro 400** (só captura 3 exceções). | Capturar `anthropic.APIError`/`SpendCapExceeded`, pular slug. |
-| P1-8 | Produção | **Sem backup.** `knowledge/`/`outputs/`/`.seen_urls.json` num Windows só. Perder o seen-log = reprocessa e re-cobra tudo. | Backup de `knowledge/`+`outputs/`; escrita atômica do seen-log. |
+| **Ingestão (Radar/Fase A)** | RSS multi-fonte + dedupe + **filtro de frescor** (só últimos 21 dias) | ✅ | — |
+| **Inteligência (dossiê)** | Pesquisador→Validador→Analista (Opus) | ✅ (com chave) | billing IA |
+| **Geração (Fase B)** | Supervisor→Carrossel→Avaliador | ✅ | billing IA |
+| **Arte / imagem** | **Foto real da web tratada (sharp, grátis)** + frame; feed 1080×1350; **9:16 Stories/Reels**; recorte do Lucas corrigido | ✅ | IA-gen opcional (billing) |
+| **Portal público** | Next.js, 4 categorias, **agora com imagem real** em toda notícia | ✅ | deploy das imagens (runtime) |
+| **Admin / CMS** | Fila, conversão, catálogo, base de conhecimento, fontes, prompts, chaves, **auth por senha** | ⚠️ funciona mas **confuso** | reorganizar |
+| **Tracking / conversão** | `/r` e `/k` gravam clique; painel `/admin/conversao`; Supervisor aprende | ✅ | migrar pro banco |
+| **Afiliados** | **3 providers codados**: Amazon (PA-API), Mercado Livre, Shopee + `best_product()` | ⚠️ | **sem credenciais** → link cai no portal |
+| **Funil ManyChat** | link estável `/k/<PALAVRA>` → produto → afiliado | ✅ (código) | criar os fluxos 1× no ManyChat |
+| **Base de conhecimento** | upload img/voz/vídeo/texto/link que alimenta os agentes | ✅ | — |
+| **Loja pública** | — | ❌ | **não existe** |
+| **Modelo de produto 3-tipos** (curso/3D/afiliado) | catálogo só tem `proprio`/`afiliado` | ⚠️ | estender |
+| **Agentes de produto** | — | ❌ | **não existe** |
+| **Banco (Supabase)** | `db/schema.sql` completo (dossiers, pieces, events, agent_steps, RLS) | ⚠️ | **não conectado** (`db.py` é no-op) |
+| **Plataformas** | pacotes IG/TikTok/YT (copiar-colar) | ✅ | **auto-post ❌** (manual) |
+| **YouTube** | metadados de Shorts | ⚠️ | falta **ideias de vídeo longo** |
+| **TikTok** | roteiro de notícia | ⚠️ | falta **curiosidade/humor** |
+| **Interligação (ecossistema)** | conteúdo→CTA→ManyChat parcial | ⚠️ | conteúdo↔loja↔canais |
 
 ---
 
-## 🟢 P2 — Hardening / custo
+## 4. Dívida técnica & riscos (o que me tira o sono como CTO)
 
-| # | Frente | Achado | Correção |
-|---|---|---|---|
-| P2-1 | Custo | **Sem prompt caching** dos prefixos estáveis (system.md+voz+config). Contabilidade já pronta (`CACHE_READ_FACTOR`), só falta `cache_control`. | Maior alavanca de custo. Marcar o bloco system como `ephemeral`. |
-| P2-2 | Custo | **Sem Batch API** na Fase B/backfill (−50%, empilha com cache). | Rotear backfill/Fase B pelo Batch. |
-| P2-3 | Qualidade | **Diretor de Arte existe mas não plugado** — Carrossel escreve o hero_prompt sozinho, sem o glossário `bjj-visual.md`. | Inserir entre Carrossel e imagegen. |
-| P2-4 | Perf | `already_succeeded` varre TODOS os jobs a cada checagem (O(n²)); `jobs/` cresce sem rotação. | Índice em memória; rotação/retenção de log. |
-| P2-5 | Dados | **`fontes.yaml` corrompido** por rewrite automático (chaves `rss:` em indentação errada) → alguns feeds de YouTube nunca são lidos, sem erro. | Regenerar limpo + lint de schema. |
-| P2-6 | Código | Hack de encoding Windows duplicado em 6+ arquivos. | Um helper `lib/console.py`. |
-
----
-
-## 🎨 Design — veredito "cara de IA"
-
-Ossos bons (estrutura editorial, kickers mono, dark mode, admin competente), mas 5 tells de protótipo:
-1. **Thumbnails são gradiente vazio** (sem foto real) — o maior. Agora temos imagem, dá pra preencher.
-2. **Gradiente + glow radial** como muleta em tudo.
-3. **Fonte `system-ui`** — sem identidade tipográfica.
-4. **Cores arco-íris** nas categorias — dilui o preto/branco/cinza/vermelho.
-5. Toques de cópia genéricos.
-
-**Direção:** marca de mídia de combate — foto-first, tipografia forte (display + texto, self-hosted), paleta disciplinada, sem gradiente decorativo. Editorial, não "dashboard com glow".
+1. **Billing de IA** — sem chave Anthropic, os agentes de texto não rodam ao vivo. *(A arte já contorna com foto real tratada — grátis.)*
+2. **Supabase não conectado** — schema existe, mas o app não escreve/lê. Sem isso não há loja, pedidos, nem memória durável de conversão.
+3. **Admin sem auth ligada** — a senha existe mas está vazia. **Não expor o /admin publicamente antes de setar `ADMIN_PASSWORD`** (ele edita chaves reais).
+4. **Imagens do portal em runtime** — capas em `web/public/hero/` (gitignored). No deploy, regenerar (`backfill_images`) ou mover pro Storage.
+5. **Afiliados sem credenciais** — todo `/k` e `/r` cai no portal em vez de converter. Falta só cadastrar as creds.
+6. **Uso de foto-fonte na arte** — a arte usa a `og:image` do artigo tratada sob o nosso frame (decisão sua, com atribuição registrada). Onde der, migrar pra foto **própria/licenciada** reduz risco de direito autoral. *(No portal, as capas vêm do próprio alohabjjnews.com — sem risco.)*
+7. **Publicação manual** — não há auto-post; é copiar-e-colar. OK pra V1, gargalo de escala.
+8. **Catálogo em YAML vs banco** — quando a loja for pro Supabase, o Supervisor precisa passar a ler produtos do banco (hoje lê `catalogo.yaml`).
 
 ---
 
-## 🗄️ Banco de dados — o cérebro que acompanha os agentes
+## 5. Gaps vs. o ecossistema (o que falta CONSTRUIR)
 
-Princípio: **arquivos continuam sendo o artefato imutável; o Postgres é o índice consultável + estado operacional + a memória dos agentes e da conversão.**
-
-Tabelas centrais (esqueleto):
-- **`dossiers`** (+ `dossier_facts`, `dossier_angles`, `dossier_athletes`, `athletes`) — Fase A normalizada.
-- **`pieces`** (+ `piece_state_transitions` pro workflow com auditoria) — Fase B; FK pro dossiê (1 dossiê → N peças) e pro `angle` usado.
-- **`platform_packages`** (1 por peça×canal, `payload jsonb`, fila de publicação/agendamento).
-- **`art_assets`** — metadados dos PNGs (binário fica em storage).
-- **`sources`**, **`products`** — do `fontes.yaml`/`catalogo.yaml`.
-- **`agent_runs`** + **`agent_steps`** — 🔑 uma linha por passo de agente (step/model/tokens/custo/latência/status), ligada ao dossiê/peça. Índice `(step,key,status)` → **resume O(1)** e observabilidade real por agente/modelo. *É a resposta do "acompanhar os agentes".*
-- **`events`** + view `mv_conversion_by_angle_format` — 🔑 o funil que o `clicks.csv` deveria ser. **Fecha o loop:** o Supervisor aprende produto×ângulo×formato que converte. Hoje esse loop **não existe**.
-- **`topics`/`ingested_urls`** + **pgvector** — dedup semântico (o `embedding_ref` sempre reservado, nunca usado).
-
-Extensões: `pgvector`, `pg_trgm`, `pgcrypto`. Enums pro vocabulário controlado. Partição por mês em `agent_steps` e `events` (as duas mangueiras). Migração: importador idempotente por slug (lê os arquivos), dual-write nos poucos pontos que já escrevem, flip de leitura gradual, RLS (pipeline=service-role server-side; portal=anon read publicado; admin=auth).
+- 🏪 **Loja pública** — página que lista cursos digitais + 3D + afiliados, cada um com botão de compra/redirect.
+- 🧩 **Modelo de produto 3-tipos** — `curso` · `impressao_3d` · `afiliado`, cada um com seu fluxo de compra.
+- 🤖 **Agentes de produto especializados** — identificar campeões nos marketplaces → classificar → gerar conteúdo + imagem de conversão → publicar na loja com link de afiliado.
+- 🎛️ **Admin claro** — reorganizar em **Conteúdo / Loja / Agentes / Config** (hoje 8 abas sem hierarquia).
+- 🔗 **Interligação** — CTA de conteúdo → loja; papéis distintos por canal; tracking unificado no banco.
+- 📺 **YouTube longo** — agente de ideias/roteiro de vídeo de canal (hoje só Shorts).
+- 😂 **TikTok humor/curiosidade** — trilha além de notícia.
 
 ---
 
-## Sequência de execução recomendada
-1. **Decidir a estratégia de imagem** (P0-1) — muda a arte E o design foto-first.
-2. **Repaginar o design** (tipografia, paleta, foto-first, sem gradiente).
-3. **Banco:** SQLs (schema + índices + RLS + enums) → você roda; `.env` com nomes das variáveis.
-4. **Hardening P0/P1 do pipeline** (teto global, auth do admin, allowed_domains, source_url, resume, disclosure determinístico, alertas).
-5. **Custo:** prompt caching + Batch.
+## 6. Os papéis de cada canal (a máquina, destrinchada)
+
+| Canal | Papel | Estado |
+|---|---|---|
+| **Instagram** | Notícias (carrossel feed + stories 9:16) | ✅ pacote pronto |
+| **TikTok** | Notícia + novidade + **curiosidade + humor** | ⚠️ só notícia |
+| **YouTube** | **Shorts + vídeos longos** | ⚠️ só metadados de Shorts |
+| **Portal** | Hub de notícias, linka IG/TikTok | ✅ (agora com imagem) |
+| **Loja** | Cursos digitais + 3D + afiliados | ❌ |
+| **ManyChat** | Captura o lead do comentário → DM com link | ✅ (código) / criar fluxos |
+| **Tracking** | Fecha o loop: clique/venda → Supervisor aprende | ✅ |
+
+---
+
+## 7. Roadmap priorizado (sub-projetos → ordem → dependência)
+
+```
+FASE 0 — Hotfixes  ...................................... ✅ FEITO
+  ✓ Frescor (só notícia recente)
+  ✓ Imagens reais no portal (45 notícias)
+  ✓ Arte com foto real tratada (grátis) + 9:16 + recorte do Lucas
+
+FASE 1 — Banco Supabase COMPLETO  ...................... ⏭️ PRÓXIMO
+  → 1 SQL completo (projeto todo + loja) pra colar no projeto novo
+  → liga o app ao banco (creds no .env)
+  Destrava: loja, pedidos, memória durável, interligação
+
+FASE 2 — Modelo de Produto + LOJA pública
+  → produtos 3-tipos (curso/3D/afiliado) + página /loja com redirect
+  Depende de: Fase 1
+
+FASE 3 — Agentes de Produto
+  → identificar → classificar → conteúdo+imagem → publica na loja
+  Depende de: Fase 2
+
+FASE 4 — Admin claro (reorganização)
+  → Conteúdo / Loja / Agentes / Config
+  Pode rodar em paralelo à Fase 2/3
+
+FASE 5 — Interligação + canais
+  → CTA conteúdo→loja, TikTok humor, YouTube longo, tracking unificado
+
+FASE 6 — Auto-post (opcional, escala)
+  → publicar direto nas APIs (Meta/TikTok/YT) via interface única
+```
+
+**Cada fase = seu próprio spec → aprovação → build.**
+
+---
+
+## 8. Decisões que dependem de VOCÊ (externas, não são código)
+
+| Decisão | Por quê | Status |
+|---|---|---|
+| **Chave/crédito Anthropic** | rodar os agentes ao vivo | pendente |
+| **Crédito de imagem** (OpenAI/Gemini/Runway) | só se quiser IA-gen; a arte já funciona com foto real | opcional |
+| **Credenciais de afiliado** (Amazon/ML/Shopee) | `/k` e `/r` virarem venda | pendente |
+| **Supabase** | colar o SQL + creds no `.env` | projeto criado ✅ |
+| **Gateway de pagamento** (curso pago / 3D) | checkout dos produtos próprios | a definir |
+| **Fluxos ManyChat** (8 palavras) | funil comment-to-DM | pendente |
+| **`ADMIN_PASSWORD`** | ligar auth antes de expor o admin | pendente |
+
+---
+
+## 9. O que foi entregue nesta sprint (rastro)
+
+- Painel de conversão (`/admin/conversao`) + **auth do admin**.
+- Editores no admin: catálogo/afiliados, fontes RSS, **base de conhecimento** (upload que alimenta a IA).
+- Funil ManyChat estável (`/k/<PALAVRA>`).
+- **Arte com foto real tratada** (sharp, grátis) — parou de gastar IA à toa; recorte do Lucas corrigido; **Stories/Reels 9:16**; slides do carrossel com foto de fundo.
+- **Frescor**: Radar só puxa notícia recente.
+- **Imagens reais** em todas as notícias do portal.
+
+---
+
+## 10. Dívida técnica do pipeline (carry-forward do audit técnico anterior)
+
+**Fechados nesta sprint:** auth do `/admin` (era P0), Diretor de Arte plugado na arte (era P2), imagem foto-first no portal e na arte (era o maior "tell" de design).
+
+**Ainda abertos** (não bloqueiam o ecossistema, mas entram no hardening):
+- Teto de gasto **global/diário** (hoje é por-run) + custo de imagem no teto.
+- **Resume mid-chain** (Analista falha → re-cobra Pesquisador+Validador).
+- `web_search` com **`allowed_domains`** (allowlist imposta, não só documentada).
+- **Disclosure CONAR determinístico** (falhar build sem `#publi` quando obrigatório).
+- **Alerta** em run desatendido que falha.
+- **Prompt caching** + Batch API (maior alavanca de custo).
+- Backup de `knowledge/`+`outputs/` + escrita atômica do seen-log.
+
+---
+
+## 11. Recomendação do CTO (resumo de 3 linhas)
+
+1. **Ligar o Supabase (Fase 1)** é o desbloqueio de maior alavancagem — sem banco não há loja nem ecossistema conectado.
+2. **Loja + agentes de produto (Fases 2–3)** é onde o dinheiro passa a entrar de verdade.
+3. **Admin claro (Fase 4)** em paralelo, pra você operar sem dor.
+
+*O motor é bom. Agora a gente pluga a loja nele e liga a máquina.*
