@@ -407,3 +407,8 @@
 .town-status.on{color:#22A15C}
 .town-status.on .dot{background:#22A15C;box-shadow:0 0 0 3px rgba(34,161,92,.2);animation:pulse 1.4s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ideias de conteúdo no candidato de produto */
+.cnd-ideias{display:flex;flex-direction:column;gap:5px;background:var(--bg);border-radius:8px;padding:9px 11px;margin-top:2px}
+.cnd-ideia{font-size:11.5px;color:var(--muted);line-height:1.4}
+.cnd-ideia b{color:var(--ink);font-size:10.5px;margin-right:5px}

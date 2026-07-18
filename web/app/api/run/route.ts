@@ -21,6 +21,7 @@ function buildArgs(task: string, opts: { max?: number; slug?: string; tema?: str
     case "plataformas": return slug ? ["-m", "orchestrator.build_platforms", slug] : null;
     case "atletas": return ["-m", "orchestrator.enrich_athlete", "--max", String(max)];
     case "produtos": return ["-m", "orchestrator.find_products", "--max", String(max)];
+    case "produtos_dia": return ["-m", "orchestrator.find_products", "--diario"];
     case "curso": return tema ? ["-m", "orchestrator.build_course", "--tema", tema] : null;
     default: return null;
   }

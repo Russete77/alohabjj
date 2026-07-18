@@ -123,21 +123,31 @@ def _hit_dict(h) -> dict:
             "imagem": getattr(h, "imagem", "")}
 
 
+MARKETPLACES = {"amazon": "Amazon", "mercadolivre": "Mercado Livre", "shopee": "Shopee"}
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--max", type=int, default=6, help="quantas categorias caçar")
     ap.add_argument("--query", help="query única (ad-hoc)")
     ap.add_argument("--cat", default="gear", help="categoria da query ad-hoc")
+    ap.add_argument("--fonte", choices=list(MARKETPLACES), help="trava o marketplace")
+    ap.add_argument("--diario", action="store_true", help="1 campeão POR marketplace (Amazon+ML+Shopee)")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
 
-    alvos = [(args.query, args.cat)] if args.query else ALVOS[:args.max]
-    print(f"[scout] {len(alvos)} categoria(s) a caçar")
+    if args.diario:  # 1 por marketplace, categorias diferentes
+        alvos = [(ALVOS[i % len(ALVOS)][0], ALVOS[i % len(ALVOS)][1], f)
+                 for i, f in enumerate(["amazon", "mercadolivre", "shopee"])]
+    elif args.query:
+        alvos = [(args.query, args.cat, args.fonte)]
+    else:
+        alvos = [(q, c, args.fonte) for (q, c) in ALVOS[:args.max]]
+    print(f"[scout] {len(alvos)} alvo(s){' · 1 por marketplace' if args.diario else ''}")
 
     if args.dry_run:
-        for q, c in alvos:
-            h = _hit_dict(_hit(q))
-            print(f"  faria: [{c}] '{q}' — hit: {h.get('titulo') or '(sem credencial de afiliado)'}")
+        for q, c, f in alvos:
+            print(f"  faria: [{c}] '{q}'{' SÓ ' + MARKETPLACES[f] if f else ' (compara os 3)'}")
         print("[scout] --dry-run: nenhuma chamada à IA.")
         return 0
 
@@ -150,27 +160,30 @@ def main() -> int:
 
     scout_sys = _sys("product_scout")
     ok = 0
-    for q, c in alvos:
+    for q, c, fonte in alvos:
         h = _hit_dict(_hit(q))  # API de afiliado (se houver credencial)
         try:
             if h.get("url"):
                 # caminho com credencial: classifica o produto real da API (JSON garantido)
                 ctx = (f"CATEGORIA: {c}\nPRODUTO REAL (marketplace):\n"
-                       f"{json.dumps(h, ensure_ascii=False)}\nClassifique e escreva a copy. SÓ JSON.")
+                       f"{json.dumps(h, ensure_ascii=False)}\nClassifique, escreva a copy e as "
+                       "ideias de conteúdo (ideia_tiktok, ideia_instagram). SÓ JSON.")
                 txt, _ = claude.call(model=SONNET, system=scout_sys, user=ctx, step="scout",
-                                     key=q[:40], json_schema=SCOUT_SCHEMA, max_tokens=1200)
-                data = json.loads(txt)
+                                     key=q[:40], max_tokens=1500)
+                data = _json_extract(txt) or {}
                 data.update({"fonte": h.get("fonte", ""), "external_url": h.get("url", ""),
                              "imagem_url": h.get("imagem", ""), "preco": h.get("preco", "")})
             else:
                 # SEM credencial: o agente BUSCA NA WEB o campeão real (web_search)
-                ctx = (f"CATEGORIA: {c}\nQUERY BASE: {q}\n\nBusque na web e COMPARE os 3 "
-                       "marketplaces do Brasil — Mercado Livre, Amazon e Shopee. Escolha o "
-                       "VERDADEIRO campeão (mais vendas/avaliações, ATIVO). Quando empatar, "
-                       "prefira Amazon (a foto do produto costuma vir). Devolva SOMENTE o JSON "
-                       "do candidato, com external_url (link real), fonte, preco e imagem.")
+                trava = (f"Busque SÓ na {MARKETPLACES[fonte]} — não troque de marketplace."
+                         if fonte else "Compare Mercado Livre, Amazon e Shopee; no empate prefira "
+                         "Amazon (foto vem).")
+                ctx = (f"CATEGORIA: {c}\nQUERY BASE: {q}\n\n{trava} Escolha o VERDADEIRO campeão "
+                       "(mais vendas/avaliações, ATIVO). Devolva SOMENTE o JSON do candidato — com "
+                       "external_url (link real), fonte, preco, imagem, e as IDEIAS DE CONTEÚDO "
+                       "(ideia_tiktok, ideia_instagram) que convertem em venda.")
                 txt, _ = claude.research(model=SONNET, system=scout_sys, user=ctx, step="scout",
-                                         key=q[:40], max_uses=5, max_tokens=1600)
+                                         key=q[:40], max_uses=6, max_tokens=1800)
                 data = _json_extract(txt)
                 if not data:
                     print(f"  ! '{q}': não consegui extrair JSON da busca"); continue

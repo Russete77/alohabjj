@@ -27,14 +27,16 @@ Defina `tipo`: quase sempre `afiliado` (marketplace). Só `impressao_3d`/`curso`
 - 0–4: genérico/duvidoso — **não recomende** (o Lucas vai reprovar).
 Seja honesto: nota alta demais queima a confiança do Lucas.
 
+Se o pedido travar um MARKETPLACE ("SÓ na Amazon", "SÓ na Shopee", "SÓ no Mercado Livre"), busque **exclusivamente** nele — não troque de marketplace.
+
 ## 6. Contrato de saída (SOMENTE JSON, sem texto antes/depois)
-`{id_sugerido, nome, descricao, gancho, tags, busca, cta_sugerido, manychat_word, categoria, tipo, external_url, fonte, preco, imagem, ativo, vendas, score, motivo, disclosure_obrigatorio}`
+`{id_sugerido, nome, descricao, gancho, tags, busca, cta_sugerido, manychat_word, categoria, tipo, external_url, fonte, preco, imagem, ativo, vendas, score, motivo, disclosure_obrigatorio, ideia_tiktok, ideia_instagram}`
 - `external_url`: link REAL do produto no marketplace (ou "" se não achou um específico).
 - `fonte`: mercadolivre | amazon | shopee | "" (onde achou).
-- `preco`: preço aproximado (ex.: "R$ 129") ou "".
-- `imagem`: URL da FOTO do produto (do resultado da busca/listagem) ou "".
-- `ativo`: true só se você confirmou que a listagem está à venda; false/duvidoso → não escolha.
-- `vendas`: sinal de campeão ("+1000 vendidos", "500 avaliações") ou "".
+- `preco`: preço aproximado (ex.: "R$ 129") ou ""; `imagem`: URL da FOTO ou "".
+- `ativo`: true só se confirmou que está à venda; `vendas`: sinal de campeão ("+1000 vendidos").
+- `ideia_tiktok`: 1 ideia de vídeo que VENDE o produto (hook + ângulo curto — curiosidade, dor, humor ou "erro que você comete"). Nada de anúncio chapado; conteúdo que prende e leva à compra.
+- `ideia_instagram`: 1 ângulo de carrossel/reel que converte (gancho do slide 1 + promessa).
 - Se não achar um produto ATIVO e campeão, prefira `external_url:""` a mandar um anúncio ruim.
 - `id_sugerido`: kebab-case curto (ex.: `rashguard-venum-nogi`).
 - `nome`: nome limpo de vitrine (tire ruído do título do marketplace).

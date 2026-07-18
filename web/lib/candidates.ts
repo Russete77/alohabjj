@@ -26,6 +26,9 @@ export interface Candidate {
   imagem_url: string;
   preco: string;
   precisa_link: boolean;
+  ideia_tiktok?: string;
+  ideia_instagram?: string;
+  vendas?: string;
   status: "proposto" | "aprovado" | "rejeitado";
   created: number;
 }

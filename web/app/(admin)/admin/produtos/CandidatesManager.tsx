@@ -8,6 +8,7 @@ type Candidate = {
   tags: string[]; cta_sugerido: string; manychat_word: string; categoria: string;
   tipo: string; score: number; motivo: string; fonte: string; external_url: string;
   imagem_url: string; preco: string; precisa_link: boolean; status: string;
+  ideia_tiktok?: string; ideia_instagram?: string; vendas?: string;
 };
 
 export default function CandidatesManager({ candidates }: { candidates: Candidate[] }) {
@@ -61,6 +62,12 @@ export default function CandidatesManager({ candidates }: { candidates: Candidat
                 {c.precisa_link && <span className="cnd-chip warn">precisa link</span>}
               </div>
               <div className="cnd-motivo">{c.motivo}</div>
+              {(c.ideia_tiktok || c.ideia_instagram) && (
+                <div className="cnd-ideias">
+                  {c.ideia_tiktok && <div className="cnd-ideia"><b>🎵 TikTok</b> {c.ideia_tiktok}</div>}
+                  {c.ideia_instagram && <div className="cnd-ideia"><b>📸 Instagram</b> {c.ideia_instagram}</div>}
+                </div>
+              )}
               {c.external_url && <a className="cnd-link" href={c.external_url} target="_blank" rel="noreferrer">ver no {c.fonte} ↗</a>}
               <div className="cnd-actions">
                 <button className="btn primary" disabled={busy === c.id} onClick={() => aprovar(c.id)}>

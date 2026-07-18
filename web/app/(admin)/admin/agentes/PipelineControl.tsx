@@ -9,6 +9,7 @@ const TASKS: Task[] = [
   { id: "carrossel", label: "Fase B — gerar carrossel", hint: "de um dossiê (slug)", needs: "slug" },
   { id: "plataformas", label: "Fase B — pacotes + arte", hint: "IG/TikTok/YT + story (slug)", needs: "slug" },
   { id: "atletas", label: "Enriquecer atletas", hint: "cartel + preparação + notícias/X", needs: "max" },
+  { id: "produtos_dia", label: "Produtos do dia (1 por marketplace)", hint: "1 campeão em Amazon + ML + Shopee, com ideias de TikTok/Insta" },
   { id: "produtos", label: "Caçar produtos", hint: "campeões de marketplace → candidatos", needs: "max" },
   { id: "curso", label: "Criar curso", hint: "currículo de um tema", needs: "tema" },
 ];
