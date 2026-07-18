@@ -275,3 +275,30 @@
 .src-tags{font-size:11px;color:var(--faint)}
 .src-del{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;border:none;cursor:pointer;font-size:13px;line-height:1}
 .src-del:hover{background:var(--red)}
+
+/* candidatos de produto (Product Scout) */
+.cnd{display:flex;flex-direction:column;gap:28px}
+.cnd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px}
+.cnd-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+.cnd-img{position:relative;height:150px;background:var(--bg) center/cover no-repeat;display:flex;align-items:center;justify-content:center}
+.cnd-score{position:absolute;top:10px;left:10px;font-family:var(--font-mono);font-weight:800;font-size:15px;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff}
+.cnd-score.hi{background:#22A15C}.cnd-score.mid{background:var(--amber)}.cnd-score.lo{background:var(--faint)}
+.cnd-fonte{position:absolute;top:12px;right:10px;font-size:10px;text-transform:uppercase;letter-spacing:.06em;background:rgba(0,0,0,.55);color:#fff;padding:2px 8px;border-radius:5px}
+.cnd-body{padding:13px 14px 15px;display:flex;flex-direction:column;gap:8px;flex:1}
+.cnd-body h3{font-size:14.5px;margin:0;color:var(--ink);line-height:1.25}
+.cnd-desc{font-size:12.5px;color:var(--muted);line-height:1.45}
+.cnd-meta{display:flex;flex-wrap:wrap;gap:5px}
+.cnd-chip{font-size:10px;background:var(--elevated);color:var(--muted);padding:2px 7px;border-radius:20px}
+.cnd-chip.warn{background:var(--red-soft);color:var(--red)}
+.cnd-motivo{font-size:11.5px;color:var(--faint);font-style:italic}
+.cnd-link{font-size:11.5px;color:var(--muted)}.cnd-link:hover{color:var(--red)}
+.cnd-actions{display:flex;gap:8px;margin-top:4px}
+.cnd-actions .btn{flex:1}
+.cnd-done{border-top:1px solid var(--line);padding-top:16px}
+.cnd-done h2{font-size:13px;color:var(--faint);text-transform:uppercase;letter-spacing:.08em;margin:0 0 10px}
+.cnd-row{display:flex;align-items:center;gap:9px;font-size:13px;padding:5px 0;color:var(--muted)}
+.cnd-row b{color:var(--ink)}
+.cnd-dim{color:var(--faint);font-size:12px}
+.cnd-tag{font-size:10px;text-transform:uppercase;font-weight:700;padding:2px 8px;border-radius:5px}
+.cnd-tag.aprovado{background:rgba(34,161,92,.16);color:#22A15C}
+.cnd-tag.rejeitado{background:var(--elevated);color:var(--faint)}

@@ -131,5 +131,10 @@ def insert_event(row: dict) -> None:
     _enqueue("events", [{k: v for k, v in row.items() if v is not None}])
 
 
+def insert_candidate(row: dict) -> None:
+    """Candidato de produto (saída do Product Scout) → tabela product_candidates."""
+    _enqueue("product_candidates", [{k: v for k, v in row.items() if v is not None}])
+
+
 if __name__ == "__main__":
     print(f"[db] Supabase dual-write: {'ATIVO (assíncrono)' if enabled() else 'off (sem SUPABASE_URL/SERVICE_ROLE_KEY)'}")

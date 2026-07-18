@@ -6,6 +6,7 @@ import { cookies } from "next/headers";
 import { setEstado } from "@/lib/pieces";
 import { writeDoc, writeEnvKey, writeRawConfig } from "@/lib/config";
 import { saveProduct, addProduct } from "@/lib/catalog";
+import { getCandidate, setStatus } from "@/lib/candidates";
 import { addSource, removeSource, type SrcType } from "@/lib/sources";
 import { checkPassword, sessionToken, cookieName } from "@/lib/auth";
 
@@ -109,6 +110,42 @@ export async function excluirFonte(id: string) {
   try {
     removeSource(id);
     revalidatePath("/admin/conhecimento");
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, erro: (e as Error).message };
+  }
+}
+
+// candidatos de produto (Product Scout → gate do Lucas)
+export async function aprovarCandidato(id: string) {
+  try {
+    const c = getCandidate(id);
+    if (!c) return { ok: false, erro: "candidato não encontrado" };
+    // cria o produto no catálogo (a Loja e o Supervisor já usam) — nasce ATIVO
+    addProduct(c.id_sugerido, c.nome, c.manychat_word);
+    saveProduct(c.id_sugerido, {
+      tipo: c.tipo || "afiliado",
+      tags: c.tags || [],
+      gatilho: c.motivo || "",
+      busca: c.busca || "",
+      url_base: c.external_url || "",
+      gancho: c.gancho || "",
+      cta_sugerido: c.cta_sugerido || "",
+      disclosure_obrigatorio: c.disclosure_obrigatorio ?? true,
+    });
+    setStatus(id, "aprovado");
+    revalidatePath("/admin/produtos");
+    revalidatePath("/admin/catalogo");
+    return { ok: true, precisaLink: !c.external_url };
+  } catch (e) {
+    return { ok: false, erro: (e as Error).message };
+  }
+}
+
+export async function rejeitarCandidato(id: string) {
+  try {
+    setStatus(id, "rejeitado");
+    revalidatePath("/admin/produtos");
     return { ok: true };
   } catch (e) {
     return { ok: false, erro: (e as Error).message };

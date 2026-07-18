@@ -22,3 +22,7 @@ knowledge/sources/*
 # Imagens de capa das noticias (baixadas da fonte, runtime)
 web/public/hero/*
 !web/public/hero/.gitkeep
+
+# Candidatos de produto (saida do scout, runtime)
+data/product_candidates.json
+!data/.gitkeep
