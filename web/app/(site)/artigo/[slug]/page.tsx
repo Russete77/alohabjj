@@ -39,6 +39,8 @@ export default async function Artigo(
     Math.round(d.resumoParas.join(" ").split(/\s+/).length / 200),
   );
 
+  const [lead, ...corpo] = d.resumoParas;
+
   return (
     <main className="pwrap">
       <article className="article">
@@ -47,18 +49,35 @@ export default async function Artigo(
           <span>/</span>
           <a href={`/#${d.categoria}`} className={`cat ${d.categoria}`}>{d.categoriaLabel}</a>
         </div>
-        <span className={`cat ${d.categoria}`}>{d.categoriaLabel}</span>
-        <h1>{d.titulo}</h1>
+
+        {d.imagem ? (
+          <div className="ahero-wrap">
+            <div className="ahero" style={{ backgroundImage: `url("${d.imagem}")` }} />
+            <div className="ahero-grad" />
+            <div className="ahero-cap">
+              <span className={`kicker ${d.categoria}`}>{d.categoriaLabel}{d.evento ? ` · ${d.evento}` : ""}</span>
+              <h1>{d.titulo}</h1>
+            </div>
+          </div>
+        ) : (
+          <>
+            <span className={`kicker ${d.categoria}`}>{d.categoriaLabel}</span>
+            <h1>{d.titulo}</h1>
+          </>
+        )}
+
         <div className="ameta">
           <span className="who">@bjjcomlucas</span>
           {d.data && <span>{fmtData(d.data)}</span>}
           <span>{tempoLeitura} min de leitura</span>
-          {d.evento && <span>{d.evento}</span>}
         </div>
-        <div className="ahero" style={d.imagem ? { backgroundImage: `url("${d.imagem}")` } : undefined} />
-        {d.resumoParas.map((p, i) => (
-          <p key={i}>{p}</p>
-        ))}
+
+        <div className="abody">
+          {lead && <p className="lead">{lead}</p>}
+          {corpo.map((p, i) => (
+            <p key={i}>{p}</p>
+          ))}
+        </div>
         {(() => {
           const peca = getPiece(d.slug);
           if (!peca || peca.estado !== "publicado") return null;
