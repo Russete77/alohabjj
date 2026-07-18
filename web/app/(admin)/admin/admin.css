@@ -399,3 +399,11 @@
 /* fix dropdown sem contraste (select + option) */
 .pctl-row select{background:var(--panel);color:var(--ink);color-scheme:light dark}
 .admin select option,.pctl-row select option{background:var(--panel);color:var(--ink)}
+
+/* indicador ao vivo/ocioso da town view */
+.town-wrap{margin-bottom:8px}
+.town-status{display:inline-flex;align-items:center;gap:8px;font-size:12px;color:var(--faint);margin-bottom:8px}
+.town-status .dot{width:8px;height:8px;border-radius:50%;background:var(--faint)}
+.town-status.on{color:#22A15C}
+.town-status.on .dot{background:#22A15C;box-shadow:0 0 0 3px rgba(34,161,92,.2);animation:pulse 1.4s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}

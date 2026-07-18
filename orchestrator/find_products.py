@@ -164,10 +164,11 @@ def main() -> int:
                              "imagem_url": h.get("imagem", ""), "preco": h.get("preco", "")})
             else:
                 # SEM credencial: o agente BUSCA NA WEB o campeão real (web_search)
-                ctx = (f"CATEGORIA: {c}\nQUERY BASE: {q}\n\nBusque na web o produto CAMPEÃO de "
-                       "vendas dessa categoria em marketplace do Brasil (Mercado Livre, Amazon, "
-                       "Shopee). Escolha UM real e bem avaliado. Devolva SOMENTE o JSON do "
-                       "candidato, com external_url (link real), fonte e preco.")
+                ctx = (f"CATEGORIA: {c}\nQUERY BASE: {q}\n\nBusque na web e COMPARE os 3 "
+                       "marketplaces do Brasil — Mercado Livre, Amazon e Shopee. Escolha o "
+                       "VERDADEIRO campeão (mais vendas/avaliações, ATIVO). Quando empatar, "
+                       "prefira Amazon (a foto do produto costuma vir). Devolva SOMENTE o JSON "
+                       "do candidato, com external_url (link real), fonte, preco e imagem.")
                 txt, _ = claude.research(model=SONNET, system=scout_sys, user=ctx, step="scout",
                                          key=q[:40], max_uses=5, max_tokens=1600)
                 data = _json_extract(txt)
