@@ -147,7 +147,8 @@ def main() -> int:
     mem = conversion_memory()
     brief_txt, _ = claude.call(
         model=SONNET, system=_sys("sales_supervisor"),
-        user=f"CATÁLOGO:\n{catalogo}\n\n{mem}\n\n{know_sup}\n\nDOSSIÊ:\n{dossier['summary']}\n\nÂNGULOS:\n{dossier['angles']}",
+        cache=f"CATÁLOGO:\n{catalogo}\n\n{know_sup}",   # estável no run → cacheado
+        user=f"{mem}\n\nDOSSIÊ:\n{dossier['summary']}\n\nÂNGULOS:\n{dossier['angles']}",
         step="supervisor", key=args.slug, json_schema=BRIEF_SCHEMA, max_tokens=1500)
     brief = json.loads(brief_txt)
     print(f"  ✓ Supervisor: produto={brief['produto_id']} ({brief.get('relevancia_motivo','')[:50]}) "
@@ -159,7 +160,8 @@ def main() -> int:
     # 2) Carrossel
     car_txt, _ = claude.call(
         model=SONNET, system=_sys("carousel"),
-        user=(f"VOZ DA MARCA:\n{voz}\n\n{know_car}\n\nDOSSIÊ:\n{dossier['summary']}\n\nÂNGULOS:\n{dossier['angles']}\n\n"
+        cache=f"VOZ DA MARCA:\n{voz}\n\n{know_car}",   # estável no run → cacheado
+        user=(f"DOSSIÊ:\n{dossier['summary']}\n\nÂNGULOS:\n{dossier['angles']}\n\n"
               f"BRIEF DO SUPERVISOR:\n{brief_txt}\n\nGere um carrossel de {args.slides} slides."),
         step="carrossel", key=args.slug, json_schema=CAROUSEL_SCHEMA, max_tokens=4000)
     car = json.loads(car_txt)

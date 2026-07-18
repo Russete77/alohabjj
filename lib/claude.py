@@ -42,7 +42,8 @@ HAIKU = Model("claude-haiku-4-5", 1.00, 5.00, adaptive=False)  # relevância/ded
 SONNET = Model("claude-sonnet-5", 3.00, 15.00)    # geração (intro $2/$10 até 31/ago/26)
 OPUS = Model("claude-opus-4-8", 5.00, 25.00)      # Analista / síntese de dossiê
 
-CACHE_READ_FACTOR = 0.10   # cache-hit ≈ 10% do input
+CACHE_READ_FACTOR = 0.10    # cache-hit ≈ 10% do input
+CACHE_WRITE_FACTOR = 1.25   # gravar no cache ≈ 125% do input (TTL 5min)
 
 # Erros transitórios da API que valem re-tentar com backoff exponencial.
 # 529 = Overloaded (visto no teste ao vivo no web_search do Pesquisador).
@@ -55,11 +56,13 @@ class SpendCapExceeded(RuntimeError):
     pass
 
 
-def _cost(model: Model, in_tok: int, out_tok: int, cache_read_tok: int = 0) -> float:
-    billed_in = max(in_tok - cache_read_tok, 0)
+def _cost(model: Model, in_tok: int, out_tok: int,
+          cache_read_tok: int = 0, cache_write_tok: int = 0) -> float:
+    # input_tokens já é o NÃO-cacheado; cache_read/cache_write são separados (skill claude-api).
     dollars = (
-        billed_in / 1e6 * model.in_per_mtok
+        in_tok / 1e6 * model.in_per_mtok
         + cache_read_tok / 1e6 * model.in_per_mtok * CACHE_READ_FACTOR
+        + cache_write_tok / 1e6 * model.in_per_mtok * CACHE_WRITE_FACTOR
         + out_tok / 1e6 * model.out_per_mtok
     )
     return round(dollars, 6)
@@ -106,11 +109,15 @@ class Claude:
         effort: str = "high",
         json_schema: dict | None = None,
         image: str | None = None,
+        cache: str | None = None,
     ) -> tuple[str, dict]:
         """
         Uma chamada ao modelo. Retorna (texto, usage_dict).
         Se json_schema for dado, força saída JSON válida (output_config.format).
         Se image (caminho) for dado, envia a imagem junto (visão) — o modelo "olha".
+        Se cache for dado, ele vira um bloco ESTÁVEL cacheado no INÍCIO do prompt do
+        usuário (catálogo/voz que se repetem a cada peça) → leitura ≈ 10% do input nas
+        próximas chamadas do run. O `user` (dossiê variável) fica FORA do cache.
         Loga custo em jobs/; respeita o spend cap ANTES de gastar.
         """
         spent = self.log.total_cost()
@@ -119,23 +126,26 @@ class Claude:
                 f"spend cap atingido: ${spent:.4f} >= ${self.spend_cap:.2f} (run {self.log.run_id})"
             )
 
+        # prefixo estável (catálogo/voz) → bloco cacheável; dossiê variável fica fora.
+        blocks: list = []
+        if cache:
+            blocks.append({"type": "text", "text": cache,
+                           "cache_control": {"type": "ephemeral"}})
         if image is not None:
             import base64
             p = Path(image)
             mt = {"png": "image/png", "jpg": "image/jpeg", "jpeg": "image/jpeg",
                   "webp": "image/webp", "gif": "image/gif"}.get(p.suffix.lower().lstrip("."), "image/jpeg")
             b64 = base64.b64encode(p.read_bytes()).decode()
-            content: list | str = [
-                {"type": "image", "source": {"type": "base64", "media_type": mt, "data": b64}},
-                {"type": "text", "text": user},
-            ]
-        else:
-            content = user
+            blocks.append({"type": "image", "source": {"type": "base64", "media_type": mt, "data": b64}})
+        blocks.append({"type": "text", "text": user})
+        content: list | str = blocks if (cache or image) else user
 
+        # system (prompt do agente, estável no run) também entra no prefixo cacheado
         params: dict = {
             "model": model.id,
             "max_tokens": max_tokens,
-            "system": system,
+            "system": [{"type": "text", "text": system, "cache_control": {"type": "ephemeral"}}],
             "messages": [{"role": "user", "content": content}],
         }
         oc: dict = {}
@@ -180,7 +190,8 @@ class Claude:
                 f"Aumente max_tokens ou baixe effort.")
         u = msg.usage
         cache_read = getattr(u, "cache_read_input_tokens", 0) or 0
-        cost = _cost(model, u.input_tokens, u.output_tokens, cache_read)
+        cache_write = getattr(u, "cache_creation_input_tokens", 0) or 0
+        cost = _cost(model, u.input_tokens, u.output_tokens, cache_read, cache_write)
         self.log.record(step, "succeeded", key=key, model=model.id,
                         in_tok=u.input_tokens, out_tok=u.output_tokens,
                         cost_est=cost, t0=t0, t1=time.time())
@@ -195,27 +206,30 @@ class Claude:
         if self.log.total_cost() >= self.spend_cap:
             raise SpendCapExceeded(f"spend cap atingido no run {self.log.run_id}")
         tools = [{"type": "web_search_20260209", "name": "web_search", "max_uses": max_uses}]
+        sys_blocks = [{"type": "text", "text": system, "cache_control": {"type": "ephemeral"}}]
         messages: list = [{"role": "user", "content": user}]
         t0 = time.time()
         self.log.record(step, "running", key=key, model=model.id, t0=t0)  # ao vivo (ponte)
-        in_tok = out_tok = 0
+        in_tok = out_tok = c_read = c_write = 0
         extra = {"thinking": {"type": "adaptive"}, "output_config": {"effort": "high"}} if model.adaptive else {}
         for _ in range(6):  # limite de retomadas de pause_turn
             msg = self._retry(
                 lambda: self.client.messages.create(
-                    model=model.id, max_tokens=max_tokens, system=system,
+                    model=model.id, max_tokens=max_tokens, system=sys_blocks,
                     messages=messages, tools=tools, **extra,
                 ),
                 step=step, key=key, model=model)
             in_tok += msg.usage.input_tokens
             out_tok += msg.usage.output_tokens
+            c_read += getattr(msg.usage, "cache_read_input_tokens", 0) or 0
+            c_write += getattr(msg.usage, "cache_creation_input_tokens", 0) or 0
             if msg.stop_reason == "pause_turn":
                 messages = [{"role": "user", "content": user},
                             {"role": "assistant", "content": msg.content}]
                 continue
             break
         text = "".join(b.text for b in msg.content if b.type == "text")
-        cost = _cost(model, in_tok, out_tok)
+        cost = _cost(model, in_tok, out_tok, c_read, c_write)
         self.log.record(step, "succeeded", key=key, model=model.id,
                         in_tok=in_tok, out_tok=out_tok, cost_est=cost, t0=t0, t1=time.time())
         return text, {"in_tok": in_tok, "out_tok": out_tok, "cost": cost}
