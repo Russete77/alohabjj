@@ -7,6 +7,7 @@ import { setEstado } from "@/lib/pieces";
 import { writeDoc, writeEnvKey, writeRawConfig } from "@/lib/config";
 import { saveProduct, addProduct } from "@/lib/catalog";
 import { getCandidate, setStatus } from "@/lib/candidates";
+import { saveCurso, createCurso } from "@/lib/cursos";
 import { addSource, removeSource, type SrcType } from "@/lib/sources";
 import { checkPassword, sessionToken, cookieName } from "@/lib/auth";
 
@@ -146,6 +147,28 @@ export async function rejeitarCandidato(id: string) {
   try {
     setStatus(id, "rejeitado");
     revalidatePath("/admin/produtos");
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, erro: (e as Error).message };
+  }
+}
+
+// editor de curso (/admin/cursos)
+export async function salvarCurso(slug: string, curso: unknown) {
+  try {
+    saveCurso(slug, curso as Parameters<typeof saveCurso>[1]);
+    revalidatePath("/admin/cursos");
+    revalidatePath("/curso");
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, erro: (e as Error).message };
+  }
+}
+
+export async function novoCurso(slug: string, titulo: string) {
+  try {
+    createCurso(slug, titulo);
+    revalidatePath("/admin/cursos");
     return { ok: true };
   } catch (e) {
     return { ok: false, erro: (e as Error).message };

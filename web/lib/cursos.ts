@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { parse } from "yaml";
+import { parse, stringify } from "yaml";
 
 // Cursos hospedados no nosso site (config/cursos/*.yaml). Self-contained: as aulas tocam
 // aqui (embed do YouTube), sem redirecionar pra fora.
@@ -54,6 +54,42 @@ export function listCursos(): Curso[] {
 
 export function getCurso(slug: string): Curso | undefined {
   return listCursos().find((c) => c.slug === slug);
+}
+
+// ── escrita (editor do /admin) ──
+type CursoInput = Omit<Curso, "totalAulas">;
+
+export function saveCurso(slug: string, c: CursoInput): void {
+  if (!/^[a-z0-9-]+$/.test(slug)) throw new Error("slug inválido");
+  const clean = {
+    slug,
+    titulo: c.titulo || slug,
+    subtitulo: c.subtitulo || "",
+    descricao: c.descricao || "",
+    gratis: c.gratis ?? true,
+    badge: c.badge || "",
+    capa: c.capa || "",
+    modulos: (c.modulos || []).map((m) => ({
+      titulo: m.titulo || "",
+      aulas: (m.aulas || []).map((a) => ({
+        titulo: a.titulo || "", video: a.video || "", descricao: a.descricao || "",
+      })),
+    })),
+    recomendados: (c.recomendados || []).map((r) => ({ nome: r.nome, url: r.url, desc: r.desc })),
+  };
+  fs.mkdirSync(DIR, { recursive: true });
+  fs.writeFileSync(path.join(DIR, `${slug}.yaml`), stringify(clean), "utf-8");
+}
+
+export function createCurso(slug: string, titulo: string): void {
+  if (!/^[a-z0-9-]+$/.test(slug)) throw new Error("slug inválido (use minúsculas, números e -)");
+  if (fs.existsSync(path.join(DIR, `${slug}.yaml`))) throw new Error("já existe um curso com esse slug");
+  saveCurso(slug, {
+    slug, titulo: titulo || slug, subtitulo: "", descricao: "", gratis: true,
+    badge: "Grátis", capa: "",
+    modulos: [{ titulo: "Módulo 1", aulas: [{ titulo: "Aula 1", video: "", descricao: "" }] }],
+    recomendados: [],
+  });
 }
 
 // extrai o ID do YouTube de várias formas de URL → embed nocookie (privacidade + nosso design)
