@@ -1,0 +1,64 @@
+# config/atletas.yaml — cadastro de atletas (editavel no /admin/atletas).
+# x = @ do perfil no X (Twitter). O agente athlete_scout enriquece com cartel/preparacao/noticias.
+atletas:
+  - { slug: adam-wardzinski, nome: "Adam Wardzinski", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: ana-mayordomo, nome: "Ana Mayordomo", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: ana-santos, nome: "Ana Santos", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: andre-galvao, nome: "André Galvão", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: andy-murasaki, nome: "Andy Murasaki", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: arman-tsarukyan, nome: "Arman Tsarukyan", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: baidulaev, nome: "Baidulaev", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: bruno-malfacine, nome: "Bruno Malfacine", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: cole-abate, nome: "Cole Abate", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: craig-jones, nome: "Craig Jones", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: daniel-220v, nome: "Daniel 220v", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: diego-pato, nome: "Diego Pato", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: diogo-reis, nome: "Diogo Reis", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: dorian-olivarez, nome: "Dorian Olivarez", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: elisabeth-clay, nome: "Elisabeth Clay", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: erich-munis, nome: "Erich Munis", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: fabricio-andrey, nome: "Fabrício Andrey", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: felipe-pena, nome: "Felipe Pena", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: gabrieli-pessanha, nome: "Gabrieli Pessanha", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: georgio-poullas, nome: "Georgio Poullas", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: gordon-ryan, nome: "Gordon Ryan", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: helena-crevar, nome: "Helena Crevar", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: jalen-fonacier, nome: "Jalen Fonacier", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: jansen-gomes, nome: "Jansen Gomes", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: javier-zaruski, nome: "Javier Zaruski", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: jessica-caroline, nome: "Jessica Caroline", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: kade-ruotolo, nome: "Kade Ruotolo", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: kaynan-duarte, nome: "Kaynan Duarte", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: keven-carrasco, nome: "Keven Carrasco", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: kris-olivo, nome: "Kris Olivo", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: kron-gracie, nome: "Kron Gracie", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: leandro-lo, nome: "Leandro Lo", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: levi-jones-leary, nome: "Levi Jones-Leary", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: mahamed-aly, nome: "Mahamed Aly", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: marcus-buchecha-almeida, nome: "Marcus Buchecha Almeida", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: matheus-gabriel, nome: "Matheus Gabriel", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: mayssa-bastos, nome: "Mayssa Bastos", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: meyram-maquine, nome: "Meyram Maquine", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: mica-galvao, nome: "Mica Galvão", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: mikey-musumeci, nome: "Mikey Musumeci", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: nicholas-meregali, nome: "Nicholas Meregali", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: nicky-rodriguez, nome: "Nicky Rodriguez", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: nico-maglicic, nome: "Nico Maglicic", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: rerisson-gabriel, nome: "Rerisson Gabriel", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: rider-zuchi, nome: "Rider Zuchi", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: roberto-jimenez, nome: "Roberto Jimenez", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: roger-gracie, nome: "Roger Gracie", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: ronaldo-jr, nome: "Ronaldo Jr", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: ronaldo-junior, nome: "Ronaldo Junior", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: ryron-gracie, nome: "Ryron Gracie", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: samuel-nagai, nome: "Samuel Nagai", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: sarah-galvao, nome: "Sarah Galvão", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: shye-lilly, nome: "Shye Lilly", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: tainan-dalpra, nome: "Tainan Dalpra", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: tayane-porfirio, nome: "Tayane Porfirio", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: tye-ruotolo, nome: "Tye Ruotolo", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: vinicius-liberati, nome: "Vinicius Liberati", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: willian-tacket, nome: "Willian Tacket", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: yara-soares, nome: "Yara Soares", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: yuri-simoes, nome: "Yuri Simões", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }
+  - { slug: icaro-moreno, nome: "Ícaro Moreno", x: "", bjjheroes: "", equipe: "", peso: "", tags: [], notas: "" }

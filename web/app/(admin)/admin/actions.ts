@@ -8,6 +8,7 @@ import { writeDoc, writeEnvKey, writeRawConfig } from "@/lib/config";
 import { saveProduct, addProduct } from "@/lib/catalog";
 import { getCandidate, setStatus } from "@/lib/candidates";
 import { saveCurso, createCurso } from "@/lib/cursos";
+import { saveAtleta, addAtleta } from "@/lib/atletas";
 import { addSource, removeSource, type SrcType } from "@/lib/sources";
 import { checkPassword, sessionToken, cookieName } from "@/lib/auth";
 
@@ -169,6 +170,27 @@ export async function novoCurso(slug: string, titulo: string) {
   try {
     createCurso(slug, titulo);
     revalidatePath("/admin/cursos");
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, erro: (e as Error).message };
+  }
+}
+
+// cadastro de atletas (/admin/atletas)
+export async function salvarAtleta(slug: string, patch: Record<string, string | string[]>) {
+  try {
+    saveAtleta(slug, patch);
+    revalidatePath("/admin/atletas");
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, erro: (e as Error).message };
+  }
+}
+
+export async function novoAtleta(slug: string, nome: string) {
+  try {
+    addAtleta(slug, nome);
+    revalidatePath("/admin/atletas");
     return { ok: true };
   } catch (e) {
     return { ok: false, erro: (e as Error).message };

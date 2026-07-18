@@ -352,3 +352,29 @@
 .ced-newrow input{flex:1;min-width:150px;background:var(--bg);border:1px solid var(--line);border-radius:7px;padding:8px 11px;font-size:13px;color:var(--ink)}
 .ced-new small{font-size:11.5px;color:var(--faint)}
 @media(max-width:640px){.ced-hero{grid-template-columns:1fr}}
+
+/* cadastro de atletas */
+.atl{display:grid;grid-template-columns:280px 1fr;gap:20px;align-items:start}
+.atl-list{display:flex;flex-direction:column;gap:8px;position:sticky;top:16px}
+.atl-search{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 12px;font-size:13px;color:var(--ink)}
+.atl-search:focus{outline:none;border-color:var(--red)}
+.atl-items{display:flex;flex-direction:column;gap:2px;max-height:60vh;overflow-y:auto;padding-right:2px}
+.atl-item{display:flex;align-items:center;justify-content:space-between;gap:8px;background:none;border:1px solid transparent;border-radius:7px;padding:8px 11px;font-size:13.5px;color:var(--muted);cursor:pointer;text-align:left}
+.atl-item:hover{background:var(--panel);color:var(--ink)}
+.atl-item.on{background:var(--red-soft);border-color:var(--red);color:var(--ink)}
+.atl-flags b{font-size:11px;color:var(--faint);margin-left:4px}
+.atl-flags b.ok{color:#22A15C}
+.atl-new{display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--line);padding-top:10px;margin-top:6px}
+.atl-new input{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:7px 10px;font-size:12.5px;color:var(--ink)}
+.atl-edit{display:flex;flex-direction:column;gap:14px}
+.atl-top{display:flex;align-items:center;justify-content:space-between}
+.atl-top h2{margin:0;font-size:20px;color:var(--ink)}
+.atl-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.atl-f{display:flex;flex-direction:column;gap:4px}.atl-f.wide{grid-column:1/-1}
+.atl-f>span{font-size:11px;color:var(--faint);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+.atl-f input,.atl-f textarea{background:var(--bg);border:1px solid var(--line);border-radius:7px;padding:8px 10px;font-size:13px;color:var(--ink);font-family:inherit}
+.atl-f input:focus,.atl-f textarea:focus{outline:none;border-color:var(--red)}
+.atl-prof{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 18px}
+.atl-ph{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);margin-bottom:10px}
+.atl-md{white-space:pre-wrap;font-family:var(--font-mono);font-size:12.5px;line-height:1.6;color:var(--ink);margin:0;max-height:50vh;overflow:auto}
+@media(max-width:820px){.atl{grid-template-columns:1fr}.atl-list{position:static}}
