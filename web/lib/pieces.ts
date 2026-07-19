@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { getDossier, type Categoria } from "./dossiers";
+import { getPiecesSnapshot } from "./cloud";
 
 const OUTPUTS = path.resolve(process.cwd(), "..", "outputs");
 
@@ -77,7 +78,7 @@ function readJson<T>(file: string): T | null {
   }
 }
 
-export function getPieces(): Piece[] {
+async function readPiecesFromDisk(): Promise<Piece[]> {
   if (!fs.existsSync(OUTPUTS)) return [];
   const slugs = fs
     .readdirSync(OUTPUTS, { withFileTypes: true })
@@ -95,7 +96,7 @@ export function getPieces(): Piece[] {
     const files = fs.readdirSync(path.join(OUTPUTS, slug));
     const slidePngs = files.filter((f) => /^slide-\d+\.png$/.test(f)).sort();
     const storyPng = files.includes("story.png") ? "story.png" : null;
-    const dossier = getDossier(slug);
+    const dossier = await getDossier(slug);
     pieces.push({
       slug,
       titulo: dossier?.titulo ?? slug,
@@ -118,8 +119,21 @@ export function getPieces(): Piece[] {
   return pieces;
 }
 
-export function getPiece(slug: string): Piece | undefined {
-  return getPieces().find((p) => p.slug === slug);
+// Disco primeiro (local). No deploy (sem disco), cai no snapshot do Storage.
+export async function getPieces(): Promise<Piece[]> {
+  const fromDisk = await readPiecesFromDisk();
+  if (fromDisk.length) return fromDisk;
+  const snap = await getPiecesSnapshot();
+  return (snap as Piece[] | null) ?? [];
+}
+
+export async function getPiece(slug: string): Promise<Piece | undefined> {
+  return (await getPieces()).find((p) => p.slug === slug);
+}
+
+/** Fonte de uma arte: URL absoluta (Storage, no deploy) usada direto; senão via /api/art (disco local). */
+export function artHref(slug: string, fileOrUrl: string): string {
+  return /^https?:\/\//.test(fileOrUrl) ? fileOrUrl : `/api/art/${slug}/${fileOrUrl}`;
 }
 
 /** Publica (ou rejeita) uma peça: grava o estado no meta.json. Usado por Server Action. */

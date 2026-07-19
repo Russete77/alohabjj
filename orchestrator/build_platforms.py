@@ -179,6 +179,15 @@ def main() -> int:
 
     print(f"[plataformas] OK → {out / 'platforms.json'}"
           f"{' + story.png (' + art_res['source'] + ')' if art_res else ''} · custo ≈ ${log.total_cost():.4f}")
+
+    # publica pro deploy: sobe imagens + snapshot pro Storage (best-effort, não derruba o run)
+    try:
+        import subprocess
+        subprocess.run([sys.executable, "-m", "orchestrator.sync_to_cloud", "--slug", args.slug],
+                       cwd=str(ROOT), timeout=180, capture_output=True)
+        print("  ✓ publicado pro deploy (Storage snapshot)")
+    except Exception:  # noqa: BLE001
+        pass
     return 0
 
 

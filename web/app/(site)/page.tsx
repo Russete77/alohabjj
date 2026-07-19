@@ -14,8 +14,8 @@ const ORDEM: { id: Categoria; label: string }[] = [
   { id: "tecnica", label: "Técnica" },
 ];
 
-export default function Home() {
-  const dossiers = getDossiers();
+export default async function Home() {
+  const dossiers = await getDossiers();
   const destaque = dossiers[0];
   const laterais = dossiers.slice(1, 5);
 

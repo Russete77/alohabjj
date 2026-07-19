@@ -7,9 +7,9 @@ const ESTADO_LABEL: Record<string, string> = {
   gerado: "gerado", aprovado: "aprovado", publicado: "no portal", rejeitado: "rejeitado",
 };
 
-export default function AdminHome() {
-  const pieces = getPieces();
-  const dossiers = getDossiers();
+export default async function AdminHome() {
+  const pieces = await getPieces();
+  const dossiers = await getDossiers();
   const noPortal = pieces.filter((p) => p.estado === "publicado").length;
 
   return (

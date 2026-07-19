@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { getDossiersSnapshot } from "./cloud";
 
 // web/ fica dentro de bjj-lucas/ ; a base de conhecimento está em ../knowledge
 const KNOWLEDGE = path.resolve(process.cwd(), "..", "knowledge");
@@ -58,8 +59,7 @@ function parseSummary(md: string): string[] {
 
 let _cache: Dossier[] | null = null;
 
-export function getDossiers(): Dossier[] {
-  if (_cache) return _cache;
+function readDossiersFromDisk(): Dossier[] {
   if (!fs.existsSync(KNOWLEDGE)) return [];
 
   const slugs = fs
@@ -98,16 +98,28 @@ export function getDossiers(): Dossier[] {
   }
 
   list.sort((a, b) => (a.data < b.data ? 1 : -1)); // mais recentes primeiro
+  return list;
+}
+
+// Disco primeiro (local, sem mudança). Se o disco não existe (deploy no Vercel),
+// cai no snapshot publicado no Storage. Ver orchestrator/sync_to_cloud.py.
+export async function getDossiers(): Promise<Dossier[]> {
+  if (_cache) return _cache;
+  let list = readDossiersFromDisk();
+  if (list.length === 0) {
+    const snap = await getDossiersSnapshot();
+    if (snap) list = (Object.values(snap) as Dossier[]).sort((a, b) => (a.data < b.data ? 1 : -1));
+  }
   _cache = list;
   return list;
 }
 
-export function getDossier(slug: string): Dossier | undefined {
-  return getDossiers().find((d) => d.slug === slug);
+export async function getDossier(slug: string): Promise<Dossier | undefined> {
+  return (await getDossiers()).find((d) => d.slug === slug);
 }
 
-export function getRelacionados(slug: string, categoria: Categoria, n = 3): Dossier[] {
-  return getDossiers()
+export async function getRelacionados(slug: string, categoria: Categoria, n = 3): Promise<Dossier[]> {
+  return (await getDossiers())
     .filter((d) => d.slug !== slug && d.categoria === categoria)
     .slice(0, n);
 }

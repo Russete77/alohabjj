@@ -3,15 +3,15 @@ import type { Metadata } from "next";
 import { getDossiers, getDossier, getRelacionados } from "@/lib/dossiers";
 import { getPiece } from "@/lib/pieces";
 
-export function generateStaticParams() {
-  return getDossiers().map((d) => ({ slug: d.slug }));
+export async function generateStaticParams() {
+  return (await getDossiers()).map((d) => ({ slug: d.slug }));
 }
 
 export async function generateMetadata(
   { params }: { params: Promise<{ slug: string }> },
 ): Promise<Metadata> {
   const { slug } = await params;
-  const d = getDossier(slug);
+  const d = await getDossier(slug);
   if (!d) return {};
   return {
     title: d.titulo,
@@ -30,10 +30,11 @@ export default async function Artigo(
   { params }: { params: Promise<{ slug: string }> },
 ) {
   const { slug } = await params;
-  const d = getDossier(slug);
+  const d = await getDossier(slug);
   if (!d) notFound();
 
-  const relacionados = getRelacionados(d.slug, d.categoria);
+  const relacionados = await getRelacionados(d.slug, d.categoria);
+  const peca = await getPiece(d.slug);
   const tempoLeitura = Math.max(
     2,
     Math.round(d.resumoParas.join(" ").split(/\s+/).length / 200),
@@ -79,7 +80,6 @@ export default async function Artigo(
           ))}
         </div>
         {(() => {
-          const peca = getPiece(d.slug);
           if (!peca || peca.estado !== "publicado") return null;
           return (
             <div className="carousel-note">

@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getPiece } from "@/lib/pieces";
+import { getPiece, artHref } from "@/lib/pieces";
 import { publicar, refazer } from "../actions";
 import PlatformTabs from "./PlatformTabs";
 
@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 export default async function Revisar({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const p = getPiece(slug);
+  const p = await getPiece(slug);
   if (!p) notFound();
 
   const publicado = p.estado === "publicado";
@@ -46,9 +46,9 @@ export default async function Revisar({ params }: { params: Promise<{ slug: stri
             <figure className="art">
               <figcaption className="art-lab">
                 Arte de capa (Story / Reel)
-                <a className="art-dl" href={`/api/art/${p.slug}/${p.storyPng}`} download>baixar alta ↓</a>
+                <a className="art-dl" href={artHref(p.slug, p.storyPng)} download>baixar alta ↓</a>
               </figcaption>
-              <img src={`/api/art/${p.slug}/${p.storyPng}`} alt="arte de capa" />
+              <img src={artHref(p.slug, p.storyPng)} alt="arte de capa" />
             </figure>
           )}
           {p.slidePngs.length > 0 ? (
@@ -56,9 +56,9 @@ export default async function Revisar({ params }: { params: Promise<{ slug: stri
               <figure className="art" key={f}>
                 <figcaption className="art-lab">
                   Slide {i + 1}/{p.slidePngs.length} · 1080×1350 (feed)
-                  <a className="art-dl" href={`/api/art/${p.slug}/${f}`} download>baixar alta ↓</a>
+                  <a className="art-dl" href={artHref(p.slug, f)} download>baixar alta ↓</a>
                 </figcaption>
-                <img src={`/api/art/${p.slug}/${f}`} alt={`slide ${i + 1}`} />
+                <img src={artHref(p.slug, f)} alt={`slide ${i + 1}`} />
               </figure>
             ))
           ) : (
