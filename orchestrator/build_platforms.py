@@ -78,6 +78,19 @@ YT_SCHEMA = {
     "required": ["titulo", "descricao", "tags"],
 }
 
+FB_SCHEMA = {
+    "type": "object", "additionalProperties": False,
+    "properties": {
+        "emocao_dominante": {"type": "string"}, "primeira_linha": {"type": "string"},
+        "legenda": {"type": "string"}, "link_contexto": {"type": "string"},
+        "cta_comentario": {"type": "string"},
+        "hashtags": {"type": "array", "items": {"type": "string"}},
+        "is_ai_generated": {"type": "boolean"},
+    },
+    "required": ["emocao_dominante", "primeira_linha", "legenda", "link_contexto",
+                 "cta_comentario", "hashtags", "is_ai_generated"],
+}
+
 YT_SYSTEM = (
     "Você é o Social Media Manager da BjjcomLucas para YouTube Shorts. Dado o dossiê/peça, "
     "produza um pacote pronto: título ≤100 caracteres com gancho e #Shorts, descrição com CTA "
@@ -139,10 +152,17 @@ def main() -> int:
     yt = json.loads(yt_txt)
     print(f"  ✓ YouTube: “{yt['titulo'][:60]}”")
 
-    platforms = {"instagram": ig, "tiktok": tk, "youtube": yt}
+    # 4) Facebook Publisher (nativo, comunidade/compartilhamento)
+    fb_txt, _ = claude.call(model=SONNET, system=_sys("facebook_publisher"), user=ctx,
+                            step="facebook", key=args.slug, json_schema=FB_SCHEMA,
+                            effort="low", max_tokens=2500)
+    fb = json.loads(fb_txt)
+    print(f"  ✓ Facebook: emoção={fb['emocao_dominante']} · legenda={len(fb['legenda'])}c")
+
+    platforms = {"instagram": ig, "tiktok": tk, "youtube": yt, "facebook": fb}
     (out / "platforms.json").write_text(json.dumps(platforms, ensure_ascii=False, indent=2), encoding="utf-8")
 
-    # 4) Arte estruturada (Diretor → IA+QC → headline coerente → card, ou frame próprio)
+    # 5) Arte estruturada (Diretor → IA+QC → headline coerente → card, ou frame próprio)
     art_res = None
     if not args.no_art and ig.get("headline_capa"):
         try:

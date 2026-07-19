@@ -30,6 +30,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <a href="/admin/prompts"><span className="a-ic">✍️</span>Prompts dos agentes</a>
 
           <div className="a-group">Config</div>
+          <a href="/admin/custos"><span className="a-ic">💸</span>Custos de IA</a>
           <a href="/admin/config"><span className="a-ic">🔑</span>Chaves & config</a>
           <a href="/" className="a-back">← Ver o portal público</a>
         </nav>

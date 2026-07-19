@@ -30,11 +30,43 @@ export interface Piece {
   platforms: PlatformPackages | null;
 }
 
+export interface TikTokBeat { tempo: string; fala: string; texto_tela: string }
+
 export interface PlatformPackages {
-  instagram_feed?: { caption: string; primeiro_comentario: string; hashtags: string[]; alt_text: string };
-  instagram_reels?: { caption: string; hook: string; hashtags: string[]; audio_sugestao: string };
-  tiktok?: { caption: string; hashtags: string[]; roteiro_fala: string; is_ai_generated: boolean };
-  youtube_shorts?: { titulo: string; descricao: string; tags: string[] };
+  // NB: as chaves batem 1:1 com o que orchestrator/build_platforms.py grava em platforms.json.
+  instagram?: {
+    emocao_dominante?: string;
+    legenda_br: string;
+    legenda_us?: string;
+    palavras_chave_extras?: string[];
+    headline_topo?: { emocao: string; texto: string }[];
+    headline_capa?: string[];
+    is_ai_generated?: boolean;
+  };
+  tiktok?: {
+    emocao_dominante?: string;
+    hook_fala: string;
+    hook_tela: string;
+    roteiro_beats: TikTokBeat[];
+    caption: string;
+    hashtags: string[];
+    audio_sugestao: string;
+    cta_comentario: string;
+    gancho_loop: string;
+    headline_capa?: string;
+    is_ai_generated?: boolean;
+  };
+  facebook?: {
+    emocao_dominante?: string;
+    primeira_linha: string;
+    legenda: string;
+    link_contexto?: string;
+    cta_comentario: string;
+    hashtags: string[];
+    is_ai_generated?: boolean;
+  };
+  youtube?: { titulo: string; descricao: string; tags: string[] };
+  arte?: { story_png?: string; headline?: string; fonte?: string; credito?: string };
 }
 
 function readJson<T>(file: string): T | null {

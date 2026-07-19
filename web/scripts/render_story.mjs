@@ -53,7 +53,7 @@ function furnitureSVG() {
 (async () => {
   if (A.bg && existsSync(A.bg)) {
     // FUNDO = imagem do assunto (recontextualizada) + marca por cima
-    let img = sharp(await sharp(A.bg).resize(W, H, { fit: "cover", position: "top" }).toBuffer())
+    let img = sharp(await sharp(A.bg).resize(W, H, { fit: "cover", position: "attention" }).toBuffer())
       .composite([{ input: Buffer.from(`<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">${furnitureSVG()}</svg>`), top: 0, left: 0 }]);
     if (existsSync(LUCAS)) {
       const luc = await sharp(LUCAS).resize({ height: 470 }).toBuffer();

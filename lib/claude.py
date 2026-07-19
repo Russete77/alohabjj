@@ -207,7 +207,10 @@ class Claude:
         """
         if self.log.total_cost() >= self.spend_cap:
             raise SpendCapExceeded(f"spend cap atingido no run {self.log.run_id}")
-        tools = [{"type": "web_search_20260209", "name": "web_search", "max_uses": max_uses}]
+        # variante do web_search: a nova (filtragem dinâmica) só nos modelos adaptativos
+        # (Opus/Sonnet). Haiku usa a básica (senão dá 400 — não suporta programmatic tool calling).
+        ws_type = "web_search_20260209" if model.adaptive else "web_search_20250305"
+        tools = [{"type": ws_type, "name": "web_search", "max_uses": max_uses}]
         sys_blocks = [{"type": "text", "text": system, "cache_control": {"type": "ephemeral"}}]
         messages: list = [{"role": "user", "content": user}]
         t0 = time.time()

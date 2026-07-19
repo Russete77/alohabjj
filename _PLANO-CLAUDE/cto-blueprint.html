@@ -1,0 +1,249 @@
+<title>AlohaBJJ · Blueprint de CTO</title>
+<style>
+  :root{
+    --paper:#eef2f3; --card:#ffffff; --ink:#0c2a31; --ink-soft:#3f5b62;
+    --faint:#7b959c; --line:#d7e0e2; --line-soft:#e6eced;
+    --teal:#0f8ca3; --teal-deep:#0b6a7d; --red:#d8232a; --amber:#c9791a;
+    --good:#1f9d6b; --bad:#cf3b3b; --warn:#c9791a;
+    --band:#0b6a7d;
+    --mono:ui-monospace,"SF Mono","Cascadia Code",Menlo,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --cond:"Arial Narrow","Helvetica Neue Condensed",var(--sans);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --paper:#081a1f; --card:#0e262d; --ink:#eaf2f3; --ink-soft:#a9c2c7;
+      --faint:#6f8a90; --line:#1c3b43; --line-soft:#16323a;
+      --teal:#28b0c8; --teal-deep:#7fd6e4; --red:#ff5a60; --amber:#e2a34e;
+      --good:#48c78e; --bad:#ff6b6b; --warn:#e2a34e; --band:#0a3a45;
+    }
+  }
+  :root[data-theme="light"]{
+    --paper:#eef2f3; --card:#ffffff; --ink:#0c2a31; --ink-soft:#3f5b62; --faint:#7b959c;
+    --line:#d7e0e2; --line-soft:#e6eced; --teal:#0f8ca3; --teal-deep:#0b6a7d; --red:#d8232a;
+    --amber:#c9791a; --good:#1f9d6b; --bad:#cf3b3b; --warn:#c9791a; --band:#0b6a7d;
+  }
+  :root[data-theme="dark"]{
+    --paper:#081a1f; --card:#0e262d; --ink:#eaf2f3; --ink-soft:#a9c2c7; --faint:#6f8a90;
+    --line:#1c3b43; --line-soft:#16323a; --teal:#28b0c8; --teal-deep:#7fd6e4; --red:#ff5a60;
+    --amber:#e2a34e; --good:#48c78e; --bad:#ff6b6b; --warn:#e2a34e; --band:#0a3a45;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+    line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:940px;margin:0 auto;padding:0 24px 96px}
+  .kick{font-family:var(--mono);font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--teal-deep)}
+  h1{font-family:var(--cond);font-weight:800;text-transform:uppercase;letter-spacing:.01em;
+    font-size:clamp(38px,7vw,72px);line-height:.94;margin:.28em 0 .1em;text-wrap:balance}
+  h1 em{font-style:normal;color:var(--red)}
+  h2{font-family:var(--cond);font-weight:800;text-transform:uppercase;letter-spacing:.02em;
+    font-size:clamp(24px,3.6vw,34px);margin:0;line-height:1.02;text-wrap:balance}
+  h3{font-size:16px;margin:0 0 4px;letter-spacing:.005em}
+  p{margin:0 0 14px;max-width:66ch}
+  a{color:var(--teal-deep)}
+  .lead{font-size:19px;color:var(--ink-soft);max-width:64ch}
+  /* header */
+  header{padding:64px 0 30px;border-bottom:3px solid var(--ink)}
+  .belt{display:flex;gap:0;height:9px;margin:22px 0 0;border-radius:3px;overflow:hidden}
+  .belt i{flex:1}
+  .belt .w{background:#e9edee}.belt .b{background:#2b6cb0}.belt .p{background:#7a3ea3}
+  .belt .n{background:#3f5b62}.belt .r{background:var(--red)}.belt .k{background:#111}
+  /* section head */
+  section{padding:44px 0 0}
+  .sh{display:flex;align-items:baseline;gap:14px;margin-bottom:20px;border-bottom:1px solid var(--line);padding-bottom:12px}
+  .sh .no{font-family:var(--mono);font-size:13px;color:var(--red);font-weight:700}
+  /* flow */
+  .flow{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch}
+  .flow .node{flex:1;min-width:150px;background:var(--card);border:1px solid var(--line);
+    border-radius:10px;padding:14px 15px;border-top:3px solid var(--teal)}
+  .flow .node.sell{border-top-color:var(--red)}
+  .flow .node .t{font-family:var(--cond);text-transform:uppercase;font-weight:800;font-size:20px;letter-spacing:.02em}
+  .flow .node .d{font-size:13.5px;color:var(--ink-soft)}
+  .arrow{align-self:center;color:var(--faint);font-weight:700;padding:0 2px}
+  /* cards grid */
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px}
+  .card .cap{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:8px}
+  /* score list */
+  .score{display:flex;flex-direction:column;gap:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card)}
+  .row{display:grid;grid-template-columns:26px 1fr auto;gap:12px;align-items:start;padding:13px 16px;border-bottom:1px solid var(--line-soft)}
+  .row:last-child{border-bottom:0}
+  .row .ic{font-family:var(--mono);font-weight:700;text-align:center;line-height:1.5}
+  .row .ic.ok{color:var(--good)}.row .ic.no{color:var(--bad)}.row .ic.mid{color:var(--warn)}
+  .row .tt{font-size:14.5px}
+  .row .tt b{font-weight:700}
+  .row .tt span{color:var(--ink-soft)}
+  .tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;
+    padding:3px 8px;border-radius:20px;white-space:nowrap;align-self:center}
+  .tag.done{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good)}
+  .tag.now{background:color-mix(in srgb,var(--red) 15%,transparent);color:var(--red)}
+  .tag.next{background:color-mix(in srgb,var(--teal) 16%,transparent);color:var(--teal-deep)}
+  /* table */
+  .tblwrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+  table{border-collapse:collapse;width:100%;font-size:14px;min-width:560px;background:var(--card)}
+  th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  th{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);font-weight:600}
+  tr:last-child td{border-bottom:0}
+  td b{font-weight:700}
+  .role{font-family:var(--cond);text-transform:uppercase;font-weight:800;font-size:16px;letter-spacing:.02em;white-space:nowrap}
+  .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px;vertical-align:middle}
+  .dot.have{background:var(--good)}.dot.gap{background:var(--red)}.dot.up{background:var(--amber)}
+  /* roadmap */
+  .phase{display:grid;grid-template-columns:120px 1fr;gap:20px;padding:20px 0;border-bottom:1px solid var(--line-soft)}
+  .phase:last-child{border-bottom:0}
+  .phase .lab{font-family:var(--cond);text-transform:uppercase;font-weight:800;font-size:22px;letter-spacing:.02em;color:var(--teal-deep)}
+  .phase .lab small{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--faint);font-weight:400;margin-top:3px}
+  .phase ul{margin:0;padding-left:18px}
+  .phase li{margin-bottom:5px;font-size:14.5px}
+  .phase li b{font-weight:700}
+  @media (max-width:560px){.phase{grid-template-columns:1fr;gap:8px}}
+  .callout{background:linear-gradient(180deg,color-mix(in srgb,var(--band) 12%,transparent),transparent);
+    border:1px solid var(--line);border-left:4px solid var(--red);border-radius:0 12px 12px 0;padding:18px 20px;margin:22px 0}
+  .callout .cap{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--red)}
+  .foot{margin-top:60px;padding-top:20px;border-top:3px solid var(--ink);font-family:var(--mono);font-size:12px;color:var(--faint)}
+  strong.hl{color:var(--ink);background:color-mix(in srgb,var(--amber) 22%,transparent);padding:0 4px;border-radius:3px}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="kick">BjjcomLucas · Revisão de Arquitetura</div>
+  <h1>O caminhão do <em>Jiu-Jitsu.</em><br>Blueprint de CTO</h1>
+  <p class="lead">Da notícia ao carrinho: como está a máquina hoje, o que ainda a segura, e o time de agentes que falta pra ela vender sozinha em TikTok, Instagram, Facebook e YouTube.</p>
+  <div class="belt" title="faixas"><i class="w"></i><i class="b"></i><i class="p"></i><i class="n"></i><i class="r"></i><i class="k"></i></div>
+</header>
+
+<section>
+  <div class="sh"><span class="no">01</span><h2>A máquina em uma linha</h2></div>
+  <div class="flow">
+    <div class="node"><div class="t">Inteligência</div><div class="d">RSS → Radar → Pesquisa web → Validação → Dossiê</div></div>
+    <span class="arrow">→</span>
+    <div class="node"><div class="t">Produção</div><div class="d">Carrossel + arte + pacote por plataforma</div></div>
+    <span class="arrow">→</span>
+    <div class="node sell"><div class="t">Portal</div><div class="d">Notícia publicada, SEO, autoridade</div></div>
+    <span class="arrow">→</span>
+    <div class="node sell"><div class="t">Loja</div><div class="d">Afiliado · 3D · Curso</div></div>
+    <span class="arrow">→</span>
+    <div class="node sell"><div class="t">Conversão</div><div class="d">Comenta-a-palavra → ManyChat → lead</div></div>
+  </div>
+  <p style="margin-top:16px">O motor de conteúdo já roda ponta a ponta — provado ao vivo a <strong class="hl">$0,44 por peça</strong> completa (3 plataformas + arte). O que trava não é o motor: é a <b>ponte</b> entre o que os agentes produzem e o que a loja/admin mostram, e a <b>falta de agentes de estratégia</b> que transformam conteúdo em venda.</p>
+</section>
+
+<section>
+  <div class="sh"><span class="no">02</span><h2>Placar de hoje — o que anda, o que trava</h2></div>
+  <div class="score">
+    <div class="row"><div class="ic ok">✓</div><div class="tt"><b>Motor Fase A→B</b> <span>— pesquisa, dossiê, carrossel, arte, 4 pacotes de plataforma. Rodou ao vivo.</span></div><span class="tag done">roda</span></div>
+    <div class="row"><div class="ic ok">✓</div><div class="tt"><b>Custo sob controle</b> <span>— $0,44/peça, painel /admin/custos, teto por run e diário.</span></div><span class="tag done">roda</span></div>
+    <div class="row"><div class="ic ok">✓</div><div class="tt"><b>Pacote TikTok completo no admin</b> <span>— hook falado + texto na tela, roteiro por beats, áudio, loop, comment-bait. Estava jogando 8 de 11 campos no lixo.</span></div><span class="tag now">corrigido hoje</span></div>
+    <div class="row"><div class="ic ok">✓</div><div class="tt"><b>Instagram + YouTube + Facebook visíveis</b> <span>— as abas apareciam vazias por incompatibilidade de chave; Facebook nem existia.</span></div><span class="tag now">corrigido hoje</span></div>
+    <div class="row"><div class="ic ok">✓</div><div class="tt"><b>Recorte de imagem</b> <span>— foto centraliza no sujeito (não mais "só a bunda no tatame").</span></div><span class="tag now">corrigido hoje</span></div>
+    <div class="row"><div class="ic no">✕</div><div class="tt"><b>Admin não lê o banco</b> <span>— lê o disco do seu PC. Deployado, não mostra nada. Trava nº 1 pra ir ao ar.</span></div><span class="tag next">P0</span></div>
+    <div class="row"><div class="ic no">✕</div><div class="tt"><b>Peça não grava no Supabase</b> <span>— trava de FK (produto_id → products). O erro é engolido em silêncio.</span></div><span class="tag next">P0</span></div>
+    <div class="row"><div class="ic mid">▲</div><div class="tt"><b>Não é contínuo</b> <span>— não há agendador; hoje é você clicando "Rodar". Publicação é copiar-e-colar.</span></div><span class="tag next">P2</span></div>
+    <div class="row"><div class="ic mid">▲</div><div class="tt"><b>Disponibilidade do produto</b> <span>— Amazon já detecta "indisponível"; ML/Shopee bloqueiam o bot → confirmação humana.</span></div><span class="tag next">P2</span></div>
+  </div>
+</section>
+
+<section>
+  <div class="sh"><span class="no">03</span><h2>O time de agentes</h2></div>
+  <p>Você já tem <b>18 agentes</b> e eles são bons — o TikTok Publisher, por exemplo, entrega roteiro de retenção de nível profissional. O problema é que o time todo é de <b>execução</b>. Falta a camada de <b>estratégia e ideação</b> — os agentes que decidem <em>o que</em> postar, <em>qual</em> produto criar e <em>qual</em> curso lançar. É isso que vira o caminhão.</p>
+  <div class="tblwrap">
+    <table>
+      <thead><tr><th>Papel</th><th>Agente</th><th>Situação</th></tr></thead>
+      <tbody>
+        <tr><td class="role">Inteligência</td><td>radar · dedupe · researcher · validator · analyst</td><td><span class="dot have"></span>Temos — sólido</td></tr>
+        <tr><td class="role">Produção</td><td>sales_supervisor · carousel · evaluator · art_director · art_qc</td><td><span class="dot have"></span>Temos — sólido</td></tr>
+        <tr><td class="role">Plataformas</td><td>instagram · tiktok · facebook · packager(YouTube)</td><td><span class="dot have"></span>Temos — 4 canais</td></tr>
+        <tr><td class="role">Caçadores</td><td>product_scout · athlete_scout</td><td><span class="dot up"></span>Temos — falta robustez de estoque</td></tr>
+        <tr><td class="role">Estrategista</td><td><b>content_strategist</b> — calendário semanal por canal (IG=notícia; TikTok=notícia+curiosidade+humor; YT=short+longo)</td><td><span class="dot gap"></span>Falta</td></tr>
+        <tr><td class="role">Caça-tendência</td><td><b>trend_scout</b> — trends e áudios em alta do TikTok/Reels; alimenta o esquema de viralização</td><td><span class="dot gap"></span>Falta</td></tr>
+        <tr><td class="role">Ideias 3D</td><td><b>product_ideator_3d</b> — dor/meme/momento de atleta → ideia de peça imprimível (troféu de faixa, suporte, chaveiro)</td><td><span class="dot gap"></span>Falta</td></tr>
+        <tr><td class="role">Ideias de curso</td><td><b>course_ideator</b> — perguntas da audiência + conteúdo campeão → tema e ementa → course_builder</td><td><span class="dot gap"></span>Falta</td></tr>
+        <tr><td class="role">Publicação</td><td><b>scheduler/publisher</b> — fila agendada e (fase 2) auto-post</td><td><span class="dot gap"></span>Falta</td></tr>
+        <tr><td class="role">Fecha o loop</td><td><b>analytics_loop</b> — o que converteu volta a alimentar Radar e os caçadores</td><td><span class="dot gap"></span>Falta</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="sh"><span class="no">04</span><h2>As três esteiras de venda</h2></div>
+  <div class="grid">
+    <div class="card">
+      <div class="cap">Afiliados</div>
+      <h3>1 campeão/dia por marketplace</h3>
+      <p style="font-size:14px">Amazon, Mercado Livre e Shopee. O product_scout já acha e escreve a copy + ideias de conteúdo a <b>$0,04</b>. Falta: cadastrar as tags de afiliado e blindar contra anúncio pausado.</p>
+    </div>
+    <div class="card">
+      <div class="cap">Impressão 3D</div>
+      <h3>Produto próprio, margem cheia</h3>
+      <p style="font-size:14px">Um agente novo minera dores e momentos do nicho e propõe peças imprimíveis (suporte de faixa, hanger de medalha, chaveiro do atleta da semana). Vira estoque do bjj3d + Shopee.</p>
+    </div>
+    <div class="card">
+      <div class="cap">Cursos</div>
+      <h3>Do conteúdo pro produto</h3>
+      <p style="font-size:14px">O que a audiência mais pergunta e o que mais viraliza vira ementa de curso. O course_builder já monta o curso hospedado no site — falta o agente que decide <em>qual</em> curso.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="sh"><span class="no">05</span><h2>Banco e Admin</h2></div>
+  <div class="grid">
+    <div class="card">
+      <div class="cap">Banco de dados</div>
+      <p style="font-size:14.5px;margin:0">Schema é forte (21 tabelas). Três ajustes o deixam pronto pra produção: <b>soltar a FK</b> de <code>pieces.produto_id</code>, <b>políticas de RLS</b> pra leitura server-side com service key, e <b>popular platform_packages</b> a partir do pipeline.</p>
+    </div>
+    <div class="card">
+      <div class="cap">Admin (UI/UX)</div>
+      <p style="font-size:14.5px;margin:0">Passo de design: leitura única vinda do banco (com fallback pro disco), edição fácil de agentes e prompts, o pipeline ao vivo (já existe) e o controle de custo (já existe) em destaque. Menos telas, mais "1 clique".</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="sh"><span class="no">06</span><h2>Roteiro — do clique ao caminhão</h2></div>
+
+  <div class="phase">
+    <div class="lab">P1 <small>hoje · feito</small></div>
+    <ul>
+      <li><b>Pacotes de plataforma completos</b> — TikTok com roteiro de retenção inteiro; IG, YouTube e <b>Facebook</b> visíveis.</li>
+      <li><b>Recorte de imagem</b> centralizado no sujeito.</li>
+    </ul>
+  </div>
+  <div class="phase">
+    <div class="lab">P0 <small>pra ir ao ar</small></div>
+    <ul>
+      <li><b>Soltar a FK</b> de <code>pieces.produto_id</code> → a peça grava no Supabase.</li>
+      <li><b>Admin lê o banco</b> (fallback pro disco) → funciona deployado e local.</li>
+      <li><b>RLS</b> com service key server-side → nada de tela vazia.</li>
+    </ul>
+  </div>
+  <div class="phase">
+    <div class="lab">P2 <small>vira contínuo</small></div>
+    <ul>
+      <li><b>content_strategist</b> — calendário editorial por canal, do jeito que você desenhou.</li>
+      <li><b>trend_scout</b> — áudios/trends em alta = o esquema de viralização do TikTok.</li>
+      <li><b>scheduler</b> — fila agendada; o motor roda sem você clicar.</li>
+    </ul>
+  </div>
+  <div class="phase">
+    <div class="lab">P3 <small>esteiras de ideia</small></div>
+    <ul>
+      <li><b>product_ideator_3d</b> e <b>course_ideator</b> — a máquina passa a inventar o que vender, não só o que postar.</li>
+    </ul>
+  </div>
+  <div class="phase">
+    <div class="lab">P4 <small>escala</small></div>
+    <ul>
+      <li><b>Auto-publicação</b> nos 4 canais + <b>analytics_loop</b>: o que converte volta a alimentar o Radar e os caçadores. O caminhão anda sozinho.</li>
+    </ul>
+  </div>
+</section>
+
+<div class="callout">
+  <div class="cap">Recomendação do CTO</div>
+  <p style="margin:8px 0 0">Faça o <b>P0 agora</b> (3 ajustes, deixa tudo pronto pra deploy), depois <b>P2</b> (estrategista + agendador) — é o salto de "1 clique" pra "anda sozinho". As esteiras de 3D e curso (P3) são onde a margem explode, mas só valem depois que o fluxo é contínuo. Sequência importa: conteúdo contínuo primeiro, produtos próprios depois.</p>
+</div>
+
+<div class="foot">AlohaBJJ / BjjcomLucas · Blueprint de arquitetura · revisão viva — atualiza a cada fase entregue</div>
+</div>

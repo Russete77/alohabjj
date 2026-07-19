@@ -13,12 +13,16 @@ Uso:
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from lib.claude import Claude, SONNET, SpendCapExceeded  # noqa: E402
+from lib.claude import Claude, SONNET, HAIKU, SpendCapExceeded  # noqa: E402
 from lib.jobs import JobLog  # noqa: E402
+
+# Haiku barato por padrão (é coleta factual); sonnet no .env se quiser mais profundidade.
+ATLETA_MODEL = SONNET if os.getenv("SCOUT_MODEL", "haiku").lower().startswith("son") else HAIKU
 
 ROOT = Path(__file__).resolve().parent.parent
 AGENTS = ROOT / "agents"
@@ -71,7 +75,7 @@ def main() -> int:
                 "Pesquise na web (BJJ Heroes, FloGrappling, notícias, X do atleta) e escreva o "
                 "perfil em markdown no formato do sistema. Fatos com fonte; sem inventar.")
         try:
-            txt, _ = claude.research(model=SONNET, system=system, user=user,
+            txt, _ = claude.research(model=ATLETA_MODEL, system=system, user=user,
                                      step="athlete_scout", key=a["slug"], max_uses=4, max_tokens=2600)
         except SpendCapExceeded as e:
             print(f"[atleta] PARADO: {e}"); break

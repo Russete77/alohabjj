@@ -1,0 +1,31 @@
+{
+  "slug": "2026-cbjj-brazilian-nationals-results",
+  "tags": [
+    "gi",
+    "IBJJF",
+    "Brasileiro",
+    "faixa-preta",
+    "absoluto",
+    "grand slam"
+  ],
+  "atletas": [
+    "Erich Munis",
+    "Diego Pato",
+    "Tainan Dalpra",
+    "Gabrieli Pessanha",
+    "Sarah Galvão",
+    "Mayssa Bastos",
+    "Elisabeth Clay",
+    "Yara Soares",
+    "Ana Santos",
+    "Jessica Caroline"
+  ],
+  "evento": "CBJJ Brazilian Nationals 2026",
+  "data": "2026-05-03",
+  "confianca": "baixa",
+  "angulos_usados": [],
+  "embedding_ref": null,
+  "source_url": "https://www.bjjheroes.com/bjj-news/2026-cbjj-brazilian-nationals-results",
+  "source": "alohabjjnews-backfill",
+  "imagem": "/hero/2026-cbjj-brazilian-nationals-results.jpg"
+}

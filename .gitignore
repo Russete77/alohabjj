@@ -26,3 +26,9 @@ web/public/hero/*
 # Candidatos de produto (saida do scout, runtime)
 data/product_candidates.json
 !data/.gitkeep
+
+# Telemetria de runtime (o painel de custos lê local; não versionar)
+jobs/
+
+# Arte gerada pelo pipeline (regenerável; não versionar)
+outputs/

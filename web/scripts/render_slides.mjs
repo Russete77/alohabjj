@@ -29,7 +29,7 @@ function titleFont(n) { return n <= 2 ? 60 : n === 3 ? 54 : n === 4 ? 48 : 42; }
 
 async function baseFor() {
   if (A.bg && existsSync(A.bg)) {
-    const bg = await sharp(A.bg).resize(W, H, { fit: "cover", position: "top" }).toBuffer();
+    const bg = await sharp(A.bg).resize(W, H, { fit: "cover", position: "attention" }).toBuffer();
     // degradê escuro no rodapé pra legibilidade do texto sobre a foto
     const grad = `<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg"><defs>
       <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">

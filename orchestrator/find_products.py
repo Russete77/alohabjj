@@ -17,11 +17,15 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from lib.claude import Claude, SONNET, SpendCapExceeded  # noqa: E402
+from lib.claude import Claude, SONNET, HAIKU, SpendCapExceeded  # noqa: E402
+
+# modelo do scout: Haiku (barato) por padrão; troque pra sonnet no .env se a copy ficar fraca.
+SCOUT_MODEL = SONNET if os.getenv("SCOUT_MODEL", "haiku").lower().startswith("son") else HAIKU
 from lib.jobs import JobLog  # noqa: E402
 from lib import candidates as cand  # noqa: E402
 
@@ -78,9 +82,13 @@ def _product_info(url: str) -> dict:
     if m:
         info["imagem"] = m.group(1)
     low = html.lower()
-    if any(s in low for s in ("anúncio pausado", "anuncio pausado", "publicação pausada",
-                              "está pausado", "anúncio finalizado", "não está disponível",
-                              "no longer available", "currently unavailable")):
+    if any(s in low for s in (
+        "anúncio pausado", "anuncio pausado", "publicação pausada", "está pausado",
+        "anúncio finalizado", "não está disponível", "não disponível", "nao disponivel",
+        "não temos previsão", "nao temos previsao", "indisponível", "indisponivel",
+        "produto esgotado", "sem estoque", "out of stock", "currently unavailable",
+        "temporarily out of stock", "no longer available",
+    )):
         info["ativo"] = False
     return info
 
@@ -168,7 +176,7 @@ def main() -> int:
                 ctx = (f"CATEGORIA: {c}\nPRODUTO REAL (marketplace):\n"
                        f"{json.dumps(h, ensure_ascii=False)}\nClassifique, escreva a copy e as "
                        "ideias de conteúdo (ideia_tiktok, ideia_instagram). SÓ JSON.")
-                txt, _ = claude.call(model=SONNET, system=scout_sys, user=ctx, step="scout",
+                txt, _ = claude.call(model=SCOUT_MODEL, system=scout_sys, user=ctx, step="scout",
                                      key=q[:40], max_tokens=1500)
                 data = _json_extract(txt) or {}
                 data.update({"fonte": h.get("fonte", ""), "external_url": h.get("url", ""),
@@ -182,7 +190,7 @@ def main() -> int:
                        "(mais vendas/avaliações, ATIVO). Devolva SOMENTE o JSON do candidato — com "
                        "external_url (link real), fonte, preco, imagem, e as IDEIAS DE CONTEÚDO "
                        "(ideia_tiktok, ideia_instagram) que convertem em venda.")
-                txt, _ = claude.research(model=SONNET, system=scout_sys, user=ctx, step="scout",
+                txt, _ = claude.research(model=SCOUT_MODEL, system=scout_sys, user=ctx, step="scout",
                                          key=q[:40], max_uses=4, max_tokens=1500)
                 data = _json_extract(txt)
                 if not data:

@@ -22,13 +22,26 @@ produtos:
     nome: "100kg – Domínio Absoluto"
     tipo: proprio
     prioridade: 1
-    tags: [controle, pressao, base, guarda, passagem, fundamentos, gi, nogi, iniciante, evergreen]
+    tags:
+      [
+        controle,
+        pressao,
+        base,
+        guarda,
+        passagem,
+        fundamentos,
+        gi,
+        nogi,
+        iniciante,
+        evergreen
+      ]
     gatilho: "conteúdo técnico/didático de controle, pressão, base ou leitura de jogo"
-    url_base: /curso            # página do curso no portal (grátis, isca)
+    url_base: /curso # página do curso no portal (grátis, isca)
     margem: 1.0
     cupom: ""
     disclosure_obrigatorio: false
-    gancho: "Curso gratuito de jogo de pressão e controle — leva do conteúdo ao aprofundamento."
+    gancho: "Curso gratuito de jogo de pressão e controle — leva do conteúdo ao
+      aprofundamento."
     cta_sugerido: "Curso 100kg – Domínio Absoluto, grátis no link"
 
   - id: bjj3d
@@ -36,13 +49,15 @@ produtos:
     nome: "Loja BJJ3D"
     tipo: proprio
     prioridade: 2
-    tags: [produto, loja, lifestyle, presente, marca]
-    gatilho: "quando não há afiliado específico melhor e cabe um produto de marca própria"
+    tags: [ produto, loja, lifestyle, presente, marca ]
+    gatilho: "quando não há afiliado específico melhor e cabe um produto de marca
+      própria"
     url_base: https://shopee.com.br/bjj3doficial
     margem: null
     cupom: ""
     disclosure_obrigatorio: false
-    gancho: "Loja BJJ3D — produtos exclusivos pra quem vive o Jiu-Jitsu dentro e fora do tatame."
+    gancho: "Loja BJJ3D — produtos exclusivos pra quem vive o Jiu-Jitsu dentro e
+      fora do tatame."
     cta_sugerido: "🛒 Loja BJJ3D no link"
 
   # ─────────────── AFILIADOS CAMPEÕES DE VENDAS (por categoria/gatilho) ───────────────
@@ -52,10 +67,10 @@ produtos:
     nome: "Equipamento Hayabusa"
     tipo: afiliado
     prioridade: 3
-    tags: [equipamento, gear, kimono, luva, protecao, marca-parceira]
+    tags: [ equipamento, gear, kimono, luva, protecao, marca-parceira ]
     gatilho: "pauta sobre equipamento/gear de alto desempenho em geral"
-    busca: "hayabusa jiu jitsu"          # query pros marketplaces (afiliado busca o campeão)
-    url_base: https://lcshop.co/EeJo0L    # afiliado Hayabusa (real)
+    busca: "hayabusa jiu jitsu" # query pros marketplaces (afiliado busca o campeão)
+    url_base: https://lcshop.co/EeJo0L # afiliado Hayabusa (real)
     cupom: "LUCAS"
     desconto: "-10%"
     disclosure_obrigatorio: true
@@ -67,13 +82,14 @@ produtos:
     nome: "Kimono de competição (campeão de vendas)"
     tipo: afiliado
     prioridade: 3
-    tags: [gi, kimono, competicao, mundial, ibjjf, faixa-preta, absoluto]
+    tags: [ gi, kimono, competicao, mundial, ibjjf, faixa-preta, absoluto ]
     gatilho: "pauta de GI / campeonato IBJJF / final de Mundial / disputa no kimono"
     busca: "kimono jiu jitsu competição trançado"
-    url_base: null           # TODO: link afiliado do gi campeão de vendas
+    url_base: null # TODO: link afiliado do gi campeão de vendas
     cupom: ""
     disclosure_obrigatorio: true
-    gancho: "O kimono que aguenta um campeonato inteiro — resistência e caimento de competição."
+    gancho: "O kimono que aguenta um campeonato inteiro — resistência e caimento de
+      competição."
     cta_sugerido: "🥋 Kimono de competição (parceria) — link"
 
   - id: rashguard-nogi
@@ -81,10 +97,10 @@ produtos:
     nome: "Rashguard / gear No-Gi (campeão de vendas)"
     tipo: afiliado
     prioridade: 3
-    tags: [nogi, no-gi, adcc, grappling, rashguard, submission, superluta]
+    tags: [ nogi, no-gi, adcc, grappling, rashguard, submission, superluta ]
     gatilho: "pauta No-Gi / ADCC / superluta de grappling"
     busca: "rashguard jiu jitsu no gi manga longa"
-    url_base: null           # TODO: link afiliado do rashguard/gear no-gi
+    url_base: null # TODO: link afiliado do rashguard/gear no-gi
     cupom: ""
     disclosure_obrigatorio: true
     gancho: "Rashguard que segura pegada e suor numa guerra de No-Gi."
@@ -95,9 +111,19 @@ produtos:
     nome: "Instrucional de leg locks (campeão de vendas)"
     tipo: afiliado
     prioridade: 3
-    tags: [leglock, leg-lock, heelhook, heel-hook, ankle-lock, nogi, finalizacao, perna]
+    tags:
+      [
+        leglock,
+        leg-lock,
+        heelhook,
+        heel-hook,
+        ankle-lock,
+        nogi,
+        finalizacao,
+        perna
+      ]
     gatilho: "pauta com leg lock / heel hook / finalização de perna"
-    url_base: null           # TODO: link afiliado do instrucional (ex.: BJJ Fanatics)
+    url_base: null # TODO: link afiliado do instrucional (ex.: BJJ Fanatics)
     cupom: ""
     disclosure_obrigatorio: true
     gancho: "Aprofunde o jogo de perna com quem domina — instrucional dos melhores."
@@ -108,9 +134,19 @@ produtos:
     nome: "Instrucional de guarda/passagem (campeão de vendas)"
     tipo: afiliado
     prioridade: 3
-    tags: [guarda, passagem, de-la-riva, x-guard, meia-guarda, raspagem, gi, tecnica]
+    tags:
+      [
+        guarda,
+        passagem,
+        de-la-riva,
+        x-guard,
+        meia-guarda,
+        raspagem,
+        gi,
+        tecnica
+      ]
     gatilho: "breakdown técnico de guarda, passagem ou raspagem"
-    url_base: null           # TODO: link afiliado do instrucional de guarda/passagem
+    url_base: null # TODO: link afiliado do instrucional de guarda/passagem
     cupom: ""
     disclosure_obrigatorio: true
     gancho: "Sistematize sua guarda/passagem com um instrucional de referência."
@@ -121,13 +157,35 @@ produtos:
     nome: "Instrucional de pegada nas costas / mata-leão (campeão de vendas)"
     tipo: afiliado
     prioridade: 3
-    tags: [costas, back-control, mata-leao, estrangulamento, finalizacao]
+    tags: [ costas, back-control, mata-leao, estrangulamento, finalizacao ]
     gatilho: "pauta sobre pegada nas costas, mata-leão ou estrangulamento"
-    url_base: null           # TODO: link afiliado
+    url_base: null # TODO: link afiliado
     cupom: ""
     disclosure_obrigatorio: true
     gancho: "Feche o jogo pelas costas com um sistema testado no alto nível."
     cta_sugerido: "📚 Instrucional de costas/mata-leão (parceria) — link"
+  - id: protetor-bucal-spank-nogi
+    manychat: GEAR
+    nome: Protetor Bucal Spank Profissional Moldável
+    tipo: afiliado
+    prioridade: 3
+    tags:
+      - protetor bucal
+      - gear
+      - no-gi
+      - sparring
+      - equipamento de treino
+      - segurança no tatame
+      - acessório BJJ
+    gatilho: "Protetor bucal é item essencial de segurança pra sparring/No-Gi, marca
+      Spank é campeã de vendas no ML com nota alta e volume grande de vendas."
+    busca: "protetor bucal jiu jitsu mais vendido"
+    url_base: https://www.mercadolivre.com.br/spank-protetor-bucal-profissional-preto-moldavel-com-estojo-treino-boxe-muaythai-jiu-jitsu-mma-kickboxing-futebol-basquete-bruxismo-esporte-de-contato/p/MLB25252154
+    cupom: ""
+    disclosure_obrigatorio: true
+    gancho: "Guerra de No-Gi sem medo de tomar cabeçada — proteja seu sorriso antes
+      que seja tarde."
+    cta_sugerido: "Garanta o seu com frete grátis"
 
 # Regras de CTA (Supervisor de Vendas):
 # - 1 CTA por peça. Formato `integrado` (CTA suave no último slide) ou `separado` (peça de venda).
