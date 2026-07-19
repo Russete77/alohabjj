@@ -216,7 +216,7 @@ create table if not exists pieces (
   dossier_id    uuid references dossiers(id) on delete set null,  -- 1 dossiê → N peças
   slug          text unique,
   formato       text,                            -- integrado | separado | carrossel ...
-  produto_id    text references products(id),
+  produto_id    text,                            -- categoria do catálogo/ManyChat (NÃO é FK p/ products)
   angle_id      uuid references dossier_angles(id),               -- ângulo usado (conversão)
   relevancia_motivo text,
   cta           text, caption text, hashtags text[],

@@ -16,12 +16,14 @@ import json
 import os
 import queue
 import threading
+import time
 import urllib.request
 from pathlib import Path
 
 from dotenv import load_dotenv
 
-load_dotenv(Path(__file__).resolve().parent.parent / ".env")
+ROOT = Path(__file__).resolve().parent.parent
+load_dotenv(ROOT / ".env")
 
 _URL = (os.getenv("SUPABASE_URL") or "").rstrip("/")
 _KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY") or ""
@@ -51,8 +53,18 @@ def _post(table: str, rows: list[dict], on_conflict: str | None = None) -> None:
     try:
         with urllib.request.urlopen(req, timeout=3):  # timeout curto
             pass
-    except Exception:  # noqa: BLE001 — o DB nunca pode derrubar nem travar o pipeline
-        pass
+    except Exception as e:  # noqa: BLE001 — o DB nunca pode derrubar nem travar o pipeline
+        # NÃO some com o erro: registra em jobs/db-errors.log pra falha de gravação não ser
+        # invisível (foi o que escondeu a FK de pieces por dias). Best-effort, nunca levanta.
+        try:
+            detail = e.read().decode("utf-8", "ignore")[:300] if hasattr(e, "read") else str(e)
+            code = getattr(e, "code", "")
+            line = f"{time.strftime('%Y-%m-%d %H:%M:%S')} {table} {code} {detail}\n"
+            (ROOT / "jobs").mkdir(exist_ok=True)
+            with open(ROOT / "jobs" / "db-errors.log", "a", encoding="utf-8") as f:
+                f.write(line)
+        except Exception:  # noqa: BLE001
+            pass
 
 
 def _worker() -> None:
