@@ -37,7 +37,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <a href="/" className="a-back">← Ver o portal público</a>
         </nav>
         <div className="a-foot">
-          <span className="pdot" /> Loop diário ativo · 06:00
+          <span className="pdot" /> Painel operacional
           {authEnabled() && (
             <form action={logout} className="a-logout">
               <button type="submit">Sair</button>

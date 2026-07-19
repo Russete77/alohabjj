@@ -58,9 +58,9 @@ export default function Calendario() {
                     <div className="cal-slot" key={i}>
                       <span className={`ptab ${c.cls} on cal-chip`}>{c.label}</span>
                       <div className="cal-slotb">
-                        <b>{s.formato}</b> · {s.angulo}
+                        <div><b>{s.formato}</b> · {s.angulo}</div>
                         {s.gancho && <div className="cal-hook">📱 {s.gancho}</div>}
-                        {s.produto && <span className="chip pub">{s.produto}</span>}
+                        {s.produto && <div className="cal-prod"><span className="chip pub">{s.produto}</span></div>}
                       </div>
                     </div>
                   );

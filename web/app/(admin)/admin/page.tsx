@@ -19,7 +19,9 @@ export default async function AdminHome() {
           <h1>Fila de aprovação</h1>
           <p className="sub">Aprove e publique no portal — assets + caption prontos</p>
         </div>
-        <div className="run"><span className="pulse" /> Fase B · batch <span className="mono">ended</span></div>
+        {pieces.length - noPortal > 0 && (
+          <div className="run"><span className="pulse" /> {pieces.length - noPortal} aguardando aprovação</div>
+        )}
       </div>
 
       <div className="kpis">
