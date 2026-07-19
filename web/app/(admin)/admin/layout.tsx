@@ -24,6 +24,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div className="a-group">Loja & vendas</div>
           <a href="/admin/conversao"><span className="a-ic">📊</span>Conversão</a>
           <a href="/admin/produtos"><span className="a-ic">🛒</span>Produtos (scout)</a>
+          <a href="/admin/ideias"><span className="a-ic">💡</span>Ideias (3D & cursos)</a>
           <a href="/admin/catalogo"><span className="a-ic">🔗</span>Catálogo & afiliados</a>
 
           <div className="a-group">Agentes de IA</div>

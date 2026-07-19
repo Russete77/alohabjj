@@ -134,6 +134,22 @@
 .trend-apply{font-size:13px;line-height:1.5;margin:0 0 8px}
 .trend-meta{font-size:12px;color:var(--muted)}
 .trend-hook{font-size:12.5px;color:var(--ink);font-weight:600;margin-top:6px}
+
+/* Ideias (3D & cursos) */
+.idea-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.idea-card{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
+.idea-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:6px}
+.idea-h b{font-size:15px;line-height:1.25}
+.idea-price{font-family:var(--font-mono);font-size:12px;font-weight:700;color:var(--teal,#0f8ca3);white-space:nowrap}
+.idea-desc{font-size:13.5px;line-height:1.5;margin:0 0 10px}
+.idea-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.idea-why{font-size:12.5px;line-height:1.5;margin:0 0 10px;color:var(--muted)}
+.idea-why b{color:var(--ink)}
+.idea-mods{margin:0 0 10px;padding-left:18px;font-size:12.5px;line-height:1.55}
+.idea-mods li{margin-bottom:2px}
+.idea-hook{font-size:12.5px;font-weight:600;color:var(--ink);background:var(--bg);border:1px dashed var(--line);border-radius:8px;padding:8px 10px}
+.idea-fit{position:absolute;top:14px;right:14px;display:none}
+.idea-card .idea-fit{position:static;margin-top:10px;font-family:var(--font-mono);font-size:10.5px;color:var(--faint)}
 .ai-flag{font-family:var(--font-mono);font-size:12px;color:var(--amber);background:rgba(224,160,48,.12);border:1px solid rgba(224,160,48,.3);border-radius:8px;padding:10px 13px}
 .pf{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:13px 15px}
 .pf-h{display:flex;align-items:center;gap:10px;margin-bottom:8px}

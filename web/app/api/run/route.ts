@@ -26,6 +26,8 @@ function buildArgs(task: string, opts: { max?: number; slug?: string; tema?: str
     case "publicar": return ["-m", "orchestrator.sync_to_cloud"];  // republica o snapshot pro deploy
     case "tendencias": return ["-m", "orchestrator.scout_trends"];  // Trend Scout
     case "planejar": return ["-m", "orchestrator.plan_week"];       // Estrategista de Conteúdo
+    case "ideias_3d": return ["-m", "orchestrator.ideate", "--kind", "3d"];       // Ideador 3D
+    case "ideias_cursos": return ["-m", "orchestrator.ideate", "--kind", "cursos"]; // Ideador de cursos
     default: return null;
   }
 }
