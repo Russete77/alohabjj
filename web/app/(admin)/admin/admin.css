@@ -8,7 +8,8 @@
   /* superfícies (claro) */
   --bg:#ECE7DF; --elevated:#F4F1EB; --line-soft:#EDE9E2;
   /* semânticas de estado (claro) */
-  --teal:#0E8A82; --blue:#2F6FE0; --amber:#B26A00; --green:#1E9E5A;
+  --teal:#0E8A82; --blue:#2F6FE0; --amber:#B26A00; --green:#1E9E5A; --purple:#6D4AB8;
+  --red-soft:rgba(216,35,42,.10);
   /* escala de tipo (fecha os ~14 tamanhos soltos em 7 degraus) */
   --t-2xl:26px; --t-xl:21px; --t-lg:16px; --t-md:14px; --t-sm:12.5px; --t-xs:11px; --t-2xs:10px;
   /* escala de espaço */
@@ -18,8 +19,14 @@
 }
 @media (prefers-color-scheme:dark){.admin{
   --bg:#0E0D0C; --elevated:#262421; --line-soft:#242220;
-  --teal:#38C6BA; --blue:#5B9BFF; --amber:#E0A030; --green:#3FBE77;
+  --teal:#38C6BA; --blue:#5B9BFF; --amber:#E0A030; --green:#3FBE77; --purple:#A98BE6;
+  --red-soft:rgba(226,75,74,.16);
 }}
+/* Acessibilidade: foco visível no teclado pra TODO controle (antes só inputs tinham). */
+.admin a:focus-visible,.admin button:focus-visible,.admin [tabindex]:focus-visible,
+.admin select:focus-visible,.admin input:focus-visible,.admin textarea:focus-visible{
+  outline:2px solid var(--red);outline-offset:2px;border-radius:var(--radius-sm)}
+.admin :focus:not(:focus-visible){outline:none}
 .aside{background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
 .a-brand{font-weight:900;font-size:19px;letter-spacing:-.03em;padding:20px 20px 14px;text-decoration:none;color:var(--ink)}
 .a-brand span{color:var(--red)}
@@ -152,10 +159,10 @@
 .cal-bet{font-size:13.5px;color:var(--amber);margin-top:6px}
 .cal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
 .cal-day{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:13px}
-.cal-dh{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;padding-bottom:7px;border-bottom:1px solid var(--line-soft,var(--line))}
-.cal-dia{font-family:var(--font-cond,inherit);font-weight:800;text-transform:uppercase;font-size:15px;letter-spacing:.04em}
+.cal-dh{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;padding-bottom:7px;border-bottom:1px solid var(--line-soft)}
+.cal-dia{font-family:var(--font-cond);font-weight:800;text-transform:uppercase;font-size:15px;letter-spacing:.04em}
 .cal-foco{font-family:var(--font-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--red)}
-.cal-slot{display:flex;gap:9px;padding:8px 0;border-bottom:1px solid var(--line-soft,rgba(0,0,0,.06))}
+.cal-slot{display:flex;gap:9px;padding:8px 0;border-bottom:1px solid var(--line-soft)}
 .cal-slot:last-child{border-bottom:0}
 .cal-chip{font-size:10px !important;padding:3px 8px !important;height:fit-content;flex:0 0 auto}
 .cal-slotb{font-size:12.5px;line-height:1.45;min-width:0}
@@ -168,7 +175,7 @@
 .trend-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
 .trend-h b{font-size:14.5px}
 .trend-fit{font-family:var(--font-mono);font-size:10.5px;padding:2px 7px;border-radius:20px;background:color-mix(in srgb,var(--red) 14%,transparent);color:var(--red);white-space:nowrap}
-.trend-fit[data-fit="5"],.trend-fit[data-fit="4"]{background:color-mix(in srgb,var(--teal,#0f8ca3) 16%,transparent);color:var(--teal,#0f8ca3)}
+.trend-fit[data-fit="5"],.trend-fit[data-fit="4"]{background:color-mix(in srgb,var(--teal) 16%,transparent);color:var(--teal)}
 .trend-tipo{font-family:var(--font-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--faint);margin:3px 0 8px}
 .trend-apply{font-size:13px;line-height:1.5;margin:0 0 8px}
 .trend-meta{font-size:12px;color:var(--muted)}
@@ -179,7 +186,7 @@
 .idea-card{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
 .idea-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:6px}
 .idea-h b{font-size:15px;line-height:1.25}
-.idea-price{font-family:var(--font-mono);font-size:12px;font-weight:700;color:var(--teal,#0f8ca3);white-space:nowrap}
+.idea-price{font-family:var(--font-mono);font-size:12px;font-weight:700;color:var(--teal);white-space:nowrap}
 .idea-desc{font-size:13.5px;line-height:1.5;margin:0 0 10px}
 .idea-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
 .idea-why{font-size:12.5px;line-height:1.5;margin:0 0 10px;color:var(--muted)}
