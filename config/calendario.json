@@ -1,0 +1,206 @@
+{
+  "semana_de": "2026-07-19",
+  "tese_da_semana": "Semana puxada por finalizações-limpas do ADCC e humor de identificação, canalizando pra técnica de escape e produto no fim de semana.",
+  "apostas": {
+    "viralizacao_tiktok": "Escape Fail→Success com pauta 'o-erro-de-cruzar-os-pes-no-mata-leao' — formato loop cômico+técnico"
+  },
+  "dias": [
+    {
+      "dia": "seg",
+      "foco": "noticia",
+      "slots": [
+        {
+          "canal": "tiktok",
+          "formato": "video-curto",
+          "pauta_slug": "nicky-rod-ganha-1-milhao-de-dolares-no-cji-final-historica-do-craig-jones-invitational",
+          "angulo": "o maior premio da historia do BJJ e o que isso muda no cenario",
+          "gancho": "1 milhão de dólares por UMA luta de jiu-jitsu",
+          "produto": ""
+        },
+        {
+          "canal": "instagram",
+          "formato": "carrossel",
+          "pauta_slug": "nicky-rod-ganha-1-milhao-de-dolares-no-cji-final-historica-do-craig-jones-invitational",
+          "angulo": "análise do prêmio e impacto no mercado do BJJ profissional",
+          "produto": ""
+        },
+        {
+          "canal": "facebook",
+          "formato": "texto+imagem",
+          "pauta_slug": "nicky-rod-ganha-1-milhao-de-dolares-no-cji-final-historica-do-craig-jones-invitational",
+          "angulo": "debate: o dinheiro está mudando o jiu-jitsu pra melhor ou pior?",
+          "produto": ""
+        }
+      ]
+    },
+    {
+      "dia": "ter",
+      "foco": "tecnica",
+      "slots": [
+        {
+          "canal": "tiktok",
+          "formato": "video-curto",
+          "pauta_slug": "o-erro-de-cruzar-os-pes-no-mata-leao-por-que-isso-muda-tudo-no-jiu-jitsu",
+          "angulo": "escape fail→success trend loop: errado vs certo no mata-leão",
+          "gancho": "Fez errado? Agora vê o jeito certo",
+          "produto": "instrucional-guarda"
+        },
+        {
+          "canal": "youtube",
+          "formato": "short",
+          "pauta_slug": "o-erro-de-cruzar-os-pes-no-mata-leao-por-que-isso-muda-tudo-no-jiu-jitsu",
+          "angulo": "recorte técnico do erro clássico de faixa branca",
+          "produto": "instrucional-guarda"
+        },
+        {
+          "canal": "instagram",
+          "formato": "reels",
+          "pauta_slug": "o-erro-de-cruzar-os-pes-no-mata-leao-por-que-isso-muda-tudo-no-jiu-jitsu",
+          "angulo": "gancho de tela + explicação rápida do erro",
+          "produto": ""
+        }
+      ]
+    },
+    {
+      "dia": "qua",
+      "foco": "humor",
+      "slots": [
+        {
+          "canal": "tiktok",
+          "formato": "video-curto",
+          "pauta_slug": "quando-bater-no-jiu-jitsu-saber-parar",
+          "angulo": "POV: faixa branca herói vs faixa preta calm no sparring",
+          "gancho": "Você bate forte CERTO? Espera aí...",
+          "produto": ""
+        },
+        {
+          "canal": "tiktok",
+          "formato": "video-curto",
+          "pauta_slug": "no-gi-hype-wave",
+          "angulo": "drill rápido no-gi com energia alta, sem freio",
+          "gancho": "Sem kimono, sem pena",
+          "produto": "rashguard-nogi"
+        },
+        {
+          "canal": "facebook",
+          "formato": "texto+imagem",
+          "pauta_slug": "quando-bater-no-jiu-jitsu-saber-parar",
+          "angulo": "debate leve: todo mundo já foi o faixa branca herói um dia",
+          "produto": ""
+        }
+      ]
+    },
+    {
+      "dia": "qui",
+      "foco": "superluta",
+      "slots": [
+        {
+          "canal": "instagram",
+          "formato": "carrossel",
+          "pauta_slug": "tye-ruotolo-vs-nicholas-meregali-adcc-world-championships-2022-choque-explosivo-entre-estilos-distintos",
+          "angulo": "análise do choque de estilos que marcou o ADCC 2022",
+          "produto": ""
+        },
+        {
+          "canal": "instagram",
+          "formato": "reels",
+          "pauta_slug": "tye-ruotolo-vs-nicholas-meregali-adcc-world-championships-2022-choque-explosivo-entre-estilos-distintos",
+          "angulo": "melhores momentos do duelo em ritmo de highlight",
+          "produto": ""
+        },
+        {
+          "canal": "tiktok",
+          "formato": "video-curto",
+          "pauta_slug": "adcc-2024-submission-clinic-highlights",
+          "angulo": "sequência de finalizações limpas estilo submission clinic aplicada ao duelo Tye x Meregali",
+          "gancho": "Os melhores do mundo terminam ASSIM",
+          "produto": ""
+        }
+      ]
+    },
+    {
+      "dia": "sex",
+      "foco": "curiosidade",
+      "slots": [
+        {
+          "canal": "tiktok",
+          "formato": "video-curto",
+          "pauta_slug": "female-bjj-empowerment-loop",
+          "angulo": "montagem de finalizações femininas com mensagem de técnica acima de força",
+          "gancho": "Mulheres no BJJ: técnica acima de força",
+          "produto": "rashguard-nogi"
+        },
+        {
+          "canal": "youtube",
+          "formato": "short",
+          "pauta_slug": "roger-gracie-vs-marcus-buchecha-almeida-duelo-historico-de-2012-que-entrou-para-a-lenda",
+          "angulo": "curiosidade histórica: o duelo que virou lenda em 2012",
+          "produto": ""
+        },
+        {
+          "canal": "instagram",
+          "formato": "carrossel",
+          "pauta_slug": "roger-gracie-vs-marcus-buchecha-almeida-duelo-historico-de-2012-que-entrou-para-a-lenda",
+          "angulo": "o que esse duelo histórico ensina sobre estilos de jogo",
+          "produto": ""
+        }
+      ]
+    },
+    {
+      "dia": "sab",
+      "foco": "tecnica",
+      "slots": [
+        {
+          "canal": "youtube",
+          "formato": "video-longo",
+          "pauta_slug": "quando-bater-no-jiu-jitsu-como-evitar-lesoes-e-evoluir-com-inteligencia-no-bjj",
+          "angulo": "análise técnica completa: como treinar forte sem se machucar",
+          "produto": "instrucional-guarda"
+        },
+        {
+          "canal": "tiktok",
+          "formato": "video-curto",
+          "pauta_slug": "mikey-musumeci-vs-rerisson-gabriel-ufc-bjj-1-tecnica-e-dominio-no-confronto-completo",
+          "angulo": "recorte do domínio técnico do Mikey contra Rerisson",
+          "gancho": "Domínio técnico do começo ao fim",
+          "produto": "bjj3d"
+        },
+        {
+          "canal": "facebook",
+          "formato": "texto+imagem",
+          "pauta_slug": "mikey-musumeci-vs-rerisson-gabriel-ufc-bjj-1-tecnica-e-dominio-no-confronto-completo",
+          "angulo": "debate: o que faz o Mikey ser tão dominante tecnicamente",
+          "produto": ""
+        }
+      ]
+    },
+    {
+      "dia": "dom",
+      "foco": "noticia",
+      "slots": [
+        {
+          "canal": "instagram",
+          "formato": "carrossel",
+          "pauta_slug": "tainan-dalpra-vs-ronaldo-junior-world-championship-2025-batalha-pelo-topo",
+          "angulo": "análise da batalha pelo topo no mundial 2025",
+          "produto": ""
+        },
+        {
+          "canal": "tiktok",
+          "formato": "video-curto",
+          "pauta_slug": "tainan-dalpra-vs-ronaldo-junior-world-championship-2025-batalha-pelo-topo",
+          "angulo": "corte do momento decisivo da final",
+          "gancho": "O ponto que decidiu o campeonato mundial",
+          "produto": "hayabusa"
+        },
+        {
+          "canal": "youtube",
+          "formato": "short",
+          "pauta_slug": "tainan-dalpra-vs-ronaldo-junior-world-championship-2025-batalha-pelo-topo",
+          "angulo": "recorte rápido do lance chave da final",
+          "produto": ""
+        }
+      ]
+    }
+  ]
+}

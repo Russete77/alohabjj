@@ -15,6 +15,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <nav className="a-nav">
           <div className="a-group">Conteúdo</div>
           <a href="/admin"><span className="a-ic">📥</span>Fila de aprovação</a>
+          <a href="/admin/calendario"><span className="a-ic">🗓️</span>Calendário & tendências</a>
           <a href="/admin/cursos"><span className="a-ic">🎓</span>Cursos</a>
           <a href="/admin/atletas"><span className="a-ic">🤼</span>Atletas</a>
           <a href="/admin/conhecimento"><span className="a-ic">🧠</span>Base de conhecimento</a>

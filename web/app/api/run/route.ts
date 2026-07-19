@@ -24,6 +24,8 @@ function buildArgs(task: string, opts: { max?: number; slug?: string; tema?: str
     case "produtos_dia": return ["-m", "orchestrator.find_products", "--diario"];
     case "curso": return tema ? ["-m", "orchestrator.build_course", "--tema", tema] : null;
     case "publicar": return ["-m", "orchestrator.sync_to_cloud"];  // republica o snapshot pro deploy
+    case "tendencias": return ["-m", "orchestrator.scout_trends"];  // Trend Scout
+    case "planejar": return ["-m", "orchestrator.plan_week"];       // Estrategista de Conteúdo
     default: return null;
   }
 }

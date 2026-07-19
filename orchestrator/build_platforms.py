@@ -117,7 +117,11 @@ def main() -> int:
     caption = (out / "caption.txt").read_text(encoding="utf-8")
     meta = (out / "meta.json").read_text(encoding="utf-8")
     voz = (ROOT / "config" / "voz.md").read_text(encoding="utf-8")
+    # tendências da semana (Trend Scout) — se existirem, viram contexto pro TikTok/Instagram
+    trends_f = ROOT / "knowledge" / "trends" / "latest.md"
+    trends = trends_f.read_text(encoding="utf-8") if trends_f.exists() else ""
     ctx = f"VOZ:\n{voz}\n\nBRIEF/META:\n{meta}\n\nSLIDES:\n{slides}\n\nCAPTION BASE:\n{caption}"
+    ctx_short = ctx + (f"\n\nTENDÊNCIAS EM ALTA (use se casar, sem forçar):\n{trends}" if trends else "")
 
     if args.dry_run:
         print(f"[plataformas] --dry-run: prompts montados para {args.slug}; NENHUMA chamada à API.")
@@ -131,7 +135,7 @@ def main() -> int:
         return 1
 
     # 1) Instagram Publisher (prompt mestre)
-    ig_txt, _ = claude.call(model=SONNET, system=_sys("instagram_publisher"), user=ctx,
+    ig_txt, _ = claude.call(model=SONNET, system=_sys("instagram_publisher"), user=ctx_short,
                             step="instagram", key=args.slug, json_schema=IG_SCHEMA,
                             effort="medium", max_tokens=5000)
     ig = json.loads(ig_txt)
@@ -139,7 +143,7 @@ def main() -> int:
           f"{len(ig['headline_capa'])} capas")
 
     # 2) TikTok Publisher (viral, BR)
-    tk_txt, _ = claude.call(model=SONNET, system=_sys("tiktok_publisher"), user=ctx,
+    tk_txt, _ = claude.call(model=SONNET, system=_sys("tiktok_publisher"), user=ctx_short,
                             step="tiktok", key=args.slug, json_schema=TIKTOK_SCHEMA,
                             effort="medium", max_tokens=4000)
     tk = json.loads(tk_txt)
