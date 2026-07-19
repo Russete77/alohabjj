@@ -1,4 +1,4 @@
-import { getPieces } from "@/lib/pieces";
+import { getPieces, artHref } from "@/lib/pieces";
 import { getDossiers } from "@/lib/dossiers";
 
 export const dynamic = "force-dynamic"; // lê outputs/ a cada request (muta ao publicar)
@@ -38,7 +38,11 @@ export default async function AdminHome() {
         <div className="q">
           {pieces.map((p) => (
             <a className="qrow" key={p.slug} href={`/admin/${p.slug}`}>
-              <div className="fmt">{p.formato}</div>
+              {p.storyPng || p.slidePngs[0] ? (
+                <img className="fmt-thumb" src={artHref(p.slug, p.storyPng ?? p.slidePngs[0])} alt="" />
+              ) : (
+                <div className="fmt">{p.formato}</div>
+              )}
               <div className="qt">
                 <b>{p.titulo}</b>
                 <div className="qm">
