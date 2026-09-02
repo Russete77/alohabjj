@@ -10,6 +10,10 @@ Pipeline completo (Fase A → B) com 23 agentes, portal público e painel de ope
 Publicação de conteúdo é **ato humano**: o pipeline entrega `validated`, o operador
 promove em `/admin/conteudo`. Nada vai ao ar sozinho.
 
+A configuração editável (23 prompts, catálogo, fontes, voz, atletas, cursos) mora no
+**banco**; o arquivo no git é semente. Para empurrar o arquivo por cima do banco:
+`python -m orchestrator.seed_config --diff` e depois `--all` ou `--file <path>`.
+
 Testes: `python -m pytest tests/` (Python) e `cd web && npm test` (web).
 
 Próximas fases em [`docs/superpowers/specs/2026-09-02-pronto-para-producao-design.md`](docs/superpowers/specs/2026-09-02-pronto-para-producao-design.md).
