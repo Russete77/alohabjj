@@ -11,6 +11,9 @@ import { saveCurso, createCurso } from "@/lib/cursos";
 import { saveAtleta, addAtleta } from "@/lib/atletas";
 import { addSource, removeSource, type SrcType } from "@/lib/sources";
 import { checkPassword, sessionToken, cookieName } from "@/lib/auth";
+import { motivoBloqueio } from "@/lib/porteiro";
+import { dbPatch } from "@/lib/server-db";
+import { getDossierAdmin } from "@/lib/dossiers";
 
 export async function login(formData: FormData) {
   const pw = String(formData.get("password") || "");
@@ -206,4 +209,44 @@ export async function salvarFontes(content: string) {
   } catch (e) {
     return { ok: false, erro: (e as Error).message };
   }
+}
+
+// ── Porteiro de publicação ────────────────────────────────────────────────
+// É o ÚNICO caminho para conteúdo ir ao ar. O pipeline nunca publica.
+
+/**
+ * Promove o dossiê a `published`.
+ *
+ * Quando o dossiê tem confiança baixa ou tag de bloqueio, a primeira chamada
+ * devolve o motivo em vez de publicar. Só a segunda, com confirmado=true,
+ * grava. A tela mostra o motivo real ao operador antes disso.
+ */
+export async function publicarDossie(slug: string, confirmado = false) {
+  const d = await getDossierAdmin(slug);
+  if (!d) return { ok: false, erro: "dossiê não encontrado" };
+
+  const motivo = motivoBloqueio({ confianca: d.confianca, tags: d.tags });
+  if (motivo && !confirmado) return { ok: false, precisaConfirmar: motivo };
+
+  const ok = await dbPatch(`dossiers?slug=eq.${encodeURIComponent(slug)}`, {
+    status: "published",
+    arquivado: false,
+  });
+  if (!ok) return { ok: false, erro: "o banco recusou a gravação" };
+
+  revalidatePath("/");
+  revalidatePath("/admin/conteudo");
+  revalidatePath(`/artigo/${slug}`);
+  return { ok: true };
+}
+
+export async function despublicarDossie(slug: string) {
+  const ok = await dbPatch(`dossiers?slug=eq.${encodeURIComponent(slug)}`, {
+    status: "validated",
+  });
+  if (!ok) return { ok: false, erro: "o banco recusou a gravação" };
+  revalidatePath("/");
+  revalidatePath("/admin/conteudo");
+  revalidatePath(`/artigo/${slug}`);
+  return { ok: true };
 }

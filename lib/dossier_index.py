@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import re
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 
 DEFAULT_ROOT = Path(__file__).resolve().parent.parent
@@ -46,6 +47,24 @@ def _read_json(p: Path) -> dict:
         return {}
 
 
+def normaliza_data(raw: str) -> str:
+    """Devolve AAAA-MM-DD. Aceita ISO e RFC-822 (o WordPress mistura os dois).
+
+    Cortar os 10 primeiros caracteres — o que se fazia antes — transforma
+    "Wed, 22 Apr 2026 11:44:44 +0000" em "Wed, 22 Ap", que ordena ACIMA de
+    qualquer data ISO e sequestra o card de destaque da home.
+    """
+    raw = (raw or "").strip()
+    if not raw:
+        return ""
+    if re.match(r"^\d{4}-\d{2}-\d{2}", raw):
+        return raw[:10]
+    try:
+        return parsedate_to_datetime(raw).date().isoformat()
+    except Exception:  # noqa: BLE001
+        return ""
+
+
 def _paragrafos(md: str) -> list[str]:
     body = re.sub(r"^#[^\n]*\n+", "", md)
     return [re.sub(r"\s+", " ", p).strip() for p in re.split(r"\n{2,}", body) if p.strip()]
@@ -74,7 +93,7 @@ def read_dossier(slug: str, root: Path | None = None) -> dict | None:
         "categoriaLabel": LABEL[categoria],
         "atletas": atletas,
         "evento": meta.get("evento") or "",
-        "data": (meta.get("data") or back.get("date") or "")[:10],
+        "data": normaliza_data(meta.get("data") or back.get("date") or ""),
         "resumoParas": _paragrafos(summary),
         "imagem": meta.get("imagem") or back.get("featured_image"),
         "fonteUrl": meta.get("source_url") or back.get("link"),

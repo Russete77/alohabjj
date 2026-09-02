@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { getDossiersSnapshot } from "./cloud";
-import { podeIrAoAr } from "./porteiro";
+import { normalizaData, podeIrAoAr } from "./porteiro";
 import { dbSelect } from "./server-db";
 
 // web/ fica dentro de bjj-lucas/ ; a base de conhecimento está em ../knowledge
@@ -97,7 +97,7 @@ function readDossiersFromDisk(): Dossier[] {
       categoriaLabel: LABEL[categoria],
       atletas,
       evento: meta.evento ?? "",
-      data: (meta.data ?? back.date ?? "").slice(0, 10),
+      data: normalizaData(meta.data ?? back.date),
       resumoParas: parseSummary(summary),
       imagem: meta.imagem ?? back.featured_image ?? null,
       fonteUrl: meta.source_url ?? back.link ?? null,

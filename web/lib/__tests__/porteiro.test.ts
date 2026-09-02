@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { motivoBloqueio, normalizaTag, podeIrAoAr } from "../porteiro.ts";
+import { motivoBloqueio, normalizaData, normalizaTag, podeIrAoAr } from "../porteiro.ts";
 
 test("normaliza tira acento e espaço", () => {
   assert.equal(normalizaTag("tema sensível"), "tema-sensivel");
@@ -36,4 +36,19 @@ test("arquivado nunca vai ao ar, mesmo publicado", () => {
 
 test("falha fechado: sem status, não vai ao ar", () => {
   assert.equal(podeIrAoAr({}), false);
+});
+
+test("data RFC-822 vira ISO", () => {
+  // cortar 10 chars dava "Wed, 22 Ap", que ordena acima de qualquer data ISO
+  assert.equal(normalizaData("Wed, 22 Apr 2026 11:44:44 +0000"), "2026-04-22");
+});
+
+test("data ISO com hora é cortada", () => {
+  assert.equal(normalizaData("2026-07-17T16:32:07+00:00"), "2026-07-17");
+});
+
+test("data vazia ou lixo vira string vazia", () => {
+  assert.equal(normalizaData(""), "");
+  assert.equal(normalizaData("qualquer coisa"), "");
+  assert.equal(normalizaData(null), "");
 });

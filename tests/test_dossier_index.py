@@ -70,3 +70,21 @@ def test_read_all_ignora_pastas_de_servico(tmp_path):
     for servico in ("_backfill", "atletas", "sources", "trends"):
         (tmp_path / "knowledge" / servico).mkdir(parents=True, exist_ok=True)
     assert [d["slug"] for d in read_all(root=tmp_path)] == ["luta-z"]
+
+
+def test_data_rfc822_vira_iso():
+    # o WordPress mistura ISO e RFC-822; cortar 10 chars dava "Wed, 22 Ap",
+    # que ordena acima de qualquer data ISO e sequestra o destaque da home
+    from lib.dossier_index import normaliza_data
+    assert normaliza_data("Wed, 22 Apr 2026 11:44:44 +0000") == "2026-04-22"
+
+
+def test_data_iso_com_hora_e_cortada():
+    from lib.dossier_index import normaliza_data
+    assert normaliza_data("2026-07-17T16:32:07+00:00") == "2026-07-17"
+
+
+def test_data_vazia_ou_lixo_vira_string_vazia():
+    from lib.dossier_index import normaliza_data
+    assert normaliza_data("") == ""
+    assert normaliza_data("qualquer coisa") == ""
