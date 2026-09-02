@@ -99,24 +99,24 @@ jobs:
       - name: Instala as dependencias do pipeline
         run: pip install -r requirements.txt
 
-      # NAO instalamos Node/npm aqui de proposito.
-      # O `orchestrator.daily` encadeia so quatro passos: phase_a, scout_trends,
-      # plan_week e sync_to_cloud. Nenhum deles chama `node`. Quem chama os
-      # renderizadores de imagem (`web/scripts/*.mjs`, que usam sharp) e o
-      # orchestrator/art.py e o orchestrator/build_carousel.py — e esses rodam na
-      # geracao de arte, fora do ciclo diario. Instalar Node aqui so somaria ~1 min
-      # e um `npm ci` por dia sem uso. Se algum dia o daily.py passar a chamar art.py
-      # ou build_carousel.py, descomente o bloco abaixo:
+      # Node E necessario: o quinto passo do daily.py drena a fila do painel, e
+      # a fila aceita `carrossel` e `plataformas` — que chamam os renderizadores
+      # em web/scripts/*.mjs (sharp) pra gerar os PNGs.
       #
-      # - name: Instala Node 22 (necessario se o ciclo passar a renderizar imagem)
-      #   uses: actions/setup-node@v4
-      #   with:
-      #     node-version: "22"
-      #     cache: npm
-      #     cache-dependency-path: web/package-lock.json
-      # - name: Dependencias do renderizador (sharp)
-      #   run: npm ci
-      #   working-directory: web
+      # Sem Node aqui o defeito seria SILENCIOSO, que e o pior tipo: o render e
+      # best-effort, entao a tarefa terminaria "concluido" com o texto pronto e
+      # sem imagem nenhuma, e ninguem descobriria ate abrir o painel pra postar.
+      # Um minuto de `npm ci` por dia paga isso.
+      - name: Instala Node 22 (os renderizadores de imagem usam sharp)
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Dependencias do renderizador
+        run: npm ci
+        working-directory: web
 
       - name: Roda o ciclo diario
         env:

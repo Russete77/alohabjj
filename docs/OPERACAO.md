@@ -339,20 +339,14 @@ Muita linha `pendente` e nenhuma `concluido` recente confirma o diagnóstico.
 
 ### 9.5. O que pode dar errado, e o que fazer
 
-| Sintoma | O que é | O que fazer |
-|---|---|---|
-| `fila indisponível: falta SUPABASE_URL/…` ao clicar | O portal não sabe onde é o banco | Cadastre as duas variáveis do Supabase no projeto da Vercel (os mesmos valores da seção 4) |
-| `tarefa inválida ou faltam parâmetros` | Faltou o slug ou o tema, ou vieram com caractere que não é aceito | Slug é minúsculo com hífen (`helena-crevar-mundial`). Tema é texto normal, sem símbolo |
-| Fica em `na fila` para sempre | Ninguém executou | Seção 9.4 |
-| `FALHOU` com um erro de API | O pedido rodou e quebrou | O erro aparece na própria tela. A tabela da seção 3 traduz os mais comuns |
-| Ficou `executando` e nunca terminou | O worker morreu no meio (máquina desligada, run cortado) | Não faça nada: depois de **2 horas** a tarefa volta sozinha para `na fila` e é executada na próxima passada |
-| Pedi **carrossel** ou **pacotes + arte**, deu `concluído`, mas as imagens não vieram | Se quem executou foi o ciclo do GitHub, o texto sai mas a **arte não**: aquela máquina não tem o renderizador de imagem instalado (o ciclo diário nunca precisou dele). O log traz `render de slides falhou` | Para essas duas tarefas, rode o worker **no seu computador** (seção 9.3). Se isso incomodar, é conserto de desenvolvedor: instalar o Node no ciclo |
+**Resolvido em 02/09.** O `diario.yml` passou a instalar Node 22 e rodar `npm ci`
+em `web/`, porque o quinto passo do ciclo drena a fila e a fila aceita `carrossel`
+e `plataformas` — que chamam os renderizadores de imagem.
 
-> **Uma tarefa pode rodar duas vezes?** Só num caso raro: se o worker terminar o trabalho e
-> perder a conexão com o banco bem na hora de anotar o resultado. Aí a tarefa volta para a
-> fila depois de 2 horas e roda de novo. A escolha foi deliberada — entre "gastar API duas
-> vezes de vez em quando" e "pedido some sem ninguém avisar", o segundo é pior, porque é
-> invisível.
+O motivo de não ter deixado como estava: o render é best-effort, então sem Node a
+tarefa terminaria **"concluído"** com o texto pronto e **sem imagem nenhuma**. Você
+só descobriria ao abrir o painel pra postar. Falha silenciosa é a pior de todas, e
+um minuto de `npm ci` por dia é barato demais pra correr esse risco.
 
 ### 9.6. Cada clique gasta dinheiro
 
