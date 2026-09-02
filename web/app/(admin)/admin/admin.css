@@ -537,3 +537,164 @@
 .admin .pub-confirm em{color:var(--muted);font-style:italic;text-align:right}
 .admin .pub-acoes{display:flex;gap:var(--s-1)}
 .admin .pub-acoes .danger{background:var(--red);color:#fff;border-color:var(--red)}
+
+/* ── Console ao vivo do pipeline (/admin/agentes) ─────────────────────────────
+   Substitui a visualização pixel-art (as regras .town- e .belt-legend acima
+   ficaram sem uso). Nota: nunca escrever "asterisco barra" dentro de comentário
+   CSS — fecha o comentário no meio e o resto do texto vira seletor inválido.
+   É uma tabela-lista em grade: linha por etapa, coluna por pergunta de operação —
+   o que roda · sobre qual chave · com que modelo · quanto custou · há quanto tempo. */
+.admin .cvivo{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+  padding:var(--s-3) var(--s-4) var(--s-4);margin-bottom:var(--s-4)}
+.admin .cvivo-top{display:flex;align-items:center;gap:var(--s-2);flex-wrap:wrap;
+  font-size:var(--t-sm);padding-bottom:var(--s-3);border-bottom:1px solid var(--line)}
+.admin .cvivo-top b{font-weight:600}
+.admin .cvivo-farol{width:8px;height:8px;border-radius:50%;background:var(--faint);flex:none}
+.admin .cvivo-farol.on{background:var(--green);box-shadow:0 0 0 3px rgba(34,161,92,.2);animation:pulse 1.4s infinite}
+.admin .cvivo-run{font-family:var(--font-mono);font-size:var(--t-xs);color:var(--faint)}
+.admin .cvivo-custo{margin-left:auto;font-family:var(--font-mono);font-size:var(--t-sm);
+  font-variant-numeric:tabular-nums;color:var(--amber)}
+
+.admin .cvivo-vazio{color:var(--muted);font-size:var(--t-sm);line-height:1.55;margin:var(--s-3) 0 0;max-width:64ch}
+.admin .cvivo-vazio code{font-family:var(--font-mono);font-size:var(--t-xs);
+  background:var(--elevated);padding:1px 5px;border-radius:4px}
+
+.admin .cvivo-lista{list-style:none;margin:var(--s-2) 0 0;padding:0}
+/* Identidade (rótulo + etapa + chave) toma toda a largura da esquerda; as três
+   métricas ficam à direita, com largura natural, pro olho descer em coluna. */
+.admin .cvivo-etapa{display:grid;grid-template-columns:8px minmax(0,1fr) auto auto auto;
+  align-items:center;gap:var(--s-3);padding:var(--s-2) var(--s-1);border-bottom:1px solid var(--line-soft)}
+.admin .cvivo-etapa:last-child{border-bottom:0}
+.admin .cvivo-luz{width:8px;height:8px;border-radius:50%;background:var(--faint)}
+.admin .cvivo-etapa.rodando .cvivo-luz{background:var(--red);animation:pulse 1.4s infinite}
+.admin .cvivo-etapa.feito .cvivo-luz{background:var(--green)}
+.admin .cvivo-etapa.erro .cvivo-luz{background:var(--red)}
+.admin .cvivo-etapa.erro{background:var(--red-soft)}
+/* Interrompido: âmbar, não vermelho — não é um erro reportado, é um fim que
+   nunca chegou. Cor diferente pro operador distinguir "quebrou" de "sumiu". */
+.admin .cvivo-etapa.interrompido .cvivo-luz{background:var(--amber)}
+.admin .cvivo-aviso{grid-column:2/-1;font-size:var(--t-xs);color:var(--amber);line-height:1.4}
+.admin .cvivo-nome{display:flex;flex-direction:column;gap:2px;min-width:0}
+.admin .cvivo-nome b{font-size:var(--t-md);font-weight:600;line-height:1.25}
+.admin .cvivo-chave{display:flex;gap:var(--s-2);align-items:baseline;min-width:0;
+  font-family:var(--font-mono);font-size:var(--t-2xs)}
+.admin .cvivo-chave code{color:var(--faint);flex:none}
+/* O slug é longo por natureza — trunca no fim da linha e vai inteiro no title=. */
+.admin .cvivo-chave em{font-style:normal;color:var(--muted);min-width:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.admin .cvivo-modelo{font-family:var(--font-mono);font-size:var(--t-2xs);color:var(--muted);
+  background:var(--elevated);border:1px solid var(--line);border-radius:5px;padding:2px 7px;white-space:nowrap}
+.admin .cvivo-valor{font-family:var(--font-mono);font-size:var(--t-xs);color:var(--muted);
+  font-variant-numeric:tabular-nums;text-align:right}
+.admin .cvivo-quando{font-family:var(--font-mono);font-size:var(--t-xs);color:var(--faint);white-space:nowrap}
+.admin .cvivo-quando i{font-style:normal;font-weight:600}
+.admin .cvivo-etapa.rodando .cvivo-quando i{color:var(--red)}
+.admin .cvivo-etapa.feito .cvivo-quando i{color:var(--green)}
+.admin .cvivo-etapa.erro .cvivo-quando i{color:var(--red)}
+.admin .cvivo-etapa.interrompido .cvivo-quando i{color:var(--amber)}
+
+.admin .cvivo-falhas{margin-top:var(--s-3);border:1px solid var(--red);border-radius:var(--radius-sm);
+  background:var(--red-soft);padding:var(--s-2) var(--s-3);display:flex;flex-direction:column;gap:var(--s-1)}
+.admin .cvivo-falhas>b{font-size:var(--t-sm);color:var(--red)}
+.admin .cvivo-falhas p{display:flex;gap:var(--s-2);align-items:baseline;flex-wrap:wrap;
+  font-size:var(--t-xs);line-height:1.5;margin:0}
+.admin .cvivo-falhas code{font-family:var(--font-mono);font-weight:600;color:var(--ink);flex:none}
+.admin .cvivo-falhas em{font-family:var(--font-mono);color:var(--muted);font-style:normal;flex:none}
+.admin .cvivo-falhas p span{color:var(--muted);min-width:0;overflow-wrap:anywhere}
+.admin .cvivo-falhas p i{margin-left:auto;color:var(--faint);font-style:normal;flex:none}
+.admin .cvivo-falhas small{font-size:var(--t-2xs);color:var(--faint)}
+
+/* Em tela estreita a grade vira duas faixas: identidade em cima, métricas embaixo
+   — em vez de espremer o modelo e o custo até virarem reticências. */
+@media (max-width:760px){
+  .admin .cvivo-etapa{grid-template-columns:8px minmax(0,1fr) auto;row-gap:var(--s-1)}
+  .admin .cvivo-modelo{grid-column:2;justify-self:start}
+  .admin .cvivo-valor{grid-column:3;text-align:right}
+  .admin .cvivo-quando{grid-column:2/-1}
+}
+
+/* ── Controle editorial (fase 5) ───────────────────────────────────────────
+   A linha vira uma barra de ferramentas: além de publicar, o operador
+   arquiva, destaca, reordena, corrige e apaga. Como o número de controles
+   dobrou, a linha passa a poder quebrar em telas estreitas em vez de
+   espremer os botões até virarem alvos de 12px. */
+.admin .crow{flex-wrap:wrap;align-items:flex-start}
+.admin .crow.arquivada{opacity:.62;border-style:dashed}
+.admin .crow.destacada{border-left:3px solid var(--amber)}
+.admin .cinfo{flex:1 1 320px;display:flex;flex-direction:column;gap:var(--s-1)}
+
+/* Chip de editoria. NÃO usa .cat: essa classe já é o container da página de
+   catálogo (flex-column, max-width 900px) e sequestrava o chip. */
+.admin .ceditoria{font-family:var(--font-mono);font-size:var(--t-2xs);letter-spacing:.06em;
+  text-transform:uppercase;padding:2px 8px;border-radius:20px;
+  background:var(--elevated);color:var(--muted);border:1px solid var(--line)}
+.admin .ceditoria.superlutas{background:var(--red-soft);color:var(--red);border-color:transparent}
+.admin .ceditoria.noticias{background:color-mix(in srgb,var(--blue) 15%,transparent);color:var(--blue);border-color:transparent}
+.admin .ceditoria.analises{background:color-mix(in srgb,var(--purple) 15%,transparent);color:var(--purple);border-color:transparent}
+.admin .ceditoria.tecnica{background:color-mix(in srgb,var(--teal) 15%,transparent);color:var(--teal);border-color:transparent}
+
+.admin .cslug{font-family:var(--font-mono);font-size:var(--t-2xs);color:var(--faint);
+  background:var(--bg);border-radius:4px;padding:1px 5px}
+.admin .cflag{font-family:var(--font-mono);font-size:var(--t-2xs);text-transform:uppercase;
+  letter-spacing:.06em;color:var(--faint)}
+.admin .cflag.destaque{color:var(--amber);font-weight:700}
+.admin .chint{font-size:var(--t-sm);color:var(--muted);margin:var(--s-3) 0 0}
+
+/* Abas e filtros: links, não estado de cliente — dá pra compartilhar a URL. */
+.admin .cfiltros{display:flex;flex-direction:column;gap:var(--s-2);margin-top:var(--s-4)}
+.admin .cabas{display:flex;gap:var(--s-1);flex-wrap:wrap}
+.admin .cabas .ptab{text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.admin .ctab-n{font-family:var(--font-mono);font-size:var(--t-2xs);opacity:.7}
+.admin .kpi .num.excesso{color:var(--amber)}
+
+/* Barra de ações da linha */
+.admin .cacoes{display:flex;align-items:center;gap:var(--s-1);flex-wrap:wrap;flex:none}
+.admin .cbtn{padding:7px 11px;border-radius:var(--radius-sm);border:1px solid var(--line);
+  background:var(--panel);color:var(--ink);font-family:inherit;font-size:var(--t-sm);
+  font-weight:600;cursor:pointer;white-space:nowrap}
+.admin .cbtn:hover:not(:disabled){border-color:var(--red)}
+.admin .cbtn:disabled{opacity:.45;cursor:not-allowed}
+.admin .cbtn.on{background:color-mix(in srgb,var(--amber) 18%,transparent);
+  color:var(--amber);border-color:transparent}
+.admin .cbtn.perigo{color:var(--red)}
+.admin .cbtn.perigo:hover:not(:disabled){background:var(--red-soft)}
+
+/* Campo de ordem: numérico em vez de arrastar — funciona no teclado e no
+   leitor de tela, e não depende de acertar um alvo com o mouse.
+   Fundo --elevated, não --bg: no escuro o --bg é mais escuro que o painel e o
+   campo vazio virava um buraco preto sem cara de campo. O "#" antes dele dá
+   nome visível ao que o rótulo só conta pro leitor de tela. */
+.admin .cordem{display:flex;align-items:center;gap:4px}
+.admin .cordem::before{content:"#";font-family:var(--font-mono);font-size:var(--t-xs);color:var(--faint)}
+.admin .cordem-in{width:52px;padding:7px 6px;border-radius:var(--radius-sm);
+  border:1px solid var(--line);background:var(--elevated);color:var(--ink);
+  font-family:var(--font-mono);font-size:var(--t-sm);text-align:center}
+.admin .cordem-in:focus{outline:none;border-color:var(--red)}
+
+/* Edição inline de título e editoria */
+.admin .cedit{display:flex;gap:var(--s-1);align-items:center;flex-wrap:wrap;width:100%}
+.admin .cedit-in{flex:1 1 240px;min-width:0;padding:8px 10px;border-radius:var(--radius-sm);
+  border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:var(--t-md)}
+.admin .cedit-in:focus{outline:none;border-color:var(--red)}
+.admin .cedit-sel{flex:0 0 150px}
+.admin .cedit button{padding:8px 12px;border-radius:var(--radius-sm);border:1px solid var(--line);
+  background:var(--panel);color:var(--ink);font-family:inherit;font-size:var(--t-sm);
+  font-weight:600;cursor:pointer}
+.admin .cedit button.primary{background:var(--red);color:#fff;border-color:var(--red)}
+
+/* Rótulo só pro leitor de tela: cada campo da linha precisa de nome próprio,
+   senão "3" e "gordon-vs-buchecha" chegam sem contexto nenhum. */
+.admin .csr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+  clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+/* Confirmação de apagar. Reaproveita a caixa vermelha do publicar-mesmo-assim,
+   mas alinhada à esquerda porque tem campo pra digitar.
+   `flex:none` no input é obrigatório: dentro de um flex-column, o
+   `flex-basis:240px` herdado de .cedit-in virava 240px de ALTURA e o campo
+   aparecia como um bloco preto gigante. */
+.admin .capagar{align-items:stretch;text-align:left;flex:1 1 300px;max-width:440px}
+.admin .capagar input{flex:none;width:100%;padding:8px 10px;
+  font-family:var(--font-mono);font-size:var(--t-sm)}
+.admin .capagar .pub-acoes{justify-content:flex-end}
+/* o Apagar fica travado até o slug ser digitado — e precisa PARECER travado */
+.admin .pub-acoes button:disabled{opacity:.45;cursor:not-allowed}

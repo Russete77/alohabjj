@@ -1,31 +1,42 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { despublicarDossie, publicarDossie } from "../actions";
 
+/**
+ * O botão NÃO guarda o estado publicado em useState.
+ *
+ * Guardava, e por isso a tela mentia: depois de arquivar ou corrigir o dossiê,
+ * a lista era recarregada mas o botão continuava exibindo o estado do primeiro
+ * render. Agora a prop é a verdade e o refresh do servidor é quem atualiza.
+ */
 export default function PublishButton({
   slug, publicado, aviso,
 }: { slug: string; publicado: boolean; aviso: string | null }) {
-  const [estado, setEstado] = useState(publicado);
+  const router = useRouter();
+  const [pendente, transicao] = useTransition();
   const [confirmar, setConfirmar] = useState<string | null>(null);
   const [erro, setErro] = useState("");
-  const [ocupado, setOcupado] = useState(false);
 
-  async function publicar(confirmado: boolean) {
-    setOcupado(true); setErro("");
-    const r = await publicarDossie(slug, confirmado);
-    setOcupado(false);
-    if (r.precisaConfirmar) return setConfirmar(r.precisaConfirmar);
-    if (!r.ok) return setErro(r.erro ?? "falhou");
-    setConfirmar(null); setEstado(true);
+  function publicar(confirmado: boolean) {
+    setErro("");
+    transicao(async () => {
+      const r = await publicarDossie(slug, confirmado);
+      if (r.precisaConfirmar) return setConfirmar(r.precisaConfirmar);
+      if (!r.ok) return setErro(r.erro ?? "falhou");
+      setConfirmar(null);
+      router.refresh();
+    });
   }
 
-  async function despublicar() {
-    setOcupado(true); setErro("");
-    const r = await despublicarDossie(slug);
-    setOcupado(false);
-    if (!r.ok) return setErro(r.erro ?? "falhou");
-    setEstado(false);
+  function despublicar() {
+    setErro("");
+    transicao(async () => {
+      const r = await despublicarDossie(slug);
+      if (!r.ok) return setErro(r.erro ?? "falhou");
+      router.refresh();
+    });
   }
 
   if (confirmar) {
@@ -36,7 +47,7 @@ export default function PublishButton({
         {aviso && <em>“{aviso}”</em>}
         <div className="pub-acoes">
           <button type="button" onClick={() => setConfirmar(null)}>Cancelar</button>
-          <button type="button" className="danger" disabled={ocupado} onClick={() => publicar(true)}>
+          <button type="button" className="danger" disabled={pendente} onClick={() => publicar(true)}>
             Publicar mesmo assim
           </button>
         </div>
@@ -48,11 +59,11 @@ export default function PublishButton({
     <div className="pub">
       <button
         type="button"
-        className={estado ? "" : "primary"}
-        disabled={ocupado}
-        onClick={() => (estado ? despublicar() : publicar(false))}
+        className={publicado ? "" : "primary"}
+        disabled={pendente}
+        onClick={() => (publicado ? despublicar() : publicar(false))}
       >
-        {ocupado ? "…" : estado ? "Despublicar" : "Publicar"}
+        {pendente ? "…" : publicado ? "Despublicar" : "Publicar"}
       </button>
       {erro && <span className="pub-erro">{erro}</span>}
     </div>
