@@ -1,13 +1,11 @@
-import fs from "node:fs";
-import path from "node:path";
 import { parse, parseDocument, type YAMLSeq, type YAMLMap } from "yaml";
+import { lerConfig, salvarConfig } from "./config-store";
 
 // Edição do catálogo de produtos (config/catalogo.yaml) pelo /admin — é onde ficam
 // os LINKS DE AFILIADO (url_base), cupons, palavras ManyChat e tags. O Supervisor lê
 // esse arquivo a cada run; a rota /k/<PALAVRA> resolve a palavra → produto → link.
 // Escrita via parseDocument (CST) → preserva TODOS os comentários do arquivo.
-const ROOT = path.resolve(process.cwd(), "..");
-const FILE = path.join(ROOT, "config", "catalogo.yaml");
+const PATH_CFG = "config/catalogo.yaml";
 
 export interface Product {
   id: string;
@@ -53,16 +51,17 @@ function toProduct(p: Record<string, unknown>): Product {
   };
 }
 
-export function listProducts(): Product[] {
-  if (!fs.existsSync(FILE)) return [];
-  const data = parse(fs.readFileSync(FILE, "utf-8")) || {};
+export async function listProducts(): Promise<Product[]> {
+  const texto = await lerConfig(PATH_CFG);
+  if (!texto) return [];
+  const data = parse(texto) || {};
   const produtos = Array.isArray(data.produtos) ? data.produtos : [];
   return produtos.map((p: Record<string, unknown>) => toProduct(p));
 }
 
-export function productByKeyword(kw: string): Product | null {
+export async function productByKeyword(kw: string): Promise<Product | null> {
   const up = kw.trim().toUpperCase();
-  return listProducts().find((p) => p.manychat.toUpperCase() === up) || null;
+  return (await listProducts()).find((p) => p.manychat.toUpperCase() === up) || null;
 }
 
 type Patch = Partial<Record<(typeof EDITABLE)[number], string | boolean | string[]>>;
@@ -86,9 +85,11 @@ function coerce(key: string, val: string | boolean | string[]): unknown {
   return String(val);
 }
 
-export function saveProduct(id: string, patch: Patch): void {
+export async function saveProduct(id: string, patch: Patch): Promise<void> {
   if (!/^[a-z0-9-]+$/.test(id)) throw new Error("id inválido");
-  const doc = parseDocument(fs.readFileSync(FILE, "utf-8"));
+  const texto = await lerConfig(PATH_CFG);
+  if (!texto) throw new Error("catálogo não encontrado");
+  const doc = parseDocument(texto);
   const produtos = doc.get("produtos") as YAMLSeq | undefined;
   if (!produtos || !("items" in produtos)) throw new Error("catalogo sem produtos");
   const item = produtos.items.find(
@@ -99,12 +100,15 @@ export function saveProduct(id: string, patch: Patch): void {
     if (!EDITABLE.includes(k as (typeof EDITABLE)[number])) continue;
     item.set(k, coerce(k, v as string | boolean | string[]));
   }
-  fs.writeFileSync(FILE, doc.toString(), "utf-8");
+  const r = await salvarConfig(PATH_CFG, doc.toString());
+  if (!r.ok) throw new Error(r.erro);
 }
 
-export function addProduct(id: string, nome: string, manychat: string): void {
+export async function addProduct(id: string, nome: string, manychat: string): Promise<void> {
   if (!/^[a-z0-9-]+$/.test(id)) throw new Error("id inválido (use minúsculas, números e -)");
-  const doc = parseDocument(fs.readFileSync(FILE, "utf-8"));
+  const texto = await lerConfig(PATH_CFG);
+  if (!texto) throw new Error("catálogo não encontrado");
+  const doc = parseDocument(texto);
   const produtos = doc.get("produtos") as YAMLSeq;
   if (produtos.items.some((it) => (it as YAMLMap).get?.("id") === id)) {
     throw new Error("já existe produto com esse id");
@@ -124,5 +128,6 @@ export function addProduct(id: string, nome: string, manychat: string): void {
     gancho: "",
     cta_sugerido: "",
   });
-  fs.writeFileSync(FILE, doc.toString(), "utf-8");
+  const r = await salvarConfig(PATH_CFG, doc.toString());
+  if (!r.ok) throw new Error(r.erro);
 }

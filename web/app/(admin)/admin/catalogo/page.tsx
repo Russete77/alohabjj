@@ -3,8 +3,8 @@ import CatalogEditor from "./CatalogEditor";
 
 export const dynamic = "force-dynamic";
 
-export default function Catalogo() {
-  const produtos = listProducts();
+export default async function Catalogo() {
+  const produtos = await listProducts();
   const portal = (process.env.PORTAL_URL || "https://alohabjjnews.com").replace(/\/$/, "");
   const semLink = produtos.filter((p) => !p.url_base).length;
 

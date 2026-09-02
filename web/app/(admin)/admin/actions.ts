@@ -90,7 +90,7 @@ export async function salvarProduto(
   patch: Record<string, string | boolean | string[]>,
 ) {
   try {
-    saveProduct(id, patch);
+    await saveProduct(id, patch);
     revalidatePath("/admin/catalogo");
     return { ok: true };
   } catch (e) {
@@ -100,7 +100,7 @@ export async function salvarProduto(
 
 export async function novoProduto(id: string, nome: string, manychat: string) {
   try {
-    addProduct(id, nome, manychat);
+    await addProduct(id, nome, manychat);
     revalidatePath("/admin/catalogo");
     return { ok: true };
   } catch (e) {
