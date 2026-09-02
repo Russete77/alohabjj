@@ -72,6 +72,23 @@ jobs:
           key: seen-urls-${{ github.run_id }}
           restore-keys: seen-urls-
 
+      - name: Data de hoje em UTC (chave do cache de gasto)
+        id: dia
+        shell: bash
+        run: echo "hoje=$(date -u +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
+
+      # O teto DIARIO (DAILY_SPEND_CAP_USD) e calculado por lib/jobs.custo_do_dia(),
+      # que soma os jobs/*.jsonl do dia. Mas jobs/ esta no .gitignore: num runner
+      # descartavel a soma sempre daria zero e o teto do dia nunca pegaria — cada
+      # disparo manual seria um teto novo. A chave carrega a DATA de proposito: so
+      # restaura o gasto de hoje, e amanha o contador comeca limpo sozinho.
+      - name: Recupera o gasto ja registrado hoje
+        uses: actions/cache/restore@v4
+        with:
+          path: jobs
+          key: gastos-${{ steps.dia.outputs.hoje }}-${{ github.run_id }}
+          restore-keys: gastos-${{ steps.dia.outputs.hoje }}-
+
       - name: Instala Python 3.13
         uses: actions/setup-python@v5
         with:
@@ -141,6 +158,13 @@ jobs:
         with:
           path: ingestion/.seen_urls.json
           key: seen-urls-${{ github.run_id }}
+
+      - name: Salva o gasto de hoje (para o teto diario valer no proximo disparo)
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: jobs
+          key: gastos-${{ steps.dia.outputs.hoje }}-${{ github.run_id }}
 
       # ESTE PASSO E O QUE FAZ A MIGRACAO VALER ALGUMA COISA.
       # O ciclo escreve TUDO no disco do repositorio: config/calendario.json (o calendario

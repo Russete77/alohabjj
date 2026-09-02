@@ -144,8 +144,8 @@ GitHub eles ficam num cofre separado.
 | Nome | Para que serve | Se não cadastrar |
 |---|---|---|
 | `SPEND_CAP_USD` | Teto de gasto de API **por execução**, em dólares | Assume `10` |
+| `DAILY_SPEND_CAP_USD` | Teto de gasto **somando todas as execuções do dia** | Assume `20` |
 | `SCOUT_MODEL` | Modelo dos scouts: `haiku` (barato) ou `sonnet` (texto melhor) | Assume `haiku` |
-| `DAILY_SPEND_CAP_USD` | Teto diário **exibido** no painel `/admin/custos` | O painel mostra `—` |
 | `GEMINI_API_KEY` | Geração de imagem (Google) | Sem efeito no ciclo diário hoje |
 | `OPENAI_API_KEY` | Geração de imagem (OpenAI) | Sem efeito no ciclo diário hoje |
 | `RUNWAYML_API_SECRET` | Geração de imagem/vídeo (Runway) | Sem efeito no ciclo diário hoje |
@@ -223,7 +223,20 @@ gratuito do **healthchecks.io** ou do **cron-job.org**) que espera um "estou viv
 e te avisa quando o sinal **não** chega. Fica como próximo passo; hoje o hábito que
 substitui isso é olhar a aba `Actions` uma vez por semana.
 
-### 7.4. O horário pode atrasar
+### 7.4. O teto do dia depende de um cache
+
+O teto `DAILY_SPEND_CAP_USD` é calculado somando os registros de gasto da pasta `jobs/`.
+Essa pasta não vai para o repositório, e o computador do GitHub é novo a cada execução —
+então o ciclo guarda e recupera o gasto do dia num **cache** do próprio GitHub, com a data
+na chave (por isso o contador zera sozinho à meia-noite UTC, que é 21:00 em Brasília).
+
+Consequência prática: se esse cache se perder (é raro, mas o GitHub descarta caches
+antigos ou pouco usados), o contador do dia volta a zero e o teto diário deixa de valer
+naquele dia. O teto **por execução** (`SPEND_CAP_USD`) continua valendo sempre — ele é a
+proteção que não depende de nada externo. Se o custo importa muito, mantenha
+`SPEND_CAP_USD` num valor com o qual você dorme tranquilo mesmo se rodar algumas vezes.
+
+### 7.5. O horário pode atrasar
 
 O agendamento do GitHub não é cronômetro: em horário de pico o run pode sair alguns minutos
 (às vezes dezenas) depois das 06:00. Isso é normal e não é falha.
