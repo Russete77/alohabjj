@@ -7,6 +7,13 @@ copiar-e-colar por decisão de produto). A cada execução:
   2. Trend Scout: atualiza o que está bombando (1×/dia basta)
   3. Estrategista: replaneja o calendário da semana com o que chegou
   4. Publica o snapshot pro deploy (Storage)
+  5. Drena a fila: executa o que o dono pediu pelos botões do painel
+
+O passo 5 é o que faz os botões do /admin funcionarem. Eles não executam nada —
+só gravam o pedido em `run_queue` (a Vercel não tem python nem o repositório).
+Fica POR ÚLTIMO de propósito: o ciclo automático é o compromisso do dia e não
+pode ficar refém do que alguém enfileirou, e o que o dono pediu já pega o
+snapshot do ciclo pronto.
 
 Feito pra rodar no Agendador de Tarefas do Windows (ver scripts/register_daily_task.ps1).
 Cada passo é best-effort: um falhar não derruba os outros. Loga em jobs/daily-<data>.log.
@@ -79,6 +86,13 @@ def main() -> int:
             ok["trends"] = _step("Trend Scout", ["-m", "orchestrator.scout_trends"], logf)
         ok["plano"] = _step("Estrategista (calendário)", ["-m", "orchestrator.plan_week"], logf)
         ok["deploy"] = _step("Publica snapshot", ["-m", "orchestrator.sync_to_cloud"], logf)
+
+        # A fila é o que o DONO pediu clicando no painel. Roda como subprocesso
+        # igual aos outros passos (log capturado, falha isolada) e entra na conta
+        # do `all(ok.values())` de propósito: se o carrossel que ele pediu ontem
+        # à noite quebrou, isso precisa virar issue por e-mail — não uma linha
+        # perdida no log que ninguém abre.
+        ok["fila"] = _step("Fila do painel (run_queue)", ["-m", "orchestrator.worker"], logf)
 
         resumo = " · ".join(f"{k}={'ok' if v else 'FALHOU'}" for k, v in ok.items())
         tail = f"\n[daily] fim: {resumo}\n"

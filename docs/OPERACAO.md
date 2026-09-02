@@ -170,6 +170,9 @@ Quando você corrigiu algo, ou simplesmente quer rodar agora sem esperar as 06:0
 
 O run aparece na lista em alguns segundos. Acompanhe pela própria página.
 
+> Para disparar **uma tarefa específica** (um carrossel, um curso, caçar produtos), o
+> caminho é outro: os botões do `/admin`. Como eles funcionam agora está na **seção 9**.
+
 ---
 
 ## 6. Testes automáticos
@@ -252,3 +255,113 @@ O agendamento do GitHub não é cronômetro: em horário de pico o run pode sair
 | "Preciso rodar agora" | `Actions` → `Ciclo diario` → `Run workflow` (seção 5) |
 | "Trocaram minha chave de API" | `Settings` → `Secrets and variables` → `Actions` (seção 4) |
 | "Quero ver quanto gastei" | Painel `/admin/custos`, ou os `jobs/*.jsonl` do anexo |
+| "Cliquei em Rodar e não aconteceu nada" | É normal: o botão enfileira (seção 9) |
+| "Faz dias que o que eu peço no painel não sai" | Fila parada — seção 9.4 |
+
+---
+
+## 9. Os botões "Rodar" do painel — o que eles fazem de verdade
+
+### 9.1. O botão não executa. Ele PEDE.
+
+Quando você clica em **`▶ Rodar`** no `/admin/agentes` (ou nos botões do calendário), o
+portal **não** começa a trabalhar naquele instante. Ele **anota o seu pedido numa fila** e
+responde na hora. Quem faz o trabalho é outra máquina, depois.
+
+Isso não é preguiça do sistema — é o único jeito de funcionar. O portal roda na Vercel, que
+é um serviço de páginas: lá **não existe o Python**, não existe o projeto em disco e nada
+sobrevive de uma requisição para a outra. Antes desta mudança o botão tentava rodar o
+pipeline ali mesmo. Não rodava: o console ficava piscando para sempre e nada acontecia.
+Era **tela morta com cara de tela viva** — o pior tipo de defeito, porque não parece
+defeito.
+
+Agora a tela é honesta. Depois de clicar você vê, em ordem:
+
+| O que aparece no console | O que significa |
+|---|---|
+| `na fila desde 02/09/2026 20:14 — aguardando o worker` | Anotado. Ainda não começou |
+| `executando desde …` | Alguém pegou o seu pedido e está trabalhando |
+| `concluído em … ✔` | Pronto. O resultado já está no painel |
+| `FALHOU em … ` + o erro | Rodou e quebrou. O motivo vem junto |
+
+**Pode fechar a tela.** O pedido está gravado no banco; fechar o navegador não cancela nada.
+
+### 9.2. Quem executa o que você pediu
+
+Duas coisas esvaziam a fila:
+
+1. **O ciclo diário**, todo dia às 06:00 (seção 1). Ele terminou o trabalho automático e,
+   como último passo, executa o que estiver na fila.
+2. **Você, na mão**, quando não quer esperar até amanhã.
+
+Ou seja: **na prática, o que você pedir hoje sai de madrugada**, junto com o ciclo. Se for
+urgente, use o item 3 abaixo.
+
+### 9.3. Como fazer sair agora
+
+**O jeito fácil (sem instalar nada):** GitHub → aba `Actions` → `Ciclo diario` →
+`Run workflow` (é o mesmo passo a passo da seção 5). O ciclo roda inteiro e, no fim, esvazia
+a fila. Custa as chamadas de API do ciclo, além das do seu pedido.
+
+**O jeito direto (no seu computador, se o projeto estiver instalado nele):** abra o
+PowerShell na pasta do projeto e rode
+
+```powershell
+python -m orchestrator.worker
+```
+
+Ele pega tudo que está na fila, executa uma tarefa de cada vez e sai. Para executar só a
+mais antiga e parar, use `python -m orchestrator.worker --once`.
+
+> O worker **não fica rodando de plantão**. Ele esvazia a fila e encerra. É de propósito:
+> programa que fica dormindo em segundo plano morre calado e ninguém percebe — foi assim
+> que o produto ficou 45 dias parado em julho.
+
+### 9.4. Fila cheia = ninguém está executando
+
+Este é o sintoma que você precisa saber reconhecer. Se você pede coisas no painel e elas
+ficam dias em **`na fila`**, o problema **não** é o seu pedido: é que **o worker não está
+rodando**. Traduzindo: o ciclo diário não está rodando.
+
+Vá para a seção 2 e olhe a aba `Actions`. O último `Ciclo diario` está verde? Está
+acontecendo todo dia? Se não, resolva isso — a fila é só o sintoma.
+
+Para ver a fila por dentro (Supabase → `SQL Editor`):
+
+```sql
+select status, count(*) from run_queue group by status;
+
+select task, status, requested_at, error
+  from run_queue order by requested_at desc limit 20;
+```
+
+Muita linha `pendente` e nenhuma `concluido` recente confirma o diagnóstico.
+
+### 9.5. O que pode dar errado, e o que fazer
+
+| Sintoma | O que é | O que fazer |
+|---|---|---|
+| `fila indisponível: falta SUPABASE_URL/…` ao clicar | O portal não sabe onde é o banco | Cadastre as duas variáveis do Supabase no projeto da Vercel (os mesmos valores da seção 4) |
+| `tarefa inválida ou faltam parâmetros` | Faltou o slug ou o tema, ou vieram com caractere que não é aceito | Slug é minúsculo com hífen (`helena-crevar-mundial`). Tema é texto normal, sem símbolo |
+| Fica em `na fila` para sempre | Ninguém executou | Seção 9.4 |
+| `FALHOU` com um erro de API | O pedido rodou e quebrou | O erro aparece na própria tela. A tabela da seção 3 traduz os mais comuns |
+| Ficou `executando` e nunca terminou | O worker morreu no meio (máquina desligada, run cortado) | Não faça nada: depois de **2 horas** a tarefa volta sozinha para `na fila` e é executada na próxima passada |
+| Pedi **carrossel** ou **pacotes + arte**, deu `concluído`, mas as imagens não vieram | Se quem executou foi o ciclo do GitHub, o texto sai mas a **arte não**: aquela máquina não tem o renderizador de imagem instalado (o ciclo diário nunca precisou dele). O log traz `render de slides falhou` | Para essas duas tarefas, rode o worker **no seu computador** (seção 9.3). Se isso incomodar, é conserto de desenvolvedor: instalar o Node no ciclo |
+
+> **Uma tarefa pode rodar duas vezes?** Só num caso raro: se o worker terminar o trabalho e
+> perder a conexão com o banco bem na hora de anotar o resultado. Aí a tarefa volta para a
+> fila depois de 2 horas e roda de novo. A escolha foi deliberada — entre "gastar API duas
+> vezes de vez em quando" e "pedido some sem ninguém avisar", o segundo é pior, porque é
+> invisível.
+
+### 9.6. Cada clique gasta dinheiro
+
+A fila dispara chamadas de IA de verdade. Duas proteções continuam valendo, as mesmas do
+ciclo diário (seção 4): o teto por execução (`SPEND_CAP_USD`) e o teto do dia
+(`DAILY_SPEND_CAP_USD`). Além disso, o worker executa no máximo **20 tarefas por passada** —
+se a fila tiver mais que isso, o resto espera a próxima. É a trava que impede um clique
+repetido virar uma fatura.
+
+Por isso também a tabela `run_queue` **não é pública**: ela está fechada no banco (RLS
+ligada, sem nenhuma permissão para visitante anônimo) e a rota que enfileira está atrás da
+senha do `/admin`. Ninguém de fora consegue pedir trabalho no seu lugar.
