@@ -1,11 +1,6 @@
-// TODO(seguranca): esta rota deveria entrar no matcher do middleware.
-// Hoje `web/middleware.ts` protege ["/admin/:path*", "/api/art/:path*",
-// "/api/fonte/:path*", "/api/run/:path*"] — `/api/agents/*` ficou de fora, então
-// esta é a única rota do painel que responde SEM sessão. Ela expõe o que o
-// pipeline está processando (slugs de dossiê), com que modelo e quanto custou.
-// A correção é acrescentar "/api/agents/:path*" ao matcher; não faço aqui porque
-// o middleware é de outro dono.
-
+// Rota do painel: protegida pelo middleware (matcher "/api/agents/:path*").
+// Até 02/09 ela ficou FORA do matcher e respondia sem sessão, entregando os
+// slugs que o pipeline estava processando, o modelo e o custo por chamada.
 import fs from "node:fs";
 import path from "node:path";
 import type { Atividade, Estado, Etapa, Falha } from "@/app/(admin)/admin/agentes/tipos";

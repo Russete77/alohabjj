@@ -22,4 +22,19 @@ export async function middleware(req: NextRequest) {
   return NextResponse.redirect(url);
 }
 
-export const config = { matcher: ["/admin/:path*", "/api/art/:path*", "/api/fonte/:path*", "/api/run/:path*"] };
+// Cobre TODAS as rotas /api do painel. `/api/agents/*` ficou de fora até 02/09 e
+// respondia sem sessão, entregando slug de dossiê, modelo e custo por chamada —
+// confirmado buscando a rota sem cookie. As rotas públicas de redirect (/r, /k,
+// /p) continuam fora daqui de propósito: são links que o público segue.
+//
+// Regra ao criar rota nova em /api: ou ela entra neste matcher, ou o comentário
+// no topo dela explica por que é pública.
+export const config = {
+  matcher: [
+    "/admin/:path*",
+    "/api/agents/:path*",
+    "/api/art/:path*",
+    "/api/fonte/:path*",
+    "/api/run/:path*",
+  ],
+};
