@@ -17,6 +17,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from lib.modelos import modelo_de  # noqa: E402
 from lib import config_store  # noqa: E402
 from lib.claude import Claude, SONNET, SpendCapExceeded  # noqa: E402
 from lib.jobs import JobLog  # noqa: E402
@@ -102,7 +103,7 @@ def main() -> int:
             + (f"\n\nO QUE JÁ CONVERTEU:\n{conv}" if conv else "")
             + "\n\nMonte o calendário de 7 dias respeitando a régua de cada canal e variando o mix. SÓ JSON.")
     try:
-        txt, _ = claude.call(model=SONNET, system=system, user=user, step="content_strategist",
+        txt, _ = claude.call(model=modelo_de("content_strategist"), system=system, user=user, step="content_strategist",
                              key="semana", json_schema=CAL_SCHEMA, effort="medium", max_tokens=6000)
     except SpendCapExceeded as e:
         print(f"[plano] PARADO: {e}"); return 1

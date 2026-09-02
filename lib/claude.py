@@ -155,11 +155,17 @@ class Claude:
 
     def __init__(self, log: JobLog | None = None, spend_cap_usd: float | None = None,
                  daily_cap_usd: float | None = None):
-        if not os.getenv("ANTHROPIC_API_KEY"):
+        # A chave pode vir do painel (app_settings) ou do ambiente — nessa ordem.
+        # O painel a grava e NUNCA a devolve: entrar no admin não pode significar
+        # levá-la embora. Ver web/lib/config-store.ts e o spec da fase 6.
+        from lib import config_store
+
+        chave = config_store.setting("ANTHROPIC_API_KEY")
+        if not chave:
             raise RuntimeError(
-                "ANTHROPIC_API_KEY ausente. Preencha o .env antes de rodar etapas pagas."
+                "ANTHROPIC_API_KEY ausente. Configure no /admin/config ou no ambiente."
             )
-        self.client = anthropic.Anthropic()  # lê ANTHROPIC_API_KEY do ambiente
+        self.client = anthropic.Anthropic(api_key=chave)
         self.log = log or JobLog(prefix="claude")
         self.spend_cap = spend_cap_usd if spend_cap_usd is not None else float(
             os.getenv("SPEND_CAP_USD", "10")

@@ -22,6 +22,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from lib.modelos import modelo_de  # noqa: E402
 from lib import config_store  # noqa: E402
 from lib.claude import Claude, SONNET, HAIKU, SpendCapExceeded  # noqa: E402
 
@@ -177,7 +178,7 @@ def main() -> int:
                 ctx = (f"CATEGORIA: {c}\nPRODUTO REAL (marketplace):\n"
                        f"{json.dumps(h, ensure_ascii=False)}\nClassifique, escreva a copy e as "
                        "ideias de conteúdo (ideia_tiktok, ideia_instagram). SÓ JSON.")
-                txt, _ = claude.call(model=SCOUT_MODEL, system=scout_sys, user=ctx, step="scout",
+                txt, _ = claude.call(model=modelo_de("scout"), system=scout_sys, user=ctx, step="scout",
                                      key=q[:40], max_tokens=1500)
                 data = _json_extract(txt) or {}
                 data.update({"fonte": h.get("fonte", ""), "external_url": h.get("url", ""),
@@ -191,7 +192,7 @@ def main() -> int:
                        "(mais vendas/avaliações, ATIVO). Devolva SOMENTE o JSON do candidato — com "
                        "external_url (link real), fonte, preco, imagem, e as IDEIAS DE CONTEÚDO "
                        "(ideia_tiktok, ideia_instagram) que convertem em venda.")
-                txt, _ = claude.research(model=SCOUT_MODEL, system=scout_sys, user=ctx, step="scout",
+                txt, _ = claude.research(model=modelo_de("scout"), system=scout_sys, user=ctx, step="scout",
                                          key=q[:40], max_uses=4, max_tokens=1500)
                 data = _json_extract(txt)
                 if not data:

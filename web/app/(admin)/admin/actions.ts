@@ -18,6 +18,7 @@ import { hashIp, limparTentativas, registrarTentativa } from "@/lib/rate-limit";
 import { motivoBloqueio } from "@/lib/porteiro";
 import { normalizaTagLivre } from "@/lib/cms";
 import { salvarTema } from "@/lib/tema-store";
+import { salvarConfig } from "@/lib/config-store";
 import type { Tema } from "@/lib/tema";
 import { dbDelete, dbEnabled, dbInsert, dbPatch, dbSelect } from "@/lib/server-db";
 import { getDossierAdmin, invalidaCache } from "@/lib/dossiers";
@@ -503,4 +504,12 @@ export async function salvarTemaAction(t: Tema) {
   revalidatePath("/", "layout");
   revalidatePath("/admin/tema");
   return { ok: true as const, erros: [] as string[] };
+}
+
+/** Grava a escolha de modelo por etapa. Só o que difere do padrão entra. */
+export async function salvarModelos(escolhas: Record<string, string>) {
+  const r = await salvarConfig("config/modelos.json", JSON.stringify(escolhas, null, 2), "painel");
+  if (!r.ok) return { ok: false, erro: r.erro };
+  revalidatePath("/admin/modelos");
+  return { ok: true };
 }

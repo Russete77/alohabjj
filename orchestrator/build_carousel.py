@@ -24,6 +24,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from lib.modelos import modelo_de  # noqa: E402
 from lib import config_store  # noqa: E402
 from lib.claude import Claude, SONNET, HAIKU  # noqa: E402
 from lib.jobs import JobLog  # noqa: E402
@@ -147,7 +148,7 @@ def main() -> int:
     from lib.tracking import conversion_memory
     mem = conversion_memory()
     brief_txt, _ = claude.call(
-        model=SONNET, system=_sys("sales_supervisor"),
+        model=modelo_de("supervisor"), system=_sys("sales_supervisor"),
         cache=f"CATÁLOGO:\n{catalogo}\n\n{know_sup}",   # estável no run → cacheado
         user=f"{mem}\n\nDOSSIÊ:\n{dossier['summary']}\n\nÂNGULOS:\n{dossier['angles']}",
         step="supervisor", key=args.slug, json_schema=BRIEF_SCHEMA, max_tokens=1500)
@@ -160,7 +161,7 @@ def main() -> int:
 
     # 2) Carrossel
     car_txt, _ = claude.call(
-        model=SONNET, system=_sys("carousel"),
+        model=modelo_de("carrossel"), system=_sys("carousel"),
         cache=f"VOZ DA MARCA:\n{voz}\n\n{know_car}",   # estável no run → cacheado
         user=(f"DOSSIÊ:\n{dossier['summary']}\n\nÂNGULOS:\n{dossier['angles']}\n\n"
               f"BRIEF DO SUPERVISOR:\n{brief_txt}\n\nGere um carrossel de {args.slides} slides."),
@@ -170,7 +171,7 @@ def main() -> int:
 
     # 3) Avaliador (quality gate)
     ver_txt, _ = claude.call(
-        model=HAIKU, system=_sys("evaluator"),
+        model=modelo_de("avaliador"), system=_sys("evaluator"),
         user=f"PEÇA:\n{car_txt}\n\nBRIEF:\n{brief_txt}\n\nDOSSIÊ:\n{dossier['summary']}",
         step="avaliador", key=args.slug, json_schema=VERDICT_SCHEMA, max_tokens=1200)
     ver = json.loads(ver_txt)

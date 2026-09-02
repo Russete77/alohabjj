@@ -18,6 +18,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from lib.modelos import modelo_de  # noqa: E402
 from lib import config_store  # noqa: E402
 from lib.claude import Claude, SONNET, HAIKU, SpendCapExceeded  # noqa: E402
 from lib.jobs import JobLog  # noqa: E402
@@ -76,7 +77,7 @@ def main() -> int:
                 "Pesquise na web (BJJ Heroes, FloGrappling, notícias, X do atleta) e escreva o "
                 "perfil em markdown no formato do sistema. Fatos com fonte; sem inventar.")
         try:
-            txt, _ = claude.research(model=ATLETA_MODEL, system=system, user=user,
+            txt, _ = claude.research(model=modelo_de("athlete_scout"), system=system, user=user,
                                      step="athlete_scout", key=a["slug"], max_uses=4, max_tokens=2600)
         except SpendCapExceeded as e:
             print(f"[atleta] PARADO: {e}"); break

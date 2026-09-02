@@ -81,9 +81,23 @@ export async function salvarConfig(
 
 export interface Ajuste { key: string; valor: string | null; segredo: boolean }
 
-/** Chaves de PROVEDOR não moram no banco — ficam no ambiente (Vercel/Actions). */
-export const CHAVES_DO_AMBIENTE = [
+/**
+ * Chaves de provedor GRAVÁVEIS pelo painel, nunca legíveis.
+ *
+ * Decisão revisada na fase 6. O argumento original contra era a senha fraca do
+ * admin sem limite de tentativa — a fase 2 removeu essa condição. Ficou
+ * aceitável sob duas exigências, ambas cumpridas:
+ *   1. o campo é de ESCRITA: grava e nunca devolve o valor, então entrar no
+ *      painel não entrega a chave a quem entrou;
+ *   2. o teto DIÁRIO de gasto é real (fase das seis frentes), então chave
+ *      vazada ou loop maluco tem chão.
+ */
+export const CHAVES_GRAVAVEIS = [
   "ANTHROPIC_API_KEY", "GEMINI_API_KEY", "OPENAI_API_KEY", "RUNWAYML_API_SECRET",
+] as const;
+
+/** Estas continuam SÓ no ambiente: são o alicerce, não configuração. */
+export const CHAVES_DO_AMBIENTE = [
   "SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY",
   "NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_ANON_KEY",
   "ADMIN_PASSWORD", "ADMIN_SESSION_SECRET",
@@ -91,6 +105,7 @@ export const CHAVES_DO_AMBIENTE = [
 
 /** Configuração de negócio — editável no painel. */
 export const AJUSTES_EDITAVEIS = [
+  ...CHAVES_GRAVAVEIS,
   "SPEND_CAP_USD", "DAILY_SPEND_CAP_USD", "SCOUT_MODEL", "IMAGE_PROVIDER_ORDER",
   "AFFILIATE_ORDER", "RADAR_MAX_AGE_DAYS", "WEB_SEARCH_EXTRA_DOMAINS", "PORTAL_URL",
   "AMAZON_PARTNER_TAG", "AMAZON_COUNTRY", "ML_AFFILIATE_TAG", "ML_SITE",
@@ -100,6 +115,7 @@ export const AJUSTES_EDITAVEIS = [
 /** Ajustes que guardam credencial: gravam, nunca devolvem o valor. */
 export const AJUSTES_SEGREDO = new Set([
   "AMAZON_ACCESS_KEY", "AMAZON_SECRET_KEY", "SHOPEE_APP_SECRET",
+  ...CHAVES_GRAVAVEIS,
 ]);
 
 export async function listarAjustes(): Promise<Ajuste[]> {

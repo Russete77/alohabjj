@@ -18,6 +18,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from lib.modelos import modelo_de  # noqa: E402
 from lib import config_store  # noqa: E402
 from lib.claude import Claude, OPUS, SpendCapExceeded  # noqa: E402
 from lib.jobs import JobLog  # noqa: E402
@@ -96,7 +97,7 @@ def main() -> int:
         print(f"[curso] {e}")
         return 1
     try:
-        txt, _ = claude.call(model=OPUS, system=system, cache=voz, user=user,
+        txt, _ = claude.call(model=modelo_de("course_builder"), system=system, cache=voz, user=user,
                              step="course_builder", key=args.tema[:40], json_schema=SCHEMA,
                              max_tokens=6000)
     except SpendCapExceeded as e:

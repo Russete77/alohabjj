@@ -24,6 +24,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from lib.modelos import modelo_de  # noqa: E402
 from lib import config_store  # noqa: E402
 from lib.claude import Claude, SONNET, SpendCapExceeded  # noqa: E402
 from lib.jobs import JobLog  # noqa: E402
@@ -136,7 +137,7 @@ def main() -> int:
         return 1
 
     # 1) Instagram Publisher (prompt mestre)
-    ig_txt, _ = claude.call(model=SONNET, system=_sys("instagram_publisher"), user=ctx_short,
+    ig_txt, _ = claude.call(model=modelo_de("instagram"), system=_sys("instagram_publisher"), user=ctx_short,
                             step="instagram", key=args.slug, json_schema=IG_SCHEMA,
                             effort="medium", max_tokens=5000)
     ig = json.loads(ig_txt)
@@ -144,21 +145,21 @@ def main() -> int:
           f"{len(ig['headline_capa'])} capas")
 
     # 2) TikTok Publisher (viral, BR)
-    tk_txt, _ = claude.call(model=SONNET, system=_sys("tiktok_publisher"), user=ctx_short,
+    tk_txt, _ = claude.call(model=modelo_de("tiktok"), system=_sys("tiktok_publisher"), user=ctx_short,
                             step="tiktok", key=args.slug, json_schema=TIKTOK_SCHEMA,
                             effort="medium", max_tokens=4000)
     tk = json.loads(tk_txt)
     print(f"  ✓ TikTok: hook=“{tk['hook_tela']}” · {len(tk['roteiro_beats'])} beats")
 
     # 3) Empacotador → YouTube Shorts
-    yt_txt, _ = claude.call(model=SONNET, system=YT_SYSTEM, user=ctx,
+    yt_txt, _ = claude.call(model=modelo_de("youtube"), system=YT_SYSTEM, user=ctx,
                             step="youtube", key=args.slug, json_schema=YT_SCHEMA,
                             effort="low", max_tokens=1500)
     yt = json.loads(yt_txt)
     print(f"  ✓ YouTube: “{yt['titulo'][:60]}”")
 
     # 4) Facebook Publisher (nativo, comunidade/compartilhamento)
-    fb_txt, _ = claude.call(model=SONNET, system=_sys("facebook_publisher"), user=ctx,
+    fb_txt, _ = claude.call(model=modelo_de("facebook"), system=_sys("facebook_publisher"), user=ctx,
                             step="facebook", key=args.slug, json_schema=FB_SCHEMA,
                             effort="low", max_tokens=2500)
     fb = json.loads(fb_txt)

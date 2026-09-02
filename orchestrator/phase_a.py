@@ -21,6 +21,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from ingestion.rss import fetch_new_items, mark_urls_seen  # noqa: E402
+from lib.modelos import modelo_de  # noqa: E402
 from lib import config_store  # noqa: E402
 from lib.claude import Claude, HAIKU, SONNET, OPUS, SpendCapExceeded  # noqa: E402
 from lib.embeddings import which as emb_which  # noqa: E402
@@ -80,7 +81,7 @@ def process_topic(claude: Claude, item: dict, slug: str) -> bool:
     src_meta = {"title": item["titulo"], "link": item["url"], "date": item.get("publicado", "")}
 
     material, _ = claude.research(
-        model=SONNET, system=_sys("researcher"),
+        model=modelo_de("pesquisador"), system=_sys("researcher"),
         user=f"PAUTA: {item['titulo']}\nURL da fonte: {item['url']}\nResumo: {item.get('resumo','')}\n\n"
              "Apure em ≥2 fontes independentes da web e devolva o material com procedência.",
         step="pesquisador", key=slug, effort="medium", max_uses=4)  # medium: base do dossiê
@@ -88,13 +89,13 @@ def process_topic(claude: Claude, item: dict, slug: str) -> bool:
     # Validação é extração factual — effort baixo + folga de tokens (thinking não pode
     # consumir todo o orçamento e deixar o JSON vazio; ver guard em lib/claude).
     facts_txt, _ = claude.call(
-        model=SONNET, system=_sys("validator"),
+        model=modelo_de("validador"), system=_sys("validator"),
         user=f"MATERIAL DO PESQUISADOR:\n{material}",
         step="validador", key=slug, json_schema=VALIDATOR_SCHEMA, effort="low", max_tokens=5000)
     facts = json.loads(facts_txt)
 
     dossier_txt, _ = claude.call(
-        model=OPUS, system=_sys("analyst"),
+        model=modelo_de("analista"), system=_sys("analyst"),
         user=f"PAUTA: {item['titulo']}\nFONTE: {item['url']}\n\nMATERIAL APURADO:\n{material}\n\n"
              f"FATOS VALIDADOS:\n{facts_txt}\n\nMonte o dossiê.",
         step="analista", key=slug, json_schema=DOSSIER_SCHEMA, max_tokens=10000)
@@ -110,7 +111,7 @@ def radar_filter(claude: Claude, novos: list[tuple[dict, str]], min_rel: int = 6
         for i, (it, _slug) in enumerate(novos)
     ]
     txt, _ = claude.call(
-        model=HAIKU, system=_sys("radar"),
+        model=modelo_de("radar"), system=_sys("radar"),
         user="Avalie cada item novo das fontes para o canal AlohaBJJ (BJJ/grappling de elite). "
              "Para cada um dê `relevancia` 0–10, `tipo` (superluta|noticia|analise|tecnica|evento), "
              "e `cortar`=true quando for fraco, institucional/promocional, ou mero perfil de atleta "

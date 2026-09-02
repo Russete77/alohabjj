@@ -21,6 +21,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from lib.modelos import modelo_de  # noqa: E402
 from lib import config_store  # noqa: E402
 from lib.claude import Claude, SONNET, HAIKU, SpendCapExceeded  # noqa: E402
 from lib.jobs import JobLog  # noqa: E402
@@ -108,7 +109,7 @@ def main() -> int:
     user = (cfg["task"] + "\n\nNOSSAS PAUTAS RECENTES (contexto de autoridade/interesse):\n- "
             + "\n- ".join(pautas))
     try:
-        txt, _ = claude.research(model=IDEA_MODEL, system=system, user=user, step=cfg["step"],
+        txt, _ = claude.research(model=modelo_de(cfg["step"]), system=system, user=user, step=cfg["step"],
                                  key=args.kind, max_uses=4, max_tokens=3500)
     except SpendCapExceeded as e:
         print(f"[ideias:{args.kind}] PARADO: {e}"); return 1

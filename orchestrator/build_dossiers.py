@@ -21,6 +21,7 @@ import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from lib.modelos import modelo_de  # noqa: E402
 from lib import config_store  # noqa: E402
 from lib.claude import Claude, OPUS, SpendCapExceeded  # noqa: E402
 from lib.jobs import JobLog  # noqa: E402
@@ -192,7 +193,7 @@ def main() -> int:
         user = f"Artigo de origem (AlohaBJJNews):\n\nTÍTULO: {src_meta['title']}\nURL: {src_meta.get('link')}\n\n{body}"
         try:
             text, usage = claude.call(
-                model=OPUS, system=_system(), user=user,
+                model=modelo_de("build_dossier"), system=_system(), user=user,
                 step="build_dossier", key=slug, max_tokens=6000,
                 effort=args.effort, json_schema=DOSSIER_SCHEMA,
             )

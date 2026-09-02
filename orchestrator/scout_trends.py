@@ -21,6 +21,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from lib.modelos import modelo_de  # noqa: E402
 from lib import config_store  # noqa: E402
 from lib.claude import Claude, SONNET, HAIKU, SpendCapExceeded  # noqa: E402
 from lib.jobs import JobLog  # noqa: E402
@@ -118,7 +119,7 @@ def qc_tendencias(claude: Claude, tendencias: list[dict]) -> tuple[list[dict], l
               for i, t in enumerate(tendencias)]
     system = config_store.read("agents/trend_qc/system.md")
     txt, _ = claude.call(
-        model=HAIKU, system=system,
+        model=modelo_de("trend_qc"), system=system,
         user="Avalie cada tendência abaixo conforme o contrato.\n\nTENDÊNCIAS:\n" + "\n".join(linhas),
         step="trend_qc", key="semana", json_schema=QC_SCHEMA, max_tokens=1500)
     return aplicar_qc(tendencias, json.loads(txt).get("avaliacoes", []))
@@ -150,7 +151,7 @@ def main() -> int:
             "semanas). Case, quando fizer sentido, com estas pautas que já temos:\n- "
             + "\n- ".join(pautas) + "\n\nDevolva SOMENTE o JSON do contrato.")
     try:
-        txt, _ = claude.research(model=TREND_MODEL, system=system, user=user, step="trend_scout",
+        txt, _ = claude.research(model=modelo_de("trend_scout"), system=system, user=user, step="trend_scout",
                                  key="semana", max_uses=4, max_tokens=3000)
     except SpendCapExceeded as e:
         print(f"[trends] PARADO: {e}"); return 1

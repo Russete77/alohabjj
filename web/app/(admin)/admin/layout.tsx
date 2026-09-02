@@ -35,6 +35,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div className="a-group">Config</div>
           <a href="/admin/tema"><span className="a-ic">🎨</span>Tema (cores & logo)</a>
           <a href="/admin/custos"><span className="a-ic">💸</span>Custos de IA</a>
+          <a href="/admin/modelos"><span className="a-ic">🧠</span>Modelos por etapa</a>
           <a href="/admin/config"><span className="a-ic">⚙️</span>Configuração</a>
           <a href="/" className="a-back">← Ver o portal público</a>
         </nav>

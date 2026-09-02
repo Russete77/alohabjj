@@ -16,6 +16,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from lib.modelos import modelo_de  # noqa: E402
 from lib.claude import Claude, OPUS  # noqa: E402
 from lib.jobs import JobLog  # noqa: E402
 
@@ -77,7 +78,7 @@ def main() -> int:
         return 1
     print(f"[voz] run_id={log.run_id} — chamando {OPUS.id} (effort={args.effort})…")
     text, usage = claude.call(
-        model=OPUS, system=SYSTEM, user=user,
+        model=modelo_de("distill_voice"), system=SYSTEM, user=user,
         step="distill_voice", key="voz", max_tokens=8000, effort=args.effort,
     )
     OUT.write_text(text.strip() + "\n", encoding="utf-8")

@@ -18,6 +18,7 @@ import json
 import subprocess
 from pathlib import Path
 
+from lib.modelos import modelo_de  # noqa: E402
 from lib import config_store  # noqa: E402
 from lib.claude import Claude, SONNET, HAIKU, SpendCapExceeded
 from lib.jobs import JobLog
@@ -138,7 +139,7 @@ def art_brief(claude: Claude, resumo: str, headline_hint: str, slug: str) -> dic
     user = (f"DOSSIÊ (resumo):\n{resumo[:1600]}\n\nHEADLINE/ÂNGULO PRETENDIDO: {headline_hint}\n\n"
             f"BASE VISUAL (obrigatória):\n{visual}\n\nProduza o brief da arte (modo A de ação atmosférica "
             "quando possível; modo B só se a peça exigir uma posição técnica exata).")
-    txt, _ = claude.call(model=SONNET, system=_sys("art_director"), user=user,
+    txt, _ = claude.call(model=modelo_de("diretor_arte"), system=_sys("art_director"), user=user,
                          step="diretor_arte", key=slug, json_schema=ART_BRIEF_SCHEMA,
                          effort="medium", max_tokens=1500)
     return json.loads(txt)
@@ -147,7 +148,7 @@ def art_brief(claude: Claude, resumo: str, headline_hint: str, slug: str) -> dic
 def qc_image(claude: Claude, image_path: Path, conceito: str, slug: str) -> dict:
     """QC por visão: o Claude olha a imagem e aprova/reprova (checagens eliminatórias)."""
     user = f"CONCEITO PEDIDO PELO DIRETOR: {conceito}\n\nOlhe a imagem e faça o QC conforme o contrato."
-    txt, _ = claude.call(model=HAIKU, system=_sys("art_qc"), user=user, image=str(image_path),
+    txt, _ = claude.call(model=modelo_de("art_qc"), system=_sys("art_qc"), user=user, image=str(image_path),
                          step="art_qc", key=slug, json_schema=QC_SCHEMA, max_tokens=700)
     return json.loads(txt)
 
@@ -159,7 +160,7 @@ def coherent_headline(claude: Claude, image_path: Path, headlines: list[str], co
             "HONESTA com o que aparece. Se nenhuma for honesta, ESCREVA uma curta e verdadeira (≤6 palavras).\n\n"
             "OPÇÕES:\n- " + "\n- ".join(headlines) + f"\n\nCONTEXTO: {contexto[:400]}")
     try:
-        txt, _ = claude.call(model=HAIKU, system=COHERENCE_SYS, user=user, image=str(image_path),
+        txt, _ = claude.call(model=modelo_de("capa_visao"), system=COHERENCE_SYS, user=user, image=str(image_path),
                              step="capa_visao", key=slug, json_schema=COHERENCE_SCHEMA, max_tokens=500)
         return json.loads(txt)["headline"]
     except Exception:  # noqa: BLE001
