@@ -207,7 +207,7 @@ Template HTML/CSS com tokens da marca (cores, tipografia, logo do AlohaBJJNews) 
 - **Orquestração:** Python + `cron` + gatilho por evento
 - **Storage V1:** `.md/.json/.csv` em Git → Postgres+SQLAlchemy na Fase 3
 - **Segredos:** `.env` + secrets manager da nuvem
-- **Visualização (Fase 2):** repo pixel art via hooks (base: `rafapetter/agent-town`)
+- **Observabilidade do pipeline:** console ao vivo em `/admin/agentes`, lendo `jobs/*.jsonl` (etapa, chave, modelo, custo, duração). A visualização pixel-art foi aposentada.
 
 ---
 

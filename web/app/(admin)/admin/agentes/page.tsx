@@ -1,4 +1,4 @@
-import AgentTownView from "./AgentTownView";
+import ConsoleAoVivo from "./ConsoleAoVivo";
 import PipelineControl from "./PipelineControl";
 
 export const dynamic = "force-dynamic";
@@ -8,20 +8,16 @@ export default function Agentes() {
     <>
       <div className="a-top">
         <div>
-          <h1>Agentes · Academia AlohaBJJ</h1>
-          <p className="sub">Dispare o pipeline (inteiro ou em partes) e veja os agentes rodando ao vivo.</p>
+          <h1>Agentes · pipeline</h1>
+          <p className="sub">Dispare o pipeline (inteiro ou em partes) e acompanhe cada etapa ao vivo: o que está rodando, com que modelo, quanto custou e o que falhou.</p>
         </div>
       </div>
 
       <PipelineControl />
-      <AgentTownView />
-      <div className="belt-legend">
-        <span><i style={{ background: "#111111" }} /> preta · Opus</span>
-        <span><i style={{ background: "#6B3FA0" }} /> roxa · Sonnet</span>
-        <span><i style={{ background: "#6E4A34" }} /> marrom · Sonnet/código</span>
-        <span><i style={{ background: "#2F6BB0" }} /> azul · Haiku</span>
-        <span><i style={{ background: "#E8E2D5", border: "1px solid #999" }} /> branca · Haiku</span>
-      </div>
+      {/* A legenda de faixas de BJJ saiu junto com a visualização pixel-art: ela
+          traduzia cor de faixa → nível do modelo. Agora o modelo aparece escrito
+          em cada linha do console, sem precisar de legenda pra decodificar. */}
+      <ConsoleAoVivo />
     </>
   );
 }
