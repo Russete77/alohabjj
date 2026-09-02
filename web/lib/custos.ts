@@ -5,13 +5,19 @@ import path from "node:path";
 const ROOT = path.resolve(process.cwd(), "..");
 const JOBS = path.join(ROOT, "jobs");
 
-interface Ev { ts?: number; step?: string; status?: string; model?: string; cost_est?: number }
+interface Ev {
+  ts?: number; step?: string; status?: string; model?: string; cost_est?: number;
+  in_tok?: number; cache_read_tok?: number; cache_write_tok?: number;
+}
 export interface Custos {
   total: number; hoje: number; semana: number;
   porAgente: { step: string; cost: number; n: number }[];
   porModelo: { model: string; cost: number; pct: number }[];
   porDia: { dia: string; cost: number }[];
   caps: { run: string; dia: string };
+  // Aproveitamento do prompt caching: até o fix destes campos o pipeline calculava
+  // cache_read/cache_write e jogava fora, então só chamadas NOVAS entram em `n`.
+  cache: { read: number; write: number; input: number; pct: number; n: number };
 }
 
 function diaStr(ts: number): string {
@@ -24,6 +30,7 @@ export function custos(): Custos {
   const porModelo = new Map<string, number>();
   const porDia = new Map<string, number>();
   let total = 0, hoje = 0, semana = 0;
+  let cRead = 0, cWrite = 0, cIn = 0, cN = 0;
   const now = Date.now() / 1000;
   const hojeStr = diaStr(now);
   const dias7 = new Set<string>();
@@ -44,6 +51,12 @@ export function custos(): Custos {
           const a = porAgente.get(step) ?? { cost: 0, n: 0 };
           a.cost += c; a.n += 1; porAgente.set(step, a);
           porModelo.set(e.model || "?", (porModelo.get(e.model || "?") ?? 0) + c);
+          // Só linhas MEDIDAS entram na conta do cache: as antigas não têm o campo e
+          // contariam como 0% de aproveitamento, o que seria mentira (não medido ≠ zero).
+          if (e.cache_read_tok !== undefined || e.cache_write_tok !== undefined) {
+            const r = e.cache_read_tok ?? 0, w = e.cache_write_tok ?? 0;
+            cRead += r; cWrite += w; cIn += (e.in_tok ?? 0) + r + w; cN += 1;
+          }
           if (e.ts) {
             const d = diaStr(e.ts);
             if (dias7.has(d)) { porDia.set(d, (porDia.get(d) ?? 0) + c); semana += c; }
@@ -59,6 +72,8 @@ export function custos(): Custos {
     porAgente: [...porAgente.entries()].map(([step, v]) => ({ step, ...v })).sort((a, b) => b.cost - a.cost),
     porModelo: [...porModelo.entries()].map(([model, cost]) => ({ model, cost, pct: total ? (cost / total) * 100 : 0 })).sort((a, b) => b.cost - a.cost),
     porDia: [...dias7].map((dia) => ({ dia, cost: porDia.get(dia) ?? 0 })),
-    caps: { run: process.env.SPEND_CAP_USD || "10", dia: process.env.DAILY_SPEND_CAP_USD || "—" },
+    // defaults iguais aos do lib/claude.py — o painel não pode prometer teto diferente do que roda
+    caps: { run: process.env.SPEND_CAP_USD || "10", dia: process.env.DAILY_SPEND_CAP_USD || "20" },
+    cache: { read: cRead, write: cWrite, input: cIn, pct: cIn ? (cRead / cIn) * 100 : 0, n: cN },
   };
 }
