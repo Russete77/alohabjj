@@ -10,7 +10,8 @@ import { getCandidate, setStatus } from "@/lib/candidates";
 import { saveCurso, createCurso } from "@/lib/cursos";
 import { saveAtleta, addAtleta } from "@/lib/atletas";
 import { addSource, removeSource, type SrcType } from "@/lib/sources";
-import { checkPassword, sessionToken, cookieName } from "@/lib/auth";
+import { checkPassword, issueSession, cookieName } from "@/lib/auth";
+import { hashIp, limparTentativas, registrarTentativa } from "@/lib/rate-limit";
 import { motivoBloqueio } from "@/lib/porteiro";
 import { dbPatch } from "@/lib/server-db";
 import { getDossierAdmin } from "@/lib/dossiers";
@@ -18,14 +19,25 @@ import { getDossierAdmin } from "@/lib/dossiers";
 export async function login(formData: FormData) {
   const pw = String(formData.get("password") || "");
   const next = String(formData.get("next") || "/admin");
+
+  const { headers } = await import("next/headers");
+  const h = await headers();
+  const ip = (h.get("x-forwarded-for") || "").split(",")[0].trim() || "desconhecido";
+  const ipHash = await hashIp(ip);
+
+  const { bloqueado } = await registrarTentativa(ipHash);
+  if (bloqueado) redirect("/admin/login?erro=bloqueado");
+
   if (!checkPassword(pw)) redirect("/admin/login?erro=1");
-  const token = await sessionToken();
+  await limparTentativas(ipHash);
+
+  const token = await issueSession();
   (await cookies()).set(cookieName(), token, {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
     path: "/",
-    maxAge: 60 * 60 * 24 * 30,
+    maxAge: 60 * 60 * 24 * 7, // 7 dias — igual ao TTL assinado no token
   });
   redirect(next.startsWith("/admin") ? next : "/admin");
 }

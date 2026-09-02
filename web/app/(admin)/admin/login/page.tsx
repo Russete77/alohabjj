@@ -15,7 +15,11 @@ export default async function Login({
           Aloha<span>BJJ</span> <em>painel</em>
         </div>
         <p className="login-sub">Área restrita. Entre com a senha do painel.</p>
-        {sp?.erro && <div className="login-err">Senha incorreta.</div>}
+        {sp?.erro === "bloqueado" ? (
+          <div className="login-err">Muitas tentativas. Espere 15 minutos.</div>
+        ) : sp?.erro ? (
+          <div className="login-err">Senha incorreta.</div>
+        ) : null}
         <input type="hidden" name="next" value={sp?.next || "/admin"} />
         <input
           type="password"
