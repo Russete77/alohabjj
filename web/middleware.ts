@@ -32,6 +32,7 @@ export async function middleware(req: NextRequest) {
 export const config = {
   matcher: [
     "/admin/:path*",
+    "/preview/:path*",   // prévia mostra rascunho: mesma proteção do painel
     "/api/agents/:path*",
     "/api/art/:path*",
     "/api/fonte/:path*",

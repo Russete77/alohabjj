@@ -85,7 +85,9 @@ export async function dbUpsert(table: string, body: Record<string, unknown>): Pr
  *    erro, timeout). Quem chama trata o clique como best-effort — mas quem
  *    quiser saber se gravou tem a resposta, em vez de um catch mudo.
  */
-export async function dbInsert(table: string, body: Record<string, unknown>): Promise<boolean> {
+export async function dbInsert(
+  table: string, body: Record<string, unknown> | Record<string, unknown>[],
+): Promise<boolean> {
   if (!dbEnabled()) return false;
   try {
     const r = await fetch(`${URL_BASE}/rest/v1/${table}`, {
@@ -94,6 +96,33 @@ export async function dbInsert(table: string, body: Record<string, unknown>): Pr
       body: JSON.stringify(body),
       cache: "no-store",
       signal: AbortSignal.timeout(2500),
+    });
+    return r.ok;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * DELETE no PostgREST. Devolve true só quando o banco confirmou.
+ *
+ * CUIDADO: é a única operação destrutiva daqui. Ela morou solta em actions.ts
+ * justamente pra não convidar o resto do admin a apagar linha por engano —
+ * voltou pro módulo compartilhado quando surgiu o segundo call site legítimo
+ * (trocar as tags de um dossiê), porque duas cópias da mesma coisa já mordeu
+ * este projeto antes. O aviso continua valendo: pense duas vezes antes do
+ * terceiro uso.
+ *
+ * Trocar conjuntos pequenos apagando e regravando é deliberado: um diff aqui
+ * só criaria caminhos para o banco divergir da tela.
+ */
+export async function dbDelete(query: string): Promise<boolean> {
+  if (!dbEnabled()) return false;
+  try {
+    const r = await fetch(`${URL_BASE}/rest/v1/${query}`, {
+      method: "DELETE",
+      headers: headers({ Prefer: "return=minimal" }),
+      cache: "no-store",
     });
     return r.ok;
   } catch {

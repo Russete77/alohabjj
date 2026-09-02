@@ -42,6 +42,10 @@ export interface EstadoEditorial {
   ordem?: number | null;
   titulo?: string | null;
   categoria?: string | null;
+  // Conteúdo editado (fase 4 do CMS). Vem da MESMA linha de `dossiers`, então
+  // viaja junto — não vale uma segunda ida ao banco só por dois campos.
+  resumo_editado?: string | null;
+  imagem_editada?: string | null;
 }
 
 /** O mínimo que `aplicaEstado` precisa enxergar do dossiê lido do arquivo. */

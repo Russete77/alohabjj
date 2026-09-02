@@ -16,7 +16,8 @@ import { addSource, removeSource, type SrcType } from "@/lib/sources";
 import { checkPassword, issueSession, cookieName } from "@/lib/auth";
 import { hashIp, limparTentativas, registrarTentativa } from "@/lib/rate-limit";
 import { motivoBloqueio } from "@/lib/porteiro";
-import { dbEnabled, dbPatch, dbSelect } from "@/lib/server-db";
+import { normalizaTagLivre } from "@/lib/cms";
+import { dbDelete, dbEnabled, dbInsert, dbPatch, dbSelect } from "@/lib/server-db";
 import { getDossierAdmin, invalidaCache } from "@/lib/dossiers";
 import { ehCategoria, normalizaOrdem, normalizaTitulo, slugSeguro } from "@/lib/editorial";
 
@@ -376,34 +377,6 @@ export async function apagarDossie(slug: string, confirmacao: string): Promise<R
 }
 
 /**
- * DELETE no PostgREST.
- *
- * Mora aqui e não em `lib/server-db.ts` porque apagar é a única operação
- * destrutiva do painel e só um call site pode usá-la — deixá-la no módulo
- * compartilhado convidaria o resto do admin a apagar linha por engano.
- */
-async function dbDelete(query: string): Promise<boolean> {
-  const base = (process.env.SUPABASE_URL || "").replace(/\/$/, "");
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
-  if (!base || !key) return false;
-  try {
-    const r = await fetch(`${base}/rest/v1/${query}`, {
-      method: "DELETE",
-      headers: {
-        apikey: key,
-        Authorization: `Bearer ${key}`,
-        "Content-Type": "application/json",
-        Prefer: "return=minimal",
-      },
-      cache: "no-store",
-    });
-    return r.ok;
-  } catch {
-    return false;
-  }
-}
-
-/**
  * Remove os artefatos do dossiê do disco local. Devolve quantos saíram.
  *
  * Sem base de conhecimento em disco (deploy na Vercel) não faz nada — o que a
@@ -435,4 +408,72 @@ function apagaArquivosDoDossie(slug: string): number {
     }
   }
   return apagados;
+}
+
+// ── CMS de conteúdo ───────────────────────────────────────────────────────
+// O arquivo continua sendo o artefato (o que a IA escreveu, preservado). Isto
+// é ESTADO: mora no banco, vence ao renderizar, e regerar o dossiê não apaga.
+
+/**
+ * Salva corpo e/ou capa corrigidos.
+ *
+ * `null` desfaz a edição (volta a valer o arquivo); string vazia é apagar de
+ * propósito. Tratar os dois igual tornaria impossível uma das duas coisas.
+ */
+export async function salvarConteudo(
+  slug: string,
+  campos: { resumo?: string | null; imagem?: string | null },
+) {
+  const patch: Record<string, unknown> = {
+    editado_em: new Date().toISOString(),
+    editado_por: "painel",
+  };
+  if (campos.resumo !== undefined) patch.resumo_editado = campos.resumo;
+  if (campos.imagem !== undefined) patch.imagem_editada = campos.imagem;
+
+  const ok = await dbPatch(`dossiers?slug=eq.${encodeURIComponent(slug)}`, patch);
+  if (!ok) return { ok: false, erro: "o banco recusou a gravação" };
+
+  revalidatePath("/admin/conteudo");
+  revalidatePath(`/admin/conteudo/${slug}`);
+  revalidatePath(`/artigo/${slug}`);
+  revalidatePath("/");
+  return { ok: true };
+}
+
+/**
+ * Troca as tags do dossiê.
+ *
+ * As tags são a outra ponta do casamento pauta × produto: o Supervisor cruza
+ * as do dossiê com as do catálogo. Sem editar este lado, uma tag errada do
+ * Analista gruda o produto errado e a única saída era regerar o dossiê.
+ *
+ * Grava normalizado (minúscula, sem acento, hífen) pra não acumular "no-gi",
+ * "nogi" e "No-Gi" convivendo.
+ */
+export async function salvarTags(slug: string, tags: string[]) {
+  const limpas = [...new Set(tags.map(normalizaTagLivre).filter(Boolean))];
+
+  const linhas = await dbSelect<{ id: string }>(
+    `dossiers?slug=eq.${encodeURIComponent(slug)}&select=id`,
+  );
+  if (!linhas || linhas.length === 0) {
+    return { ok: false, erro: "dossiê não está no índice — rode o import_index" };
+  }
+  const id = linhas[0].id;
+
+  // Troca o conjunto inteiro: apaga e regrava. São poucas tags por dossiê, e
+  // um diff aqui só criaria caminhos para divergir.
+  await dbDelete(`dossier_tags?dossier_id=eq.${id}`);
+  if (limpas.length > 0) {
+    const ok = await dbInsert(
+      "dossier_tags",
+      limpas.map((tag) => ({ dossier_id: id, tag })),
+    );
+    if (!ok) return { ok: false, erro: "o banco recusou as tags" };
+  }
+
+  revalidatePath("/admin/conteudo");
+  revalidatePath(`/admin/conteudo/${slug}`);
+  return { ok: true, tags: limpas };
 }

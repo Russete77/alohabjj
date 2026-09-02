@@ -698,3 +698,4 @@
 .admin .capagar .pub-acoes{justify-content:flex-end}
 /* o Apagar fica travado até o slug ser digitado — e precisa PARECER travado */
 .admin .pub-acoes button:disabled{opacity:.45;cursor:not-allowed}
+

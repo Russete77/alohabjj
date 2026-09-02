@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { getDossiersSnapshot } from "./cloud";
+import { aplicaEdicao } from "./cms";
 import { normalizaData, podeIrAoAr } from "./porteiro";
 import { dbSelect } from "./server-db";
 import {
@@ -162,7 +163,9 @@ async function estadoDoBanco(): Promise<Record<string, EstadoEditorial> | null> 
   const rows = await dbSelect<{
     slug: string; status: string; arquivado: boolean;
     destaque: boolean; ordem: number | null; titulo: string | null; categoria: string | null;
-  }>("dossiers?select=slug,status,arquivado,destaque,ordem,titulo,categoria");
+    resumo_editado: string | null; imagem_editada: string | null;
+  }>("dossiers?select=slug,status,arquivado,destaque,ordem,titulo,categoria," +
+    "resumo_editado,imagem_editada");
   if (rows === null) return null;
   const map: Record<string, EstadoEditorial> = {};
   for (const r of rows) {
@@ -173,6 +176,8 @@ async function estadoDoBanco(): Promise<Record<string, EstadoEditorial> | null> 
       ordem: r.ordem,
       titulo: r.titulo,
       categoria: r.categoria,
+      resumo_editado: r.resumo_editado,
+      imagem_editada: r.imagem_editada,
     };
   }
   return map;
@@ -192,7 +197,12 @@ export async function listAllComEstado(): Promise<{ list: Dossier[]; bancoOk: bo
   let list = readDossiersFromDisk();
   if (list.length === 0) list = saneiaSnapshot(await getDossiersSnapshot());
 
-  if (estado) list = list.map((d) => aplicaEstado(d, estado[d.slug]));
+  if (estado) {
+    // Ordem importa: primeiro o estado editorial (título, editoria, destaque),
+    // depois a edição de conteúdo (corpo, capa). São camadas distintas sobre o
+    // mesmo artefato do arquivo.
+    list = list.map((d) => aplicaEdicao(aplicaEstado(d, estado[d.slug]), estado[d.slug] ?? {}));
+  }
   list = ordenaAdmin(list);
 
   _cache = { at: Date.now(), list, bancoOk: estado !== null };

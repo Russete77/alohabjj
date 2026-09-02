@@ -1,0 +1,17 @@
+/* A barra do topo é a única coisa que denuncia que isto é prévia. O resto tem
+   que ser byte a byte o portal — ver ArtigoView. */
+.prev-wrap { min-height: 100vh; background: var(--paper); }
+.prev-bar {
+  position: sticky; top: 0; z-index: 20;
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  padding: 10px 20px; background: var(--ink); color: var(--paper);
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: 12px;
+  border-bottom: 3px solid #1E7F4C;
+}
+.prev-bar.rascunho { border-bottom-color: #B26A00; }
+.prev-tag { font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.prev-alerta { color: #ff8b8b; font-weight: 600; }
+.prev-slug { color: #8E8880; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.prev-voltar { margin-left: auto; color: var(--paper); text-decoration: underline; white-space: nowrap; }
+.prev-voltar:hover { color: var(--red); }
+.prev-voltar:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
