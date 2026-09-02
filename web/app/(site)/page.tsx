@@ -1,4 +1,9 @@
-import { listPublic, type Categoria } from "@/lib/dossiers";
+import type { Metadata } from "next";
+import { listPublic, type Categoria, type Dossier } from "@/lib/dossiers";
+
+// Quantos cards cada editoria mostra antes do "ver mais". A base cresce todo
+// dia; sem isto a home despeja o acervo inteiro numa página só.
+const POR_EDITORIA = 12;
 
 function fmtData(d: string) {
   if (!d) return "";
@@ -13,6 +18,45 @@ const ORDEM: { id: Categoria; label: string }[] = [
   { id: "analises", label: "Análises" },
   { id: "tecnica", label: "Técnica" },
 ];
+
+/**
+ * A capa compartilhada é a foto da matéria em destaque — num portal de notícias
+ * isso rende muito mais que um cartão fixo da marca, e acompanha a home sozinho.
+ */
+export async function generateMetadata(): Promise<Metadata> {
+  const capa = (await listPublic()).find((d) => d.imagem);
+  if (!capa?.imagem) return {};
+  const imagens = [{ url: capa.imagem, alt: capa.titulo }];
+  // openGraph/twitter não são mesclados campo a campo com o layout raiz:
+  // definir aqui substitui o bloco inteiro, então repete-se o essencial.
+  return {
+    openGraph: {
+      type: "website",
+      siteName: "AlohaBJJ",
+      locale: "pt_BR",
+      url: "/",
+      images: imagens,
+    },
+    twitter: { card: "summary_large_image", images: imagens },
+  };
+}
+
+/** Card de artigo da grade. Mesmo card na primeira leva e no "ver mais". */
+function Card({ d }: { d: Dossier }) {
+  return (
+    <a className={`acard ${d.categoria}`} href={`/artigo/${d.slug}`}>
+      <div className="thumb"
+           style={d.imagem ? { backgroundImage: `url("${d.imagem}")` } : undefined}>
+        <span className="badge">{d.categoriaLabel}</span>
+      </div>
+      <h3>{d.titulo}</h3>
+      <div className="meta">
+        {d.data && <span className="cdate">{fmtData(d.data)}</span>}
+        <span className="cwho">{d.atletas.slice(0, 3).join(" · ") || d.evento || "Educacional"}</span>
+      </div>
+    </a>
+  );
+}
 
 export default async function Home() {
   const dossiers = await listPublic();
@@ -46,8 +90,12 @@ export default async function Home() {
       )}
 
       {ORDEM.map(({ id, label }) => {
+        // A ordem vem pronta do listPublic() (destaque → ordem → data). Aqui só
+        // se filtra por editoria e se corta — nunca se reordena.
         const itens = dossiers.filter((d) => d.categoria === id);
         if (itens.length === 0) return null;
+        const primeiros = itens.slice(0, POR_EDITORIA);
+        const resto = itens.slice(POR_EDITORIA);
         return (
           <section key={id} id={id}>
             <div className="sec-title">
@@ -55,20 +103,27 @@ export default async function Home() {
               <div className="rule" />
             </div>
             <div className="pgrid">
-              {itens.map((d) => (
-                <a className={`acard ${d.categoria}`} key={d.slug} href={`/artigo/${d.slug}`}>
-                  <div className="thumb"
-                       style={d.imagem ? { backgroundImage: `url("${d.imagem}")` } : undefined}>
-                    <span className="badge">{d.categoriaLabel}</span>
-                  </div>
-                  <h3>{d.titulo}</h3>
-                  <div className="meta">
-                    {d.data && <span className="cdate">{fmtData(d.data)}</span>}
-                    <span className="cwho">{d.atletas.slice(0, 3).join(" · ") || d.evento || "Educacional"}</span>
-                  </div>
-                </a>
+              {primeiros.map((d) => (
+                <Card key={d.slug} d={d} />
               ))}
             </div>
+            {resto.length > 0 && (
+              // <details> em vez de estado no cliente: abre com Enter/Espaço,
+              // funciona sem JS e o resto do acervo continua no HTML pro Google.
+              <details className="vermais">
+                {/* sem aria-label: o CSS esconde um dos spans, então o nome
+                    acessível já vira "Ver menos" quando abre */}
+                <summary>
+                  <span className="mais">Ver mais {resto.length} em {label}</span>
+                  <span className="menos">Ver menos</span>
+                </summary>
+                <div className="pgrid">
+                  {resto.map((d) => (
+                    <Card key={d.slug} d={d} />
+                  ))}
+                </div>
+              </details>
+            )}
           </section>
         );
       })}
