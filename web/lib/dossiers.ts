@@ -240,3 +240,15 @@ export async function getRelacionados(slug: string, categoria: Categoria, n = 3)
     .filter((d) => d.slug !== slug && d.categoria === categoria)
     .slice(0, n);
 }
+
+
+/**
+ * O dossiê como o arquivo tem, SEM a edição do operador por cima.
+ *
+ * A tela de edição precisa dos dois lados: o que a IA escreveu (referência,
+ * pra saber o que foi mudado) e o que vale agora. Sem o original, desfazer uma
+ * correção seria adivinhar.
+ */
+export function lerDoArquivo(slug: string): Dossier | undefined {
+  return readDossiersFromDisk().find((d) => d.slug === slug);
+}

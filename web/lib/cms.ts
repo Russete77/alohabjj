@@ -83,3 +83,25 @@ export function vocabularioDeTags(
     .map(([tag, usos]) => ({ tag, usos }))
     .sort((a, b) => b.usos - a.usos || a.tag.localeCompare(b.tag));
 }
+
+// ── Leitura para a tela de edição ─────────────────────────────────────────
+
+/** O que a tela precisa saber sobre um dossiê pra deixar editar. */
+export interface ParaEditar {
+  slug: string;
+  titulo: string;
+  /** O que a IA escreveu, do arquivo. Fica sempre visível como referência. */
+  corpoOriginal: string;
+  /** O que vale agora: a edição, ou o original quando nunca foi editado. */
+  corpoAtual: string;
+  editado: boolean;
+  imagemOriginal: string | null;
+  imagemAtual: string | null;
+  tags: string[];
+  editadoEm: string | null;
+}
+
+/** Junta os parágrafos de volta no formato que o operador edita (texto corrido). */
+export function paragrafosParaTexto(paras: string[]): string {
+  return paras.join("\n\n");
+}

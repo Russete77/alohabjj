@@ -212,6 +212,11 @@ export default function LinhaConteudo(d: LinhaProps) {
             </button>
           )}
 
+          {/* "Corrigir" mexe no cabeçalho (título, editoria) sem sair da lista.
+              "Editar" abre o texto, a capa e as tags, que precisam de espaço. */}
+          <a className="cbtn" href={`/admin/conteudo/${d.slug}`}>Editar</a>
+          <a className="cbtn" href={`/preview/${d.slug}`} target="_blank" rel="noreferrer">Prévia ↗</a>
+
           <button
             type="button"
             className="cbtn perigo"

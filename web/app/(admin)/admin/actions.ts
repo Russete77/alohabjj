@@ -434,6 +434,10 @@ export async function salvarConteudo(
   const ok = await dbPatch(`dossiers?slug=eq.${encodeURIComponent(slug)}`, patch);
   if (!ok) return { ok: false, erro: "o banco recusou a gravação" };
 
+  // O cache de módulo (TTL 60s) NÃO é tocado por revalidatePath — é uma
+  // variável em memória. Sem isto, você salva, abre a prévia e vê o texto
+  // velho: o mesmo engano que fazia o operador clicar em publicar duas vezes.
+  invalidaCache();
   revalidatePath("/admin/conteudo");
   revalidatePath(`/admin/conteudo/${slug}`);
   revalidatePath(`/artigo/${slug}`);
@@ -473,7 +477,9 @@ export async function salvarTags(slug: string, tags: string[]) {
     if (!ok) return { ok: false, erro: "o banco recusou as tags" };
   }
 
+  invalidaCache();
   revalidatePath("/admin/conteudo");
   revalidatePath(`/admin/conteudo/${slug}`);
+  revalidatePath(`/artigo/${slug}`);
   return { ok: true, tags: limpas };
 }

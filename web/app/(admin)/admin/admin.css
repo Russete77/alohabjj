@@ -699,3 +699,71 @@
 /* o Apagar fica travado até o slug ser digitado — e precisa PARECER travado */
 .admin .pub-acoes button:disabled{opacity:.45;cursor:not-allowed}
 
+
+/* ── Editor de conteúdo ──────────────────────────────────────────────────
+   Duas colunas: o texto ocupa o espaço porque é o que se edita de verdade;
+   capa e tags são apoio. A barra de ação fica fixa embaixo — salvar não pode
+   depender de rolar até o fim de um texto longo. */
+.admin .ed-grid{
+  display:grid;grid-template-columns:minmax(0,1.9fr) minmax(280px,1fr);
+  gap:var(--s-3);align-items:start;padding-bottom:72px;
+}
+@media(max-width:900px){.admin .ed-grid{grid-template-columns:1fr}}
+.admin .ed-crumb{font-size:var(--t-sm);margin-bottom:6px}
+.admin .ed-crumb a{color:var(--muted);text-decoration:none}
+.admin .ed-crumb a:hover{color:var(--red)}
+.admin .ed-bloco{
+  background:var(--panel);border:1px solid var(--line);
+  border-radius:var(--radius);padding:var(--s-3) var(--s-4);margin-bottom:var(--s-3);
+}
+.admin .ed-lado{display:flex;flex-direction:column;min-width:0}
+.admin .ed-h{display:flex;align-items:center;justify-content:space-between;gap:var(--s-2);margin-bottom:var(--s-1)}
+.admin .ed-h h2{font-size:var(--t-lg);margin:0}
+.admin .ed-orig-t{color:var(--faint);font-size:var(--t-md)!important}
+.admin .ed-acoes{display:flex;gap:var(--s-1)}
+.admin .ed-area{
+  width:100%;min-height:380px;resize:vertical;
+  background:var(--bg);color:var(--ink);border:1px solid var(--line);
+  border-radius:var(--radius-sm);padding:var(--s-3);
+  font-family:var(--font-body);font-size:15px;line-height:1.62;
+}
+.admin .ed-orig{
+  white-space:pre-wrap;background:var(--bg);border:1px dashed var(--line);
+  border-radius:var(--radius-sm);padding:var(--s-3);margin:0;
+  font-family:var(--font-body);font-size:14px;line-height:1.6;color:var(--muted);
+  max-height:320px;overflow:auto;
+}
+.admin .ed-in{
+  width:100%;background:var(--bg);color:var(--ink);border:1px solid var(--line);
+  border-radius:var(--radius-sm);padding:8px 10px;font-size:var(--t-md);margin-top:var(--s-1);
+}
+.admin .ed-capa{
+  width:100%;aspect-ratio:16/9;border-radius:var(--radius-sm);
+  background:var(--bg) center/cover no-repeat;border:1px solid var(--line);
+}
+.admin .ed-capa.vazia{
+  display:grid;place-items:center;color:var(--faint);
+  font-family:var(--font-mono);font-size:var(--t-xs);text-transform:uppercase;letter-spacing:.1em;
+}
+.admin .ed-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:var(--s-1)}
+.admin .ed-tag{
+  background:var(--bg);border:1px solid var(--line);color:var(--muted);
+  border-radius:99px;padding:4px 10px;font-size:var(--t-xs);cursor:pointer;line-height:1.6;
+}
+.admin .ed-tag:hover{border-color:var(--red);color:var(--ink)}
+.admin .ed-tag.on{background:var(--red-soft);border-color:var(--red);color:var(--red);font-weight:600}
+.admin .ed-tag-n{color:var(--faint);font-family:var(--font-mono);font-size:var(--t-2xs)}
+.admin .ed-barra{
+  position:fixed;bottom:0;left:230px;right:0;z-index:15;
+  display:flex;align-items:center;gap:var(--s-3);
+  padding:var(--s-2) var(--s-5);background:var(--panel);border-top:1px solid var(--line);
+}
+@media(max-width:900px){.admin .ed-barra{left:0}}
+.admin .ed-estado{
+  font-family:var(--font-mono);font-size:var(--t-xs);color:var(--faint);
+  text-transform:uppercase;letter-spacing:.08em;
+}
+.admin .ed-ok{color:var(--green);font-size:var(--t-sm);font-weight:600}
+.admin .ed-barra .btn.primary{margin-left:auto}
+/* âncoras que agem como botão na linha de conteúdo */
+.admin .cacoes a.cbtn{display:inline-flex;align-items:center;text-decoration:none}
