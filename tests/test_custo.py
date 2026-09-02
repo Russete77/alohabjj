@@ -344,3 +344,36 @@ def test_lista_vazia_nao_manda_allowed_domains_e_avisa(cliente, monkeypatch, cap
     assert "allowed_domains" not in tool
     saida = capsys.readouterr().out.lower()
     assert "aviso" in saida and "aberta" in saida
+
+
+# ── Allowlist: o YouTube não pode entrar inteiro ────────────────────────────
+# Os canais curados entram no fontes.yaml pela URL do feed RSS; extrair o host
+# devolve "youtube.com" e liberaria o site todo como fonte de apuração. Decisão
+# do dono (02/09): só os canais do fontes.yaml — e como allowed_domains filtra
+# por domínio e não por caminho, o YouTube fica fora da busca e segue valendo
+# como fonte de RSS.
+
+def test_youtube_nao_entra_na_allowlist_de_busca():
+    from lib.claude import dominios_permitidos
+    dominios_permitidos.cache_clear()
+    assert not any("youtube" in d for d in dominios_permitidos())
+
+
+def test_allowlist_ainda_traz_as_fontes_de_verdade():
+    from lib.claude import dominios_permitidos
+    dominios_permitidos.cache_clear()
+    d = dominios_permitidos()
+    assert len(d) >= 10
+    assert any("bjjheroes" in x for x in d)
+
+
+def test_extra_domains_consegue_liberar_o_youtube_de_proposito():
+    import os
+    from lib.claude import dominios_permitidos
+    os.environ["WEB_SEARCH_EXTRA_DOMAINS"] = "youtube.com"
+    dominios_permitidos.cache_clear()
+    try:
+        assert "youtube.com" in dominios_permitidos()
+    finally:
+        os.environ.pop("WEB_SEARCH_EXTRA_DOMAINS", None)
+        dominios_permitidos.cache_clear()

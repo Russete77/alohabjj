@@ -102,6 +102,21 @@ def _walk_fontes(node):
             yield from _walk_fontes(item)
 
 
+# Hosts largos demais pra virar allowlist de BUSCA. Os canais de YouTube curados
+# entram no fontes.yaml pela URL do feed RSS, e extrair o host de
+# "youtube.com/feeds/videos.xml?channel_id=..." devolve "youtube.com" — o que
+# liberaria o YouTube INTEIRO como fonte de apuração. A ferramenta web_search
+# filtra por domínio, não por caminho, então não há como dizer "só estes canais".
+#
+# Decisão do dono (02/09): só os canais do fontes.yaml. Como a busca não sabe
+# expressar isso, o YouTube fica FORA da allowlist de busca — e segue entrando
+# normalmente como fonte de RSS (ingestion/rss.py), que é por onde os canais
+# realmente alimentam o Radar. Nada de ingestão se perde.
+#
+# Escape: quem quiser mesmo liberar põe em WEB_SEARCH_EXTRA_DOMAINS.
+HOSTS_LARGOS_DEMAIS = {"youtube.com", "youtu.be", "m.youtube.com", "www.youtube.com"}
+
+
 @lru_cache(maxsize=8)
 def _dominios(extra: str) -> tuple[str, ...]:
     """Cacheado pelo valor do env: o Pesquisador chama isto a cada apuração."""
@@ -113,7 +128,7 @@ def _dominios(extra: str) -> tuple[str, ...]:
         for src in _walk_fontes(data):
             for campo in ("url", "rss"):
                 h = _host(src.get(campo))
-                if h:
+                if h and h not in HOSTS_LARGOS_DEMAIS:
                     achados.append(h)
     except Exception as e:  # noqa: BLE001 — sem allowlist a busca segue aberta (com aviso)
         print(f"[claude] AVISO: não consegui ler {FONTES.name} para a allowlist: {e}")
