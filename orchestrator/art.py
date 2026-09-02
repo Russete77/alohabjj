@@ -18,6 +18,7 @@ import json
 import subprocess
 from pathlib import Path
 
+from lib import config_store  # noqa: E402
 from lib.claude import Claude, SONNET, HAIKU, SpendCapExceeded
 from lib.jobs import JobLog
 from lib import imagegen
@@ -76,7 +77,7 @@ def _sources(slug: str) -> list[str]:
 
 
 def _sys(name: str) -> str:
-    return (AGENTS / name / "system.md").read_text(encoding="utf-8")
+    return config_store.read(f"agents/{name}/system.md")
 
 
 ART_BRIEF_SCHEMA = {
@@ -133,7 +134,7 @@ def _resumo(slug: str) -> str:
 
 def art_brief(claude: Claude, resumo: str, headline_hint: str, slug: str) -> dict:
     """Diretor de Arte: brief técnico + prompt de imagem BJJ-correto."""
-    visual = (ROOT / "config" / "bjj-visual.md").read_text(encoding="utf-8")
+    visual = config_store.read("config/bjj-visual.md")
     user = (f"DOSSIÊ (resumo):\n{resumo[:1600]}\n\nHEADLINE/ÂNGULO PRETENDIDO: {headline_hint}\n\n"
             f"BASE VISUAL (obrigatória):\n{visual}\n\nProduza o brief da arte (modo A de ação atmosférica "
             "quando possível; modo B só se a peça exigir uma posição técnica exata).")

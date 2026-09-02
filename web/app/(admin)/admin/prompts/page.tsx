@@ -3,8 +3,8 @@ import PromptEditor from "./PromptEditor";
 
 export const dynamic = "force-dynamic";
 
-export default function Prompts() {
-  const docs = listDocs();
+export default async function Prompts() {
+  const docs = await listDocs();
   return (
     <>
       <div className="a-top">

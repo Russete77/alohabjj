@@ -25,6 +25,8 @@ from pathlib import Path
 import feedparser
 from ruamel.yaml import YAML
 
+from lib import config_store
+
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 _yaml = YAML(typ="safe", pure=True)
 
@@ -53,7 +55,7 @@ def _walk(node):
 
 def feeds_from_fontes() -> list[dict]:
     """Lista de {name, feed_url, category, priority} com feed RSS resolvível."""
-    data = _yaml.load(FONTES.read_text(encoding="utf-8"))
+    data = _yaml.load(config_store.read("config/fontes.yaml"))
     feeds = []
     for src in _walk(data):
         feed_url = None
@@ -83,7 +85,7 @@ def _max_age_days() -> int:
     if env and env.isdigit():
         return int(env)
     try:
-        data = _yaml.load(FONTES.read_text(encoding="utf-8"))
+        data = _yaml.load(config_store.read("config/fontes.yaml"))
         v = (data or {}).get("meta", {}).get("max_age_days")
         if isinstance(v, int) and v > 0:
             return v

@@ -29,12 +29,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <a href="/admin/catalogo"><span className="a-ic">🔗</span>Catálogo & afiliados</a>
 
           <div className="a-group">Agentes de IA</div>
-          <a href="/admin/agentes"><span className="a-ic">🥋</span>Agentes (academia)</a>
+          <a href="/admin/agentes"><span className="a-ic">🥋</span>Agentes (ao vivo)</a>
           <a href="/admin/prompts"><span className="a-ic">✍️</span>Prompts dos agentes</a>
 
           <div className="a-group">Config</div>
           <a href="/admin/custos"><span className="a-ic">💸</span>Custos de IA</a>
-          <a href="/admin/config"><span className="a-ic">🔑</span>Chaves & config</a>
+          <a href="/admin/config"><span className="a-ic">⚙️</span>Configuração</a>
           <a href="/" className="a-back">← Ver o portal público</a>
         </nav>
         <div className="a-foot">

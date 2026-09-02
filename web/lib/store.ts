@@ -62,8 +62,8 @@ async function fromSupabase(): Promise<StoreProduct[] | null> {
 }
 
 // fallback determinístico: o catálogo YAML (sempre existe). Infere o tipo dos 3 buckets.
-function fromCatalog(): StoreProduct[] {
-  return listProducts().map((p) => {
+async function fromCatalog(): Promise<StoreProduct[]> {
+  return (await listProducts()).map((p) => {
     const tipo: StoreKind =
       p.id === "curso" ? "curso" : p.id === "bjj3d" ? "impressao_3d" : "afiliado";
     return {
@@ -89,7 +89,7 @@ function fromCatalog(): StoreProduct[] {
 export async function listStoreProducts(): Promise<{ items: StoreProduct[]; fonte: "supabase" | "catalogo" }> {
   const db = await fromSupabase();
   if (db) return { items: db, fonte: "supabase" };
-  return { items: fromCatalog(), fonte: "catalogo" };
+  return { items: await fromCatalog(), fonte: "catalogo" };
 }
 
 export const KIND_LABEL: Record<StoreKind, string> = {

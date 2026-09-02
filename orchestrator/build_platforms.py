@@ -24,6 +24,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from lib import config_store  # noqa: E402
 from lib.claude import Claude, SONNET, SpendCapExceeded  # noqa: E402
 from lib.jobs import JobLog  # noqa: E402
 from orchestrator import art  # noqa: E402
@@ -34,7 +35,7 @@ AGENTS = ROOT / "agents"
 
 
 def _sys(name: str) -> str:
-    return (AGENTS / name / "system.md").read_text(encoding="utf-8")
+    return config_store.read(f"agents/{name}/system.md")
 
 
 IG_SCHEMA = {
@@ -116,7 +117,7 @@ def main() -> int:
     slides = (out / "slides.json").read_text(encoding="utf-8")
     caption = (out / "caption.txt").read_text(encoding="utf-8")
     meta = (out / "meta.json").read_text(encoding="utf-8")
-    voz = (ROOT / "config" / "voz.md").read_text(encoding="utf-8")
+    voz = config_store.read("config/voz.md")
     # tendências da semana (Trend Scout) — se existirem, viram contexto pro TikTok/Instagram
     trends_f = ROOT / "knowledge" / "trends" / "latest.md"
     trends = trends_f.read_text(encoding="utf-8") if trends_f.exists() else ""

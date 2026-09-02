@@ -24,6 +24,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from lib import config_store  # noqa: E402
 from lib.claude import Claude, SONNET, HAIKU  # noqa: E402
 from lib.jobs import JobLog  # noqa: E402
 
@@ -34,12 +35,12 @@ AGENTS = ROOT / "agents"
 
 
 def _sys(name: str) -> str:
-    return (AGENTS / name / "system.md").read_text(encoding="utf-8")
+    return config_store.read(f"agents/{name}/system.md")
 
 
 def _catalog_product(pid: str) -> dict | None:
     from ruamel.yaml import YAML
-    data = YAML(typ="safe", pure=True).load((ROOT / "config" / "catalogo.yaml").read_text(encoding="utf-8"))
+    data = YAML(typ="safe", pure=True).load(config_store.read("config/catalogo.yaml"))
     return next((p for p in data.get("produtos", []) if p.get("id") == pid), None)
 
 
@@ -122,8 +123,8 @@ def main() -> int:
     args = ap.parse_args()
 
     dossier = _load_dossier(args.slug)
-    catalogo = (ROOT / "config" / "catalogo.yaml").read_text(encoding="utf-8")
-    voz = (ROOT / "config" / "voz.md").read_text(encoding="utf-8")
+    catalogo = config_store.read("config/catalogo.yaml")
+    voz = config_store.read("config/voz.md")
     # base de conhecimento (fontes cadastradas no /admin/conhecimento)
     from lib import sources as _src
     know_sup = _src.text_for("sales_supervisor")

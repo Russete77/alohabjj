@@ -21,6 +21,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from ingestion.rss import fetch_new_items, mark_urls_seen  # noqa: E402
+from lib import config_store  # noqa: E402
 from lib.claude import Claude, HAIKU, SONNET, OPUS, SpendCapExceeded  # noqa: E402
 from lib.embeddings import which as emb_which  # noqa: E402
 from lib.jobs import JobLog, already_succeeded  # noqa: E402
@@ -33,7 +34,7 @@ AGENTS = ROOT / "agents"
 
 
 def _sys(name: str) -> str:
-    return (AGENTS / name / "system.md").read_text(encoding="utf-8")
+    return config_store.read(f"agents/{name}/system.md")
 
 
 RADAR_SCHEMA = {

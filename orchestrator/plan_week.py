@@ -17,6 +17,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from lib import config_store  # noqa: E402
 from lib.claude import Claude, SONNET, SpendCapExceeded  # noqa: E402
 from lib.jobs import JobLog  # noqa: E402
 
@@ -94,7 +95,7 @@ def main() -> int:
     except RuntimeError as e:
         print(f"[plano] {e}"); return 1
 
-    system = (AGENTS / "content_strategist" / "system.md").read_text(encoding="utf-8")
+    system = config_store.read("agents/content_strategist/system.md")
     user = ("PAUTAS DISPONÍVEIS (slug · evento · categoria · atletas):\n"
             + json.dumps(pautas, ensure_ascii=False, indent=1)
             + f"\n\nTENDÊNCIAS DA SEMANA:\n{trends}"

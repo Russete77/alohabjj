@@ -18,6 +18,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from lib import config_store  # noqa: E402
 from lib.claude import Claude, SONNET, HAIKU, SpendCapExceeded  # noqa: E402
 from lib.jobs import JobLog  # noqa: E402
 
@@ -64,7 +65,7 @@ def main() -> int:
     except RuntimeError as e:
         print(f"[atleta] {e}"); return 1
 
-    system = (AGENTS / "athlete_scout" / "system.md").read_text(encoding="utf-8")
+    system = config_store.read("agents/athlete_scout/system.md")
     OUT.mkdir(parents=True, exist_ok=True)
     ok = 0
     for a in alvos:

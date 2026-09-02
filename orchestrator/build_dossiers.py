@@ -21,13 +21,17 @@ import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from lib import config_store  # noqa: E402
 from lib.claude import Claude, OPUS, SpendCapExceeded  # noqa: E402
 from lib.jobs import JobLog  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 BACKFILL = ROOT / "knowledge" / "_backfill"
 KNOWLEDGE = ROOT / "knowledge"
-SYSTEM = (ROOT / "agents" / "analyst" / "system.md").read_text(encoding="utf-8")
+def _system() -> str:
+    """Lido a cada chamada, nao no import: config lida na importacao so
+    passa a valer depois de reiniciar o processo, e no worker ele vive."""
+    return config_store.read("agents/analyst/system.md")
 
 # Schema forçado (output_config.format). Restrições de structured outputs:
 # additionalProperties:false + required em todos; sem min/maxLength.
@@ -188,7 +192,7 @@ def main() -> int:
         user = f"Artigo de origem (AlohaBJJNews):\n\nTÍTULO: {src_meta['title']}\nURL: {src_meta.get('link')}\n\n{body}"
         try:
             text, usage = claude.call(
-                model=OPUS, system=SYSTEM, user=user,
+                model=OPUS, system=_system(), user=user,
                 step="build_dossier", key=slug, max_tokens=6000,
                 effort=args.effort, json_schema=DOSSIER_SCHEMA,
             )

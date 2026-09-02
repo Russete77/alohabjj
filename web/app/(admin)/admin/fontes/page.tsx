@@ -3,8 +3,8 @@ import FontesEditor from "./FontesEditor";
 
 export const dynamic = "force-dynamic";
 
-export default function Fontes() {
-  const initial = readRawConfig("fontes.yaml");
+export default async function Fontes() {
+  const initial = await readRawConfig("fontes.yaml");
   return (
     <>
       <div className="a-top">

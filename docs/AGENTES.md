@@ -89,7 +89,9 @@ Passo extra **Capa Visão** (Haiku 👁, `art.coherent_headline`): dá olhos à 
 - **seen-log** marca só o resolvido (falha re-tenta). **Radar** corta pauta fraca.
 - **Art QC** reprova judô/íntimo/aberração. **Capa Visão** garante headline↔imagem.
 - **CONAR**: disclosure #publi pra afiliado; `is_ai_generated` no post. **Nunca** repostar foto de terceiro (só recontextualização/frame próprio).
-- **Spend cap** por run (inclui custo de imagem). **Roteamento** de modelo por etapa.
+- **Spend cap** por run E por dia (inclui custo de imagem). **Roteamento** de modelo por etapa.
+- **Allowlist na busca web**: o Pesquisador só apura nos 19 domínios do `fontes.yaml` valente. O YouTube fica fora da busca de propósito (a ferramenta filtra por domínio, não por canal) e segue valendo como fonte de RSS.
+- **Config no banco**: prompt, catálogo e fontes vêm de `app_config`, não do arquivo. O arquivo do git é semente; `orchestrator/seed_config.py` empurra de volta, sempre explícito.
 - **Porteiro de publicação**: o pipeline grava `validated`; só o operador promove a `published` em `/admin/conteudo`. Confiança baixa ou tag de bloqueio exige confirmação extra.
 - **Trend QC** reprova tendência fora do nicho (o caso-modelo é o anime Jujutsu Kaisen).
 

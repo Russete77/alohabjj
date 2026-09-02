@@ -12,7 +12,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ pala
   const { palavra } = await params;
   if (!/^[A-Za-z0-9]{1,20}$/.test(palavra)) return NextResponse.redirect(FALLBACK, 302);
 
-  const prod = productByKeyword(palavra);
+  const prod = await productByKeyword(palavra);
   const to = prod?.url_base && /^https?:\/\//.test(prod.url_base) ? prod.url_base : FALLBACK;
 
   registraClique(req, {
