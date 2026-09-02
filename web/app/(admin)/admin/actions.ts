@@ -6,7 +6,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { setEstado } from "@/lib/pieces";
-import { writeDoc, writeEnvKey, writeRawConfig } from "@/lib/config";
+import { writeDoc, writeRawConfig } from "@/lib/config";
+import { salvarAjuste } from "@/lib/config-store";
 import { saveProduct, addProduct } from "@/lib/catalog";
 import { getCandidate, setStatus } from "@/lib/candidates";
 import { saveCurso, createCurso } from "@/lib/cursos";
@@ -65,15 +66,22 @@ export async function refazer(slug: string) {
 
 // edição de config pelo painel (sem abrir código) — vale no próximo run do pipeline
 export async function salvarPrompt(kind: "agent" | "config", name: string, content: string) {
-  writeDoc(kind, name, content);
+  try {
+    await writeDoc(kind, name, content);
+  } catch (e) {
+    return { ok: false, erro: (e as Error).message };
+  }
   revalidatePath("/admin/prompts");
   return { ok: true };
 }
 
 export async function salvarChave(key: string, value: string) {
-  writeEnvKey(key, value);
+  // Antes isto reescrevia o .env em disco — que não existe na Vercel: salvava
+  // nada e não avisava. Agora vai pra app_settings, e só para os ajustes de
+  // NEGÓCIO. Chave de provedor mora no ambiente (ver /admin/config).
+  const r = await salvarAjuste(key, value);
   revalidatePath("/admin/config");
-  return { ok: true };
+  return r.ok ? { ok: true } : { ok: false, erro: r.erro };
 }
 
 // catálogo (produtos + links de afiliado + palavra ManyChat)
@@ -218,7 +226,7 @@ export async function novoAtleta(slug: string, nome: string) {
 // fontes RSS (YAML bruto, validado)
 export async function salvarFontes(content: string) {
   try {
-    writeRawConfig("fontes.yaml", content);
+    await writeRawConfig("fontes.yaml", content);
     revalidatePath("/admin/fontes");
     return { ok: true };
   } catch (e) {
