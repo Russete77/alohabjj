@@ -4,10 +4,15 @@ Plataforma que transforma acontecimentos do BJJ em **dossiês permanentes** (bas
 
 Marca: **AlohaBJJNews / @bjjcomlucas**. PRD completo em [`docs/PRD-BjjcomLucas-v5.md`](docs/PRD-BjjcomLucas-v5.md).
 
-## Estado atual — Fatia 1 (Fase 0: Bootstrap)
+## Estado atual
 
-Faz a base **nascer cheia** com o acervo do AlohaBJJNews e a voz da marca destilada.
-Spec: [`docs/superpowers/specs/2026-07-16-fase0-bootstrap-design.md`](docs/superpowers/specs/2026-07-16-fase0-bootstrap-design.md).
+Pipeline completo (Fase A → B) com 23 agentes, portal público e painel de operação.
+Publicação de conteúdo é **ato humano**: o pipeline entrega `validated`, o operador
+promove em `/admin/conteudo`. Nada vai ao ar sozinho.
+
+Testes: `python -m pytest tests/` (Python) e `cd web && npm test` (web).
+
+Próximas fases em [`docs/superpowers/specs/2026-09-02-pronto-para-producao-design.md`](docs/superpowers/specs/2026-09-02-pronto-para-producao-design.md).
 
 ## Setup
 
