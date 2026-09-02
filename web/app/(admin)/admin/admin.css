@@ -520,3 +520,20 @@
 .cst-bar{width:60%;max-width:40px;background:linear-gradient(to top,var(--red),#ff6b6f);border-radius:4px 4px 0 0;min-height:4px}
 .cst-v{font-size:10px;color:var(--muted);font-family:var(--font-mono)}
 .cst-d{font-size:10px;color:var(--faint)}
+
+/* ── Conteúdo: o que está no ar ───────────────────────────────────────── */
+.admin .ctable{display:flex;flex-direction:column;gap:var(--s-1);margin-top:var(--s-4)}
+.admin .crow{display:flex;align-items:center;gap:var(--s-3);justify-content:space-between;
+  background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-sm);padding:var(--s-2) var(--s-3)}
+.admin .crow.risco{border-left:3px solid var(--red);background:var(--red-soft)}
+.admin .cinfo{min-width:0}
+.admin .cinfo b{display:block;font-size:var(--t-md);line-height:1.35}
+.admin .cmeta{display:flex;gap:var(--s-2);align-items:center;font-size:var(--t-xs);color:var(--faint);margin-top:3px;flex-wrap:wrap}
+.admin .cmeta .alerta{color:var(--red);font-weight:600}
+.admin .pub{display:flex;align-items:center;gap:var(--s-2);flex:none}
+.admin .pub-erro{color:var(--red);font-size:var(--t-xs)}
+.admin .pub-confirm{display:flex;flex-direction:column;gap:6px;align-items:flex-end;max-width:420px;
+  font-size:var(--t-sm);border:1px solid var(--red);border-radius:var(--radius-sm);padding:var(--s-2);background:var(--red-soft)}
+.admin .pub-confirm em{color:var(--muted);font-style:italic;text-align:right}
+.admin .pub-acoes{display:flex;gap:var(--s-1)}
+.admin .pub-acoes .danger{background:var(--red);color:#fff;border-color:var(--red)}

@@ -1,5 +1,5 @@
 import { getPieces, artHref } from "@/lib/pieces";
-import { getDossiers } from "@/lib/dossiers";
+import { listAll } from "@/lib/dossiers";
 
 export const dynamic = "force-dynamic"; // lê outputs/ a cada request (muta ao publicar)
 
@@ -9,7 +9,7 @@ const ESTADO_LABEL: Record<string, string> = {
 
 export default async function AdminHome() {
   const pieces = await getPieces();
-  const dossiers = await getDossiers();
+  const dossiers = await listAll();
   const noPortal = pieces.filter((p) => p.estado === "publicado").length;
 
   return (

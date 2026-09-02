@@ -10,19 +10,34 @@ import { getCandidate, setStatus } from "@/lib/candidates";
 import { saveCurso, createCurso } from "@/lib/cursos";
 import { saveAtleta, addAtleta } from "@/lib/atletas";
 import { addSource, removeSource, type SrcType } from "@/lib/sources";
-import { checkPassword, sessionToken, cookieName } from "@/lib/auth";
+import { checkPassword, issueSession, cookieName } from "@/lib/auth";
+import { hashIp, limparTentativas, registrarTentativa } from "@/lib/rate-limit";
+import { motivoBloqueio } from "@/lib/porteiro";
+import { dbPatch } from "@/lib/server-db";
+import { getDossierAdmin } from "@/lib/dossiers";
 
 export async function login(formData: FormData) {
   const pw = String(formData.get("password") || "");
   const next = String(formData.get("next") || "/admin");
+
+  const { headers } = await import("next/headers");
+  const h = await headers();
+  const ip = (h.get("x-forwarded-for") || "").split(",")[0].trim() || "desconhecido";
+  const ipHash = await hashIp(ip);
+
+  const { bloqueado } = await registrarTentativa(ipHash);
+  if (bloqueado) redirect("/admin/login?erro=bloqueado");
+
   if (!checkPassword(pw)) redirect("/admin/login?erro=1");
-  const token = await sessionToken();
+  await limparTentativas(ipHash);
+
+  const token = await issueSession();
   (await cookies()).set(cookieName(), token, {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
     path: "/",
-    maxAge: 60 * 60 * 24 * 30,
+    maxAge: 60 * 60 * 24 * 7, // 7 dias — igual ao TTL assinado no token
   });
   redirect(next.startsWith("/admin") ? next : "/admin");
 }
@@ -206,4 +221,44 @@ export async function salvarFontes(content: string) {
   } catch (e) {
     return { ok: false, erro: (e as Error).message };
   }
+}
+
+// ── Porteiro de publicação ────────────────────────────────────────────────
+// É o ÚNICO caminho para conteúdo ir ao ar. O pipeline nunca publica.
+
+/**
+ * Promove o dossiê a `published`.
+ *
+ * Quando o dossiê tem confiança baixa ou tag de bloqueio, a primeira chamada
+ * devolve o motivo em vez de publicar. Só a segunda, com confirmado=true,
+ * grava. A tela mostra o motivo real ao operador antes disso.
+ */
+export async function publicarDossie(slug: string, confirmado = false) {
+  const d = await getDossierAdmin(slug);
+  if (!d) return { ok: false, erro: "dossiê não encontrado" };
+
+  const motivo = motivoBloqueio({ confianca: d.confianca, tags: d.tags });
+  if (motivo && !confirmado) return { ok: false, precisaConfirmar: motivo };
+
+  const ok = await dbPatch(`dossiers?slug=eq.${encodeURIComponent(slug)}`, {
+    status: "published",
+    arquivado: false,
+  });
+  if (!ok) return { ok: false, erro: "o banco recusou a gravação" };
+
+  revalidatePath("/");
+  revalidatePath("/admin/conteudo");
+  revalidatePath(`/artigo/${slug}`);
+  return { ok: true };
+}
+
+export async function despublicarDossie(slug: string) {
+  const ok = await dbPatch(`dossiers?slug=eq.${encodeURIComponent(slug)}`, {
+    status: "validated",
+  });
+  if (!ok) return { ok: false, erro: "o banco recusou a gravação" };
+  revalidatePath("/");
+  revalidatePath("/admin/conteudo");
+  revalidatePath(`/artigo/${slug}`);
+  return { ok: true };
 }

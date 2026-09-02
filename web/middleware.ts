@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { sessionToken, authEnabled, cookieName } from "@/lib/auth";
+import { verifySession, authEnabled, cookieName } from "@/lib/auth";
 
 // Protege /admin e /api/art (imagens geradas). Se ADMIN_PASSWORD não estiver setada,
 // libera tudo (dev). A tela de login (/admin/login) é sempre pública.
@@ -10,8 +10,7 @@ export async function middleware(req: NextRequest) {
   if (pathname === "/admin/login") return NextResponse.next();
 
   const cookie = req.cookies.get(cookieName())?.value;
-  const expected = await sessionToken();
-  if (cookie && expected && cookie === expected) return NextResponse.next();
+  if (await verifySession(cookie)) return NextResponse.next();
 
   // API: 401 seco; páginas: redireciona pro login preservando o destino
   if (pathname.startsWith("/api/")) {

@@ -1,6 +1,6 @@
 # Agentes — workflow completo (atual)
 
-> Estado em 2026-07-16 (revisão pós-sessão de arte/vendas/banco). 14 agentes + módulos de apoio.
+> Estado em 2026-09-02 (pós fases 1-2: porteiro e segurança). 23 agentes + módulos de apoio.
 > Prompts versionados em `agents/<nome>/system.md`. Roteamento de modelo em `lib/claude.py`.
 > Observabilidade em `jobs/*.jsonl` + dual-write no Supabase (`agent_steps`).
 
@@ -46,7 +46,7 @@ BOOTSTRAP (1x)
 AO VIVO: lib/jobs ─► jobs/*.jsonl + ▶ Supabase (agent_steps) ─► /admin/agentes (Academia)
 ```
 
-## 2. Os 14 agentes
+## 2. Os 23 agentes
 
 | # | Agente | Fase | Modelo | Entrada → Saída | Onde |
 |---|---|---|---|---|---|
@@ -61,11 +61,20 @@ AO VIVO: lib/jobs ─► jobs/*.jsonl + ▶ Supabase (agent_steps) ─► /admin
 | 9 | **Avaliador** | B | Haiku | peça → aprova/rejeita | `build_carousel` |
 | 10 | **Instagram Publisher** | B | Sonnet | peça → legenda BR+EUA, headlines | `build_platforms` |
 | 11 | **TikTok Publisher** | B | Sonnet | peça → pacote viral BR | `build_platforms` |
-| 12 | **Empacotador** | B | Sonnet | peça → YouTube Shorts | `build_platforms` |
-| 13 | **Diretor de Arte** | B | Sonnet | dossiê → brief + prompt de imagem | `art.art_brief` |
-| 14 | **Art QC** 👁 | B | Haiku | imagem → aprova/reprova (visão) | `art.qc_image` |
+| 12 | **Facebook Publisher** | B | Sonnet | peça → pacote de comunidade | `build_platforms` |
+| 13 | **Empacotador** | B | Sonnet | peça → YouTube Shorts | `build_platforms` |
+| 14 | **Diretor de Arte** | B | Sonnet | dossiê → brief + prompt de imagem | `art.art_brief` |
+| 15 | **Art QC** 👁 | B | Haiku | imagem → aprova/reprova (visão) | `art.qc_image` |
+| 16 | **Trend Scout** | A | Haiku+web | web → tendências da semana | `scout_trends.py` |
+| 17 | **Trend QC** | A | Haiku | tendências → aprova/reprova por nicho | `scout_trends.qc_tendencias` |
+| 18 | **Estrategista de Conteúdo** | A | Sonnet | pautas+trends+conversão → calendário | `plan_week.py` |
+| 19 | **Athlete Scout** | A | Sonnet+web | atleta → perfil (cartel, estilo) | `enrich_athlete.py` |
+| 20 | **Product Scout** | — | Haiku+web | categoria → campeão do marketplace | `find_products.py` |
+| 21 | **Ideador 3D** | — | Haiku+web | nicho → ideia de peça imprimível | `ideate.py --kind 3d` |
+| 22 | **Ideador de Cursos** | — | Haiku+web | audiência → tema + ementa | `ideate.py --kind cursos` |
+| 23 | **Course Builder** | — | Opus | tema → currículo do curso | `build_course.py` |
 
-Passo extra **Capa Visão** (Haiku 👁, `art.coherent_headline`): dá olhos à escolha da headline pra ela nunca mentir sobre a imagem.
+Passo extra **Capa Visão** (Haiku 👁, `art.coherent_headline`): dá olhos à escolha da headline pra ela nunca mentir sobre a imagem. Não tem prompt próprio — vive dentro do pipeline de arte.
 
 ## 3. Módulos de apoio (não são agentes, mas orquestram)
 - **`lib/claude.py`** — roteamento Haiku/Sonnet/Opus, **backoff 529**, guard de saída vazia, **suporte a visão** (imagem no `call`), spend cap por run.
@@ -81,13 +90,17 @@ Passo extra **Capa Visão** (Haiku 👁, `art.coherent_headline`): dá olhos à 
 - **Art QC** reprova judô/íntimo/aberração. **Capa Visão** garante headline↔imagem.
 - **CONAR**: disclosure #publi pra afiliado; `is_ai_generated` no post. **Nunca** repostar foto de terceiro (só recontextualização/frame próprio).
 - **Spend cap** por run (inclui custo de imagem). **Roteamento** de modelo por etapa.
+- **Porteiro de publicação**: o pipeline grava `validated`; só o operador promove a `published` em `/admin/conteudo`. Confiança baixa ou tag de bloqueio exige confirmação extra.
+- **Trend QC** reprova tendência fora do nicho (o caso-modelo é o anime Jujutsu Kaisen).
 
 ## 5. Casamento conteúdo × produto (novo)
 O Supervisor cruza os sinais do dossiê (gi/no-gi, técnica, evento, atleta) com as `tags`/`gatilho` do catálogo:
 `No-Gi/ADCC → rashguard-nogi` · `gi/Mundial → gi-competicao` · `leg lock → instrucional-leglock`. Sem link real → `precisa_link:true` (Lucas cola). Afiliado ⇒ disclosure #publi.
 
-## 6. Pendências / próximos (ver `docs/AUDITORIA-CTO.md`)
-🔴 prompt caching · Batch API · teto de gasto global · auth do `/admin` · allowed_domains no web_search · resume mid-chain. 🟡 dual-write assíncrono · alertas.
+## 6. Pendências / próximos
+**Fechados nas fases 1–2 (02/09):** auth do `/admin` (sessão com expiração + limite de tentativa), RLS completa, porteiro de publicação, QC de nicho.
+
+**Abertos:** prompt caching medido · Batch API · teto de gasto DIÁRIO de verdade (hoje só existe por-run) · `allowed_domains` no web_search · resume mid-chain · alertas de run que falhou. Ver `docs/superpowers/specs/2026-09-02-pronto-para-producao-design.md`.
 
 ---
-*Atualizado 2026-07-16 pós-sessão: Supervisor v3 (afiliado por relevância), pipeline de arte estruturado (Diretor plugado + Art QC + Capa Visão + fundo recontextualizado), IG/TikTok Publishers, dual-write Supabase.*
+*Atualizado 2026-09-02, fases 1–2: porteiro de publicação (o pipeline nunca publica), Trend QC, sessão com expiração, RLS completa. A tabela de agentes estava parada em 14 desde julho — são 23.*

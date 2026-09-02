@@ -28,16 +28,13 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from lib import storage  # noqa: E402
+from lib.dossier_index import read_all  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
-KNOWLEDGE = ROOT / "knowledge"
-BACKFILL = KNOWLEDGE / "_backfill"
 OUTPUTS = ROOT / "outputs"
 HERO = ROOT / "web" / "public" / "hero"
 BUCKET = "art"
 
-LABEL = {"superlutas": "Superlutas", "noticias": "Notícias",
-         "analises": "Análises", "tecnica": "Técnica"}
 
 
 def _read_json(p: Path) -> dict:
@@ -47,59 +44,54 @@ def _read_json(p: Path) -> dict:
         return {}
 
 
-def _map_categoria(wp_cats: list[str], atletas: list[str]) -> str:
-    c = [x.lower() for x in (wp_cats or [])]
-    if any("superluta" in x for x in c):
-        return "superlutas"
-    if any("news" in x or "not" in x for x in c):
-        return "noticias"
-    if any("anál" in x or "anal" in x for x in c):
-        return "analises"
-    return "tecnica" if not atletas else "superlutas"
 
 
-def _parse_summary(md: str) -> list[str]:
-    import re
-    body = re.sub(r"^#[^\n]*\n+", "", md)
-    return [re.sub(r"\s+", " ", p).strip() for p in re.split(r"\n{2,}", body) if p.strip()]
+def publicados_do_banco() -> set[str] | None:
+    """Slugs com status='published'. None quando o banco não responde.
+
+    None e set() são tratados igual lá na frente (nada vai ao ar) — a distinção
+    existe só pra mensagem de log ser honesta sobre o motivo.
+    """
+    import os
+    import urllib.request
+    url = (os.getenv("SUPABASE_URL") or "").rstrip("/")
+    key = os.getenv("SUPABASE_SERVICE_ROLE_KEY") or ""
+    if not (url and key):
+        return None
+    req = urllib.request.Request(
+        f"{url}/rest/v1/dossiers?select=slug&status=eq.published&arquivado=is.false",
+        headers={"apikey": key, "Authorization": f"Bearer {key}"})
+    try:
+        with urllib.request.urlopen(req, timeout=20) as r:
+            return {row["slug"] for row in json.loads(r.read())}
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def filtrar_publicados(todos: list[dict], publicados: set[str] | None) -> dict:
+    """Só o que o operador promoveu entra no snapshot. Falha FECHADO."""
+    if not publicados:
+        return {}
+    return {d["slug"]: d for d in todos if d["slug"] in publicados}
 
 
 def build_dossiers(dry: bool, only: str | None) -> dict:
-    """Devolve {slug: dossier_dict} no shape que web/lib/dossiers.ts produz."""
-    out: dict = {}
-    if not KNOWLEDGE.exists():
-        return out
-    for dir in sorted(KNOWLEDGE.iterdir()):
-        if not dir.is_dir() or dir.name in ("_backfill", "atletas", "sources"):
-            continue
-        slug = dir.name
-        if only and slug != only:
-            continue
-        meta = _read_json(dir / "metadata.json")
-        summ_p = dir / "summary.md"
-        if not meta or not summ_p.exists():
-            continue
-        back = _read_json(BACKFILL / f"{slug}.json")
-        summary = summ_p.read_text(encoding="utf-8")
-        titulo = back.get("title") or (summary.splitlines()[0].lstrip("# ").strip()
-                                       if summary.startswith("#") else slug.replace("-", " "))
-        atletas = meta.get("atletas") or []
-        categoria = _map_categoria(back.get("categories") or [], atletas)
-        # imagem: sobe o hero pro Storage (deploy); local segue usando /hero/ via disco
-        imagem = meta.get("imagem") or back.get("featured_image")
+    """{slug: dossier} — só os publicados, com o hero já no Storage."""
+    pub = publicados_do_banco()
+    if pub is None:
+        print("[sync] AVISO: banco não respondeu — snapshot sai VAZIO (falha fechada).")
+    todos = read_all()
+    if only:
+        todos = [d for d in todos if d["slug"] == only]
+    out = filtrar_publicados(todos, pub)
+    print(f"[sync] {len(todos)} no disco · {len(out)} publicado(s) vão ao ar")
+
+    for slug, d in out.items():
         hero_file = HERO / f"{slug}.jpg"
         if hero_file.exists() and not dry:
-            url = storage.upload(BUCKET, f"hero/{slug}.jpg", hero_file)
-            if url:
-                imagem = url
-        out[slug] = {
-            "slug": slug, "titulo": titulo, "categoria": categoria,
-            "categoriaLabel": LABEL[categoria], "atletas": atletas,
-            "evento": meta.get("evento") or "", "data": (meta.get("data") or back.get("date") or "")[:10],
-            "resumoParas": _parse_summary(summary),
-            "imagem": imagem, "fonteUrl": meta.get("source_url") or back.get("link"),
-            "confianca": meta.get("confianca") or "media", "tags": meta.get("tags") or [],
-        }
+            u = storage.upload(BUCKET, f"hero/{slug}.jpg", hero_file)
+            if u:
+                d["imagem"] = u
     return out
 
 
@@ -171,7 +163,13 @@ def main() -> int:
             return {} if name == "dossiers.json" else []
 
     if args.slug:
-        base_d = _fetch("dossiers.json"); base_d.update(dossiers); dossiers = base_d
+        # Merge com o snapshot já publicado — MAS podando o que não está mais
+        # publicado. Sem a poda, republicar uma peça preservaria para sempre o
+        # que o snapshot antigo carregava (hoje, os 52 de antes do porteiro).
+        pub = publicados_do_banco() or set()
+        base_d = {k: v for k, v in _fetch("dossiers.json").items() if k in pub}  # type: ignore
+        base_d.update(dossiers)
+        dossiers = base_d
         base_p = {p["slug"]: p for p in _fetch("pieces.json")}  # type: ignore
         for p in pieces:
             base_p[p["slug"]] = p

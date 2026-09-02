@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { getDossier, type Categoria } from "./dossiers";
+import { getDossierAdmin, type Categoria } from "./dossiers";
 import { getPiecesSnapshot } from "./cloud";
 
 const OUTPUTS = path.resolve(process.cwd(), "..", "outputs");
@@ -96,7 +96,9 @@ async function readPiecesFromDisk(): Promise<Piece[]> {
     const files = fs.readdirSync(path.join(OUTPUTS, slug));
     const slidePngs = files.filter((f) => /^slide-\d+\.png$/.test(f)).sort();
     const storyPng = files.includes("story.png") ? "story.png" : null;
-    const dossier = await getDossier(slug);
+    // lookup só de exibição (título/categoria), não é portão: a página pública
+// já barrou o dossiê não publicado antes de chegar aqui.
+    const dossier = await getDossierAdmin(slug);
     pieces.push({
       slug,
       titulo: dossier?.titulo ?? slug,
