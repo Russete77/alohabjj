@@ -81,6 +81,48 @@ def _to_md(data: dict) -> str:
     return "\n".join(lines)
 
 
+QC_SCHEMA = {
+    "type": "object", "additionalProperties": False,
+    "properties": {"avaliacoes": {"type": "array", "items": {
+        "type": "object", "additionalProperties": False,
+        "properties": {"i": {"type": "integer"}, "eh_bjj": {"type": "boolean"},
+                       "motivo": {"type": "string"}, "aprovado": {"type": "boolean"}},
+        "required": ["i", "eh_bjj", "motivo", "aprovado"]}}},
+    "required": ["avaliacoes"],
+}
+
+
+def aplicar_qc(tendencias: list[dict], avaliacoes: list[dict]) -> tuple[list[dict], list[dict]]:
+    """Separa aprovadas de reprovadas. Lógica pura — testável sem gastar API.
+
+    Falha FECHADO: tendência sem avaliação correspondente é reprovada. Se o QC
+    devolver lista curta ou quebrada, o resultado é MENOS tendência, nunca mais.
+    """
+    veredito = {a.get("i"): a for a in avaliacoes if isinstance(a.get("i"), int)}
+    aprovadas, reprovadas = [], []
+    for i, t in enumerate(tendencias):
+        a = veredito.get(i)
+        if a and a.get("aprovado"):
+            aprovadas.append(t)
+        else:
+            reprovadas.append({**t, "motivo": (a or {}).get("motivo", "não avaliada pelo QC")})
+    return aprovadas, reprovadas
+
+
+def qc_tendencias(claude: Claude, tendencias: list[dict]) -> tuple[list[dict], list[dict]]:
+    """Roda o trend_qc (Haiku) e aplica o veredito."""
+    if not tendencias:
+        return [], []
+    linhas = [f"{i}. [{t.get('tipo','?')}] {t.get('titulo','?')} — {(t.get('o_que_e') or '')[:200]}"
+              for i, t in enumerate(tendencias)]
+    system = (AGENTS / "trend_qc" / "system.md").read_text(encoding="utf-8")
+    txt, _ = claude.call(
+        model=HAIKU, system=system,
+        user="Avalie cada tendência abaixo conforme o contrato.\n\nTENDÊNCIAS:\n" + "\n".join(linhas),
+        step="trend_qc", key="semana", json_schema=QC_SCHEMA, max_tokens=1500)
+    return aplicar_qc(tendencias, json.loads(txt).get("avaliacoes", []))
+
+
 def main() -> int:
     try:
         sys.stdout.reconfigure(encoding="utf-8")  # type: ignore[attr-defined]
@@ -115,11 +157,23 @@ def main() -> int:
     if not data:
         print("[trends] não consegui extrair JSON da busca."); return 1
 
+    # Porteiro de nicho: barra o que não é BJJ antes de virar contexto de post.
+    try:
+        aprovadas, reprovadas = qc_tendencias(claude, data.get("tendencias", []))
+        data["tendencias"] = aprovadas
+        for t in reprovadas:
+            print(f"  ✗ cortada: {t.get('titulo','?')} — {t.get('motivo','')}")
+    except Exception as e:  # noqa: BLE001
+        # Falha FECHADA: sem QC, nenhuma tendência vira contexto de post.
+        print(f"[trends] QC falhou ({e}) — nenhuma tendência gravada.")
+        return 1
+
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "latest.json").write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
     (OUT / "latest.md").write_text(_to_md(data), encoding="utf-8")
     n = len(data.get("tendencias", []))
-    print(f"[trends] {n} tendência(s) → knowledge/trends/latest.json · custo ≈ ${log.total_cost():.4f}")
+    print(f"[trends] {n} tendência(s) aprovada(s) → knowledge/trends/latest.json "
+          f"· custo ≈ ${log.total_cost():.4f}")
     for t in data.get("tendencias", []):
         print(f"  • {t.get('titulo','?')} ({t.get('tipo','')}, fit {t.get('fit','?')})")
     return 0
