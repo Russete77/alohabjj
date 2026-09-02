@@ -3,8 +3,9 @@ lib/claude.py — Cliente Anthropic com roteamento de modelo, spend cap e custo.
 
 Guardrails de produção (PRD §4, §16, §17):
 - Roteamento Haiku/Sonnet/Opus por constante (IDs e preços verificados via skill claude-api).
-- Spend cap: aborta se o custo acumulado do run passar SPEND_CAP_USD.
-- Custo por chamada calculado e logado em jobs/ (§9.3).
+- Spend cap por run (SPEND_CAP_USD) E por dia (DAILY_SPEND_CAP_USD, somando todos os runs).
+- Custo por chamada calculado e logado em jobs/ (§9.3), com os tokens de cache.
+- Busca web restrita aos domínios curados em config/fontes.yaml (allowed_domains).
 
 Regras da API (Opus 4.8 / Sonnet 5 — família 4.8):
 - adaptive thinking; NÃO enviar budget_tokens nem temperature/top_p/top_k (dão 400).
@@ -17,14 +18,17 @@ import json
 import os
 import time
 from dataclasses import dataclass
+from functools import lru_cache
 from pathlib import Path
+from urllib.parse import urlsplit
 
 import anthropic
 from dotenv import load_dotenv
 
-from lib.jobs import JobLog
+from lib.jobs import JobLog, custo_do_dia
 
 ROOT = Path(__file__).resolve().parent.parent
+FONTES = ROOT / "config" / "fontes.yaml"
 load_dotenv(ROOT / ".env")
 
 
@@ -68,10 +72,86 @@ def _cost(model: Model, in_tok: int, out_tok: int,
     return round(dollars, 6)
 
 
-class Claude:
-    """Wrapper fino do SDK Anthropic com custo/spend cap por run."""
+# ── allowlist da busca web ───────────────────────────────────────────────────
+# A curadoria de config/fontes.yaml valia só pro RSS: o Pesquisador podia apurar em
+# qualquer canto da web e citar como fonte. Num nicho onde nome e graduação de atleta
+# importam, apurar em fórum aleatório é risco de marca — a busca agora vê só o que
+# a curadoria já aprovou.
+def _host(url: str | None) -> str | None:
+    """Domínio nu de uma URL (sem esquema, sem www, sem porta, sem caminho)."""
+    if not url or not isinstance(url, str):
+        return None
+    u = url.strip()
+    if not u:
+        return None
+    if "//" not in u:
+        u = "//" + u  # urlsplit só acha o host se parecer URL
+    h = (urlsplit(u).hostname or "").lower()
+    return h[4:] if h.startswith("www.") else (h or None)
 
-    def __init__(self, log: JobLog | None = None, spend_cap_usd: float | None = None):
+
+def _walk_fontes(node):
+    """Percorre o YAML e devolve todo dict que descreve uma fonte (mesmo do rss.py)."""
+    if isinstance(node, dict):
+        if "url" in node or "rss" in node:
+            yield node
+        for v in node.values():
+            yield from _walk_fontes(v)
+    elif isinstance(node, list):
+        for item in node:
+            yield from _walk_fontes(item)
+
+
+# Hosts largos demais pra virar allowlist de BUSCA. Os canais de YouTube curados
+# entram no fontes.yaml pela URL do feed RSS, e extrair o host de
+# "youtube.com/feeds/videos.xml?channel_id=..." devolve "youtube.com" — o que
+# liberaria o YouTube INTEIRO como fonte de apuração. A ferramenta web_search
+# filtra por domínio, não por caminho, então não há como dizer "só estes canais".
+#
+# Decisão do dono (02/09): só os canais do fontes.yaml. Como a busca não sabe
+# expressar isso, o YouTube fica FORA da allowlist de busca — e segue entrando
+# normalmente como fonte de RSS (ingestion/rss.py), que é por onde os canais
+# realmente alimentam o Radar. Nada de ingestão se perde.
+#
+# Escape: quem quiser mesmo liberar põe em WEB_SEARCH_EXTRA_DOMAINS.
+HOSTS_LARGOS_DEMAIS = {"youtube.com", "youtu.be", "m.youtube.com", "www.youtube.com"}
+
+
+@lru_cache(maxsize=8)
+def _dominios(extra: str) -> tuple[str, ...]:
+    """Cacheado pelo valor do env: o Pesquisador chama isto a cada apuração."""
+    achados: list[str] = []
+    try:
+        from ruamel.yaml import YAML
+
+        data = YAML(typ="safe", pure=True).load(FONTES.read_text(encoding="utf-8"))
+        for src in _walk_fontes(data):
+            for campo in ("url", "rss"):
+                h = _host(src.get(campo))
+                if h and h not in HOSTS_LARGOS_DEMAIS:
+                    achados.append(h)
+    except Exception as e:  # noqa: BLE001 — sem allowlist a busca segue aberta (com aviso)
+        print(f"[claude] AVISO: não consegui ler {FONTES.name} para a allowlist: {e}")
+    for d in extra.split(","):
+        h = _host(d)
+        if h:
+            achados.append(h)
+    return tuple(sorted(set(achados)))
+
+
+def dominios_permitidos() -> list[str]:
+    """Domínios do fontes.yaml + WEB_SEARCH_EXTRA_DOMAINS (lista separada por vírgula)."""
+    return list(_dominios(os.getenv("WEB_SEARCH_EXTRA_DOMAINS", "")))
+
+
+dominios_permitidos.cache_clear = _dominios.cache_clear  # type: ignore[attr-defined]
+
+
+class Claude:
+    """Wrapper fino do SDK Anthropic com custo/spend cap por run e por dia."""
+
+    def __init__(self, log: JobLog | None = None, spend_cap_usd: float | None = None,
+                 daily_cap_usd: float | None = None):
         if not os.getenv("ANTHROPIC_API_KEY"):
             raise RuntimeError(
                 "ANTHROPIC_API_KEY ausente. Preencha o .env antes de rodar etapas pagas."
@@ -81,6 +161,36 @@ class Claude:
         self.spend_cap = spend_cap_usd if spend_cap_usd is not None else float(
             os.getenv("SPEND_CAP_USD", "10")
         )
+        self.daily_cap = daily_cap_usd if daily_cap_usd is not None else float(
+            os.getenv("DAILY_SPEND_CAP_USD", "20")
+        )
+
+    def _checa_tetos(self) -> None:
+        """
+        Porteiro do gasto, chamado ANTES de qualquer chamada paga.
+
+        O teto por run sozinho era ficção de controle: dez runs de $5 no mesmo dia
+        davam $50 e o DAILY_SPEND_CAP_USD do painel não era lido por ninguém.
+        """
+        gasto_run = self.log.total_cost()
+        if gasto_run >= self.spend_cap:
+            raise SpendCapExceeded(
+                f"teto do run atingido: ${gasto_run:.4f} >= ${self.spend_cap:.2f} "
+                f"(run {self.log.run_id})"
+            )
+        try:
+            gasto_dia = custo_do_dia()
+        except Exception as e:  # noqa: BLE001
+            # Falhar FECHADO: não saber quanto já se gastou hoje não é licença pra gastar.
+            raise SpendCapExceeded(
+                f"não consegui somar o gasto do dia ({e}); bloqueando por segurança. "
+                f"Confira a pasta jobs/ antes de rodar de novo."
+            ) from e
+        if gasto_dia >= self.daily_cap:
+            raise SpendCapExceeded(
+                f"teto do dia atingido: ${gasto_dia:.4f} >= ${self.daily_cap:.2f} "
+                f"(DAILY_SPEND_CAP_USD, somando TODOS os runs de hoje)"
+            )
 
     def _retry(self, fn, *, step: str, key: str, model: Model):
         """Executa fn() com backoff exponencial em erros transitórios (529 etc.)."""
@@ -118,13 +228,9 @@ class Claude:
         Se cache for dado, ele vira um bloco ESTÁVEL cacheado no INÍCIO do prompt do
         usuário (catálogo/voz que se repetem a cada peça) → leitura ≈ 10% do input nas
         próximas chamadas do run. O `user` (dossiê variável) fica FORA do cache.
-        Loga custo em jobs/; respeita o spend cap ANTES de gastar.
+        Loga custo em jobs/; respeita os tetos (run e dia) ANTES de gastar.
         """
-        spent = self.log.total_cost()
-        if spent >= self.spend_cap:
-            raise SpendCapExceeded(
-                f"spend cap atingido: ${spent:.4f} >= ${self.spend_cap:.2f} (run {self.log.run_id})"
-            )
+        self._checa_tetos()
 
         # prefixo estável (catálogo/voz) → bloco cacheável; dossiê variável fica fora.
         blocks: list = []
@@ -192,25 +298,37 @@ class Claude:
         cache_read = getattr(u, "cache_read_input_tokens", 0) or 0
         cache_write = getattr(u, "cache_creation_input_tokens", 0) or 0
         cost = _cost(model, u.input_tokens, u.output_tokens, cache_read, cache_write)
+        # Os tokens de cache eram calculados aqui e jogados fora — sem eles não dava
+        # pra saber se o prompt caching (a maior alavanca de custo) estava pegando.
         self.log.record(step, "succeeded", key=key, model=model.id,
                         in_tok=u.input_tokens, out_tok=u.output_tokens,
+                        cache_read_tok=cache_read, cache_write_tok=cache_write,
                         cost_est=cost, t0=t0, t1=time.time())
         return text, {"in_tok": u.input_tokens, "out_tok": u.output_tokens, "cost": cost}
 
     def research(self, *, model: Model, system: str, user: str, step: str, key: str,
                  max_uses: int = 4, max_tokens: int = 6000, effort: str = "low") -> tuple[str, dict]:
         """
-        Chamada com WebSearch server-side (Pesquisador, §5). Só fontes da web abertas;
-        o loop de busca roda no servidor. Trata pause_turn reenviando o histórico.
+        Chamada com WebSearch server-side (Pesquisador, §5), RESTRITA aos domínios
+        curados em config/fontes.yaml; o loop de busca roda no servidor. Trata
+        pause_turn reenviando o histórico.
         `effort` baixo por padrão: buscar na web é COLETAR, não precisa de raciocínio
         profundo — foi o que estava caro (effort high em web_search).
         """
-        if self.log.total_cost() >= self.spend_cap:
-            raise SpendCapExceeded(f"spend cap atingido no run {self.log.run_id}")
+        self._checa_tetos()
         # variante do web_search: a nova (filtragem dinâmica) só nos modelos adaptativos
         # (Opus/Sonnet). Haiku usa a básica (senão dá 400 — não suporta programmatic tool calling).
         ws_type = "web_search_20260209" if model.adaptive else "web_search_20250305"
-        tools = [{"type": ws_type, "name": "web_search", "max_uses": max_uses}]
+        tool: dict = {"type": ws_type, "name": "web_search", "max_uses": max_uses}
+        permitidos = dominios_permitidos()
+        if permitidos:
+            tool["allowed_domains"] = permitidos
+        else:
+            # allowlist vazia mandaria a API recusar tudo. Busca aberta é melhor que
+            # busca quebrada — mas o aviso tem que aparecer, senão vira silêncio caro.
+            print("[claude] AVISO: allowlist de domínios vazia — a busca web vai ABERTA "
+                  "(confira config/fontes.yaml ou WEB_SEARCH_EXTRA_DOMAINS).")
+        tools = [tool]
         sys_blocks = [{"type": "text", "text": system, "cache_control": {"type": "ephemeral"}}]
         messages: list = [{"role": "user", "content": user}]
         t0 = time.time()
@@ -236,5 +354,7 @@ class Claude:
         text = "".join(b.text for b in msg.content if b.type == "text")
         cost = _cost(model, in_tok, out_tok, c_read, c_write)
         self.log.record(step, "succeeded", key=key, model=model.id,
-                        in_tok=in_tok, out_tok=out_tok, cost_est=cost, t0=t0, t1=time.time())
+                        in_tok=in_tok, out_tok=out_tok,
+                        cache_read_tok=c_read, cache_write_tok=c_write,
+                        cost_est=cost, t0=t0, t1=time.time())
         return text, {"in_tok": in_tok, "out_tok": out_tok, "cost": cost}

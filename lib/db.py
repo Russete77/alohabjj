@@ -119,9 +119,14 @@ def log_step(entry: dict) -> None:
             _SEEN_RUNS.add(run_id)
     if first:  # cria o run UMA vez (não a cada passo)
         _enqueue("agent_runs", [{"run_id": run_id}], on_conflict="run_id")
+    # cache_read_tok/cache_write_tok entram aqui porque as colunas existem em
+    # agent_steps desde o schema original e ficavam zeradas: o lib/claude.py
+    # passou a medir o cache, mas esta lista fixa descartava a medição antes de
+    # gravar. Sem elas, a maior alavanca de custo do projeto é invisível no banco.
     row = {k: entry.get(k) for k in (
         "run_id", "step", "status", "key", "custom_id", "model",
-        "in_tok", "out_tok", "cost_est", "t0", "t1", "error") if entry.get(k) is not None}
+        "in_tok", "out_tok", "cost_est", "cache_read_tok", "cache_write_tok",
+        "t0", "t1", "error") if entry.get(k) is not None}
     _enqueue("agent_steps", [row])
 
 

@@ -2,8 +2,8 @@ import { stats } from "@/lib/tracking";
 
 export const dynamic = "force-dynamic";
 
-export default function Conversao() {
-  const { products, pieces, totals } = stats();
+export default async function Conversao() {
+  const { products, pieces, totals, erro } = await stats();
   const vazio = totals.clicks === 0 && totals.conversions === 0;
 
   return (
@@ -15,7 +15,15 @@ export default function Conversao() {
         </div>
       </div>
 
-      {vazio ? (
+      {/* "não consegui ler" e "não há dado" são coisas diferentes: mostrar zero nos
+          dois casos é como um painel mente durante uma queda do banco. */}
+      {erro ? (
+        <div className="empty">
+          Não consegui ler os eventos no banco agora. <strong>Isto não quer dizer zero cliques</strong> —
+          quer dizer que a leitura falhou. Recarregue em instantes; se persistir, confira
+          <code>SUPABASE_URL</code> e <code>SUPABASE_SERVICE_ROLE_KEY</code>.
+        </div>
+      ) : vazio ? (
         <div className="empty">
           Sem dados ainda. Os cliques aparecem quando alguém clica no link de rastreio <code>/r/&lt;slug&gt;</code>
           (o que o ManyChat manda na DM). Registre uma venda com <code>python -m lib.tracking convert &lt;slug&gt; &lt;valor&gt;</code>.

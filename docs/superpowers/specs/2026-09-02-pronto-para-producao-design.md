@@ -277,7 +277,7 @@ O porteiro tem duas metades em linguagens diferentes, e as duas precisam de test
 | Auto-publicação nas redes | Só faz sentido depois que a distribuição aponta pra link que converte. |
 | Telas novas de tag e de fonte | Você pediu explicitamente para depois desta fatia. |
 | Batch API e medição de cache | Economia, não bloqueia o deploy. |
-| Aposentar o `agent-town` | 9.802 linhas de peso morto, mas remover não destrava nada agora. |
+| ~~Aposentar o `agent-town`~~ | **Feito em 02/09**, fora deste plano: o dono pediu para fechar tudo. −9.371 linhas líquidas; a visualização virou um console que mostra etapa, custo e falha. |
 
 ---
 

@@ -3,6 +3,7 @@ import { custos } from "@/lib/custos";
 export const dynamic = "force-dynamic";
 
 const fmt = (n: number) => `$${n.toFixed(3)}`;
+const tok = (n: number) => (n >= 1e6 ? `${(n / 1e6).toFixed(1)}M` : n >= 1e3 ? `${Math.round(n / 1e3)}k` : `${n}`);
 
 export default function Custos() {
   const c = custos();
@@ -28,7 +29,23 @@ export default function Custos() {
         <div className="kpi"><div className="lab">7 dias</div><div className="num">{fmt(c.semana)}</div></div>
         <div className="kpi"><div className="lab">Total registrado</div><div className="num">{fmt(c.total)}</div></div>
         <div className="kpi"><div className="lab">Teto por run</div><div className="num">${c.caps.run}</div></div>
+        <div className="kpi"><div className="lab">Teto por dia</div><div className="num">${c.caps.dia}</div></div>
       </div>
+
+      <div className="sec-h"><h2>Aproveitamento de cache</h2><span className="c">quanto do input veio pronto (10% do preço)</span></div>
+      {c.cache.n > 0 ? (
+        <p className="sub">
+          <b>{c.cache.pct.toFixed(0)}%</b> do input foi lido do cache — {tok(c.cache.read)} de{" "}
+          {tok(c.cache.input)} tokens, em {c.cache.n} chamada{c.cache.n === 1 ? "" : "s"} medida
+          {c.cache.n === 1 ? "" : "s"} (gravação: {tok(c.cache.write)}). Abaixo de ~50% num run
+          com muitas peças, o prefixo estável (catálogo/voz) provavelmente está mudando entre chamadas.
+        </p>
+      ) : (
+        <p className="sub">
+          Ainda sem chamada medida. Os tokens de cache passaram a ser gravados agora — as chamadas
+          antigas não têm o dado (não medido não é o mesmo que zero).
+        </p>
+      )}
 
       <div className="sec-h"><h2>Últimos 7 dias</h2></div>
       <div className="cst-days">
@@ -67,8 +84,9 @@ export default function Custos() {
       </table>
 
       <div className="draft-banner">
-        <b>Controlar o teto:</b> edite <b>SPEND_CAP_USD</b> (por run) e <b>DAILY_SPEND_CAP_USD</b> em
-        <a href="/admin/config"> Chaves &amp; config</a>. O run PARA sozinho ao bater o teto.
+        <b>Controlar o teto:</b> edite <b>SPEND_CAP_USD</b> (por run) e <b>DAILY_SPEND_CAP_USD</b> (soma
+        do dia, todos os runs) em <a href="/admin/config">Chaves &amp; config</a>. Os dois PARAM o run
+        sozinhos ao bater o teto — o do dia conta o que já foi gasto hoje antes de cada chamada.
         Scouts rodam em Haiku (barato) + poucas buscas; Pesquisador em Sonnet effort medium.
       </div>
     </>
