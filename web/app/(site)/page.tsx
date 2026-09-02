@@ -79,7 +79,7 @@ export default async function Home() {
           <h3>100kg – Domínio Absoluto</h3>
           <p>Jogo de pressão e controle — do conteúdo pro aprofundamento. Acesse pelo menu do site.</p>
         </div>
-        <a className="cta" href="/">Acessar grátis →</a>
+        <a className="cta" href="/curso">Acessar grátis →</a>
       </div>
     </main>
   );

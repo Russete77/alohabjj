@@ -92,7 +92,7 @@ export default async function Artigo(
           <div className="k">Quer evoluir além das notícias?</div>
           <h4>Curso 100kg – Domínio Absoluto</h4>
           <p>Desenvolva leitura de jogo e um jogo de pressão sufocante. 100% gratuito.</p>
-          <a className="cta" href="/">Acessar grátis no link</a>
+          <a className="cta" href="/curso">Acessar grátis no link</a>
         </div>
         <div className="asign">
           O Jiu-Jitsu está evoluindo. E nós documentamos cada capítulo.
