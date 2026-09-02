@@ -1,17 +1,17 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getDossiers, getDossier, getRelacionados } from "@/lib/dossiers";
+import { listPublic, getDossierPublic, getRelacionados } from "@/lib/dossiers";
 import { getPiece } from "@/lib/pieces";
 
 export async function generateStaticParams() {
-  return (await getDossiers()).map((d) => ({ slug: d.slug }));
+  return (await listPublic()).map((d) => ({ slug: d.slug }));
 }
 
 export async function generateMetadata(
   { params }: { params: Promise<{ slug: string }> },
 ): Promise<Metadata> {
   const { slug } = await params;
-  const d = await getDossier(slug);
+  const d = await getDossierPublic(slug);
   if (!d) return {};
   return {
     title: d.titulo,
@@ -30,7 +30,7 @@ export default async function Artigo(
   { params }: { params: Promise<{ slug: string }> },
 ) {
   const { slug } = await params;
-  const d = await getDossier(slug);
+  const d = await getDossierPublic(slug);
   if (!d) notFound();
 
   const relacionados = await getRelacionados(d.slug, d.categoria);

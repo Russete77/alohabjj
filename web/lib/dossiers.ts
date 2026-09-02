@@ -1,6 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import { getDossiersSnapshot } from "./cloud";
+import { podeIrAoAr } from "./porteiro";
+import { dbSelect } from "./server-db";
 
 // web/ fica dentro de bjj-lucas/ ; a base de conhecimento está em ../knowledge
 const KNOWLEDGE = path.resolve(process.cwd(), "..", "knowledge");
@@ -21,6 +23,10 @@ export interface Dossier {
   fonteUrl: string | null;
   confianca: string;
   tags: string[];
+  status?: string;
+  arquivado?: boolean;
+  destaque?: boolean;
+  ordem?: number | null;
 }
 
 const LABEL: Record<Categoria, string> = {
@@ -57,7 +63,10 @@ function parseSummary(md: string): string[] {
     .filter(Boolean);
 }
 
-let _cache: Dossier[] | null = null;
+// TTL curto: no Fluid Compute a instância vive entre requests, e um cache de
+// módulo sem expiração segurava conteúdo novo até a instância reciclar.
+let _cache: { at: number; list: Dossier[] } | null = null;
+const TTL_MS = 60_000;
 
 function readDossiersFromDisk(): Dossier[] {
   if (!fs.existsSync(KNOWLEDGE)) return [];
@@ -101,25 +110,76 @@ function readDossiersFromDisk(): Dossier[] {
   return list;
 }
 
-// Disco primeiro (local, sem mudança). Se o disco não existe (deploy no Vercel),
-// cai no snapshot publicado no Storage. Ver orchestrator/sync_to_cloud.py.
-export async function getDossiers(): Promise<Dossier[]> {
-  if (_cache) return _cache;
+/** Estado editorial vindo do banco, indexado por slug. null = banco não respondeu. */
+async function estadoDoBanco(): Promise<Record<string, Partial<Dossier>> | null> {
+  const rows = await dbSelect<{
+    slug: string; status: string; arquivado: boolean;
+    destaque: boolean; ordem: number | null; titulo: string | null; categoria: string | null;
+  }>("dossiers?select=slug,status,arquivado,destaque,ordem,titulo,categoria");
+  if (rows === null) return null;
+  const map: Record<string, Partial<Dossier>> = {};
+  for (const r of rows) {
+    map[r.slug] = {
+      status: r.status,
+      arquivado: r.arquivado,
+      destaque: r.destaque,
+      ordem: r.ordem,
+      ...(r.titulo ? { titulo: r.titulo } : {}),
+      ...(r.categoria ? { categoria: r.categoria as Categoria } : {}),
+    };
+  }
+  return map;
+}
+
+/** Todo o conteúdo, publicado ou não. SÓ para o /admin. */
+export async function listAll(): Promise<Dossier[]> {
+  if (_cache && Date.now() - _cache.at < TTL_MS) return _cache.list;
   let list = readDossiersFromDisk();
   if (list.length === 0) {
     const snap = await getDossiersSnapshot();
-    if (snap) list = (Object.values(snap) as Dossier[]).sort((a, b) => (a.data < b.data ? 1 : -1));
+    if (snap) list = Object.values(snap) as Dossier[];
   }
-  _cache = list;
+  const estado = await estadoDoBanco();
+  if (estado) list = list.map((d) => ({ ...d, ...(estado[d.slug] ?? {}) }));
+  list.sort((a, b) => (a.data < b.data ? 1 : -1));
+  _cache = { at: Date.now(), list };
   return list;
 }
 
-export async function getDossier(slug: string): Promise<Dossier | undefined> {
-  return (await getDossiers()).find((d) => d.slug === slug);
+/**
+ * O que o portal pode servir. NUNCA lê o disco cru sem o estado do banco.
+ *
+ * Falha FECHADO: se o banco não responder, cai no snapshot — que o
+ * sync_to_cloud já publicou contendo só material liberado. Nunca no disco
+ * inteiro, que tem os não-verificados.
+ */
+export async function listPublic(): Promise<Dossier[]> {
+  const estado = await estadoDoBanco();
+  if (estado === null) {
+    const snap = await getDossiersSnapshot();
+    return snap ? (Object.values(snap) as Dossier[]) : [];
+  }
+  const list = (await listAll()).filter((d) => podeIrAoAr(d));
+  list.sort((a, b) => {
+    if (!!b.destaque !== !!a.destaque) return b.destaque ? 1 : -1;
+    const ao = a.ordem ?? Number.MAX_SAFE_INTEGER;
+    const bo = b.ordem ?? Number.MAX_SAFE_INTEGER;
+    if (ao !== bo) return ao - bo;
+    return a.data < b.data ? 1 : -1;
+  });
+  return list;
+}
+
+export async function getDossierPublic(slug: string): Promise<Dossier | undefined> {
+  return (await listPublic()).find((d) => d.slug === slug);
+}
+
+export async function getDossierAdmin(slug: string): Promise<Dossier | undefined> {
+  return (await listAll()).find((d) => d.slug === slug);
 }
 
 export async function getRelacionados(slug: string, categoria: Categoria, n = 3): Promise<Dossier[]> {
-  return (await getDossiers())
+  return (await listPublic())
     .filter((d) => d.slug !== slug && d.categoria === categoria)
     .slice(0, n);
 }

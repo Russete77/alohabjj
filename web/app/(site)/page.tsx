@@ -1,4 +1,4 @@
-import { getDossiers, type Categoria } from "@/lib/dossiers";
+import { listPublic, type Categoria } from "@/lib/dossiers";
 
 function fmtData(d: string) {
   if (!d) return "";
@@ -15,7 +15,7 @@ const ORDEM: { id: Categoria; label: string }[] = [
 ];
 
 export default async function Home() {
-  const dossiers = await getDossiers();
+  const dossiers = await listPublic();
   const destaque = dossiers[0];
   const laterais = dossiers.slice(1, 5);
 
