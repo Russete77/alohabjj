@@ -1,0 +1,17 @@
+{
+  "cores": {
+    "ink": "#0B0B0C",
+    "paper": "#F5F3EF",
+    "red": "#D8232A",
+    "teal": "#1A9CB4",
+    "tealEscuro": "#16879C"
+  },
+  "fontes": { "display": "Anton", "corpo": "Inter" },
+  "logo": { "portal": null, "arte": null, "recorte": null },
+  "textos": {
+    "ticker": "Cobertura ao vivo · Mundial IBJJF · ADCC · resultados, superlutas e análises · @bjjcomlucas",
+    "rodapeArte": "SIGA PARA MAIS BJJ",
+    "assinatura": "@BJJCOMLUCAS",
+    "dominioArte": "ALOHABJJNEWS.COM"
+  }
+}

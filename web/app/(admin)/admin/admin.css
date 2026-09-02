@@ -767,3 +767,42 @@
 .admin .ed-barra .btn.primary{margin-left:auto}
 /* âncoras que agem como botão na linha de conteúdo */
 .admin .cacoes a.cbtn{display:inline-flex;align-items:center;text-decoration:none}
+
+/* ── Tema ────────────────────────────────────────────────────────────────
+   A prévia fica ao lado e não embaixo: a decisão de cor é comparativa, e
+   rolar entre o seletor e o resultado quebra a comparação. */
+.admin .tema-grid{
+  display:grid;grid-template-columns:minmax(0,1.35fr) minmax(300px,1fr);
+  gap:var(--s-3);align-items:start;padding-bottom:96px;
+}
+@media(max-width:980px){.admin .tema-grid{grid-template-columns:1fr}}
+.admin .tema-linha{display:flex;align-items:center;gap:var(--s-3);padding:var(--s-2) 0;border-bottom:1px solid var(--line-soft)}
+.admin .tema-linha:last-child{border-bottom:0}
+.admin .tema-linha.col{flex-direction:column;align-items:stretch;gap:4px}
+.admin .tema-info{flex:1;min-width:0;display:flex;flex-direction:column}
+.admin .tema-info b{font-size:var(--t-md);font-weight:640}
+.admin .tema-info span{font-size:var(--t-xs);color:var(--faint)}
+.admin .tema-cor{
+  width:42px;height:42px;padding:0;border:1px solid var(--line);
+  border-radius:var(--radius-sm);background:none;cursor:pointer;flex:none;
+}
+.admin .tema-hex{width:110px;flex:none;font-family:var(--font-mono);font-size:var(--t-sm);margin-top:0}
+.admin .tema-contraste{font-size:var(--t-sm);color:var(--green);margin:var(--s-2) 0 0}
+.admin .tema-contraste.ruim{color:var(--red);font-weight:600}
+.admin .tema-erros{margin:0;padding-left:18px;font-size:var(--t-xs);color:var(--red);max-width:52ch}
+
+.admin .tema-previa{position:sticky;top:var(--s-3)}
+.admin .tema-mock{border:1px solid var(--line);border-radius:var(--radius-sm);overflow:hidden;margin-bottom:var(--s-3)}
+.admin .mock-nav{padding:10px 14px;font-size:19px;color:#fff;font-weight:700}
+.admin .mock-ticker{padding:5px 14px;color:#fff;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.admin .mock-corpo{padding:var(--s-3) 14px}
+.admin .mock-kicker{font-size:10px;font-weight:800;letter-spacing:.14em}
+.admin .mock-corpo h3{font-size:20px;margin:6px 0 8px;text-transform:uppercase;line-height:1.05}
+.admin .mock-corpo p{font-size:12.5px;margin:0;opacity:.8;line-height:1.5}
+.admin .tema-mock.arte .mock-slide{position:relative;height:150px;display:flex;align-items:center;gap:12px;padding:0 14px}
+.admin .mock-barra{width:7px;height:78px;border-radius:2px;flex:none}
+.admin .mock-txt{display:flex;flex-direction:column;gap:6px;color:#fff}
+.admin .mock-txt span{font-size:9px;font-weight:800;letter-spacing:.16em}
+.admin .mock-txt b{font-size:19px;line-height:1.02;text-transform:uppercase;max-width:22ch}
+.admin .mock-rodape{margin:0 14px;padding:7px 0;text-align:center;color:#fff;font-size:10px;font-weight:800;letter-spacing:.06em;border-radius:3px}
+.admin .mock-faixa{margin-top:10px;padding:5px 14px;color:rgba(255,255,255,.55);font-size:9px;font-weight:800;letter-spacing:.1em}

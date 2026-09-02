@@ -45,7 +45,7 @@ def paths_gerenciados(root: Path | None = None) -> list[str]:
         achados += [f"agents/{d.name}/system.md" for d in sorted(ag.iterdir())
                     if (d / "system.md").exists()]
     for nome in ("catalogo.yaml", "fontes.yaml", "atletas.yaml",
-                 "voz.md", "regras.md", "bjj-visual.md"):
+                 "voz.md", "regras.md", "bjj-visual.md", "tema.json"):
         if (base / "config" / nome).exists():
             achados.append(f"config/{nome}")
     cursos = base / "config" / "cursos"

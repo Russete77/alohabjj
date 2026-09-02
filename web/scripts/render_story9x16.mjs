@@ -4,6 +4,7 @@
 //   sem --bg: estende o story-frame.jpeg (teal) e sobrepõe a headline.
 // Uso: node scripts/render_story9x16.mjs --headline "T" --out <png> [--bg <img>] [--kicker ..] [--frame <jpeg>]
 import sharp from "sharp";
+import { carregaTema } from "./tema.mjs";
 import { existsSync } from "node:fs";
 import path from "node:path";
 
@@ -16,7 +17,8 @@ const frame = A.frame || path.resolve("public/templates/story-frame.jpeg");
 const LUCAS = path.resolve("public/templates/lucas.png");
 if (!out || !headline) { console.error("faltam --headline e/ou --out"); process.exit(2); }
 
-const W = 1080, H = 1920, RED = "#D8232A", WHITE = "#fff", D = "Impact,'Arial Narrow',sans-serif";
+const tema = await carregaTema();
+const W = 1080, H = 1920, RED = tema.cores.red, WHITE = "#fff", D = `${tema.fontes.display},Impact,'Arial Narrow',sans-serif`;
 const esc = (s) => (s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;");
 function wrap(t, max) { const w = t.split(/\s+/), l = []; let c = "";
   for (const x of w) { if ((c + " " + x).trim().length > max && c) { l.push(c.trim()); c = x; } else c = (c + " " + x).trim(); }
@@ -46,9 +48,9 @@ function furnitureSVG() {
     <text x="484" y="1700" font-family="Arial" font-weight="800" font-size="30" fill="${WHITE}" letter-spacing="1">ACESSE:</text>
     <text x="484" y="1754" font-family="'Arial Black',Arial" font-weight="900" font-size="50" fill="${WHITE}">ALOHA<tspan fill="${RED}">BJJ</tspan>NEWS.COM</text>
     <rect x="24" y="1790" width="360" height="52" rx="5" fill="${RED}"/>
-    <text x="204" y="1826" font-family="Arial" font-weight="800" font-size="28" fill="${WHITE}" text-anchor="middle" letter-spacing="0.5">SIGA PARA MAIS BJJ</text>
+    <text x="204" y="1826" font-family="Arial" font-weight="800" font-size="28" fill="${WHITE}" text-anchor="middle" letter-spacing="0.5">${tema.textos.rodapeArte}</text>
     <rect x="0" y="1876" width="${W}" height="44" fill="#16879C"/>
-    ${[0,1,2,3,4].map(i=>`<text x="${40+i*230}" y="1906" font-family="Arial" font-weight="800" font-size="20" fill="rgba(255,255,255,.5)" letter-spacing="1">@BJJCOMLUCAS</text>`).join("")}`;
+    ${[0,1,2,3,4].map(i=>`<text x="${40+i*230}" y="1906" font-family="Arial" font-weight="800" font-size="20" fill="rgba(255,255,255,.5)" letter-spacing="1">${tema.textos.assinatura}</text>`).join("")}`;
 }
 
 if (A.bg && existsSync(A.bg)) {

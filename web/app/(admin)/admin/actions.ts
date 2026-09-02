@@ -17,6 +17,8 @@ import { checkPassword, issueSession, cookieName } from "@/lib/auth";
 import { hashIp, limparTentativas, registrarTentativa } from "@/lib/rate-limit";
 import { motivoBloqueio } from "@/lib/porteiro";
 import { normalizaTagLivre } from "@/lib/cms";
+import { salvarTema } from "@/lib/tema-store";
+import type { Tema } from "@/lib/tema";
 import { dbDelete, dbEnabled, dbInsert, dbPatch, dbSelect } from "@/lib/server-db";
 import { getDossierAdmin, invalidaCache } from "@/lib/dossiers";
 import { ehCategoria, normalizaOrdem, normalizaTitulo, slugSeguro } from "@/lib/editorial";
@@ -482,4 +484,23 @@ export async function salvarTags(slug: string, tags: string[]) {
   revalidatePath(`/admin/conteudo/${slug}`);
   revalidatePath(`/artigo/${slug}`);
   return { ok: true, tags: limpas };
+}
+
+// ── Tema ──────────────────────────────────────────────────────────────────
+
+/**
+ * Salva o tema da marca (cor, fonte, frases fixas).
+ *
+ * A validação roda no SERVIDOR também, não só na tela: o cliente é conveniência
+ * pro operador ver o problema cedo, mas quem garante que não entra tema
+ * ilegível no banco é este lado.
+ */
+export async function salvarTemaAction(t: Tema) {
+  const r = await salvarTema(t);
+  if (!r.ok) return r;
+  // O portal lê o tema no layout, que é cacheado por rota: sem revalidar, a cor
+  // nova só apareceria quando o cache expirasse sozinho.
+  revalidatePath("/", "layout");
+  revalidatePath("/admin/tema");
+  return { ok: true as const, erros: [] as string[] };
 }

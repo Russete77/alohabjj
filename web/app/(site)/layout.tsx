@@ -1,3 +1,6 @@
+import { lerTema } from "@/lib/tema-store";
+import { cssDoTema } from "@/lib/tema";
+
 function Header() {
   return (
     <header className="pheader">
@@ -16,19 +19,26 @@ function Header() {
   );
 }
 
-function Ticker() {
+function Ticker({ texto }: { texto: string }) {
   return (
     <div className="ticker">
-      <div className="wrap">Cobertura ao vivo · Mundial IBJJF · ADCC · resultados, superlutas e análises · @bjjcomlucas</div>
+      <div className="wrap">{texto}</div>
     </div>
   );
 }
 
-export default function SiteLayout({ children }: { children: React.ReactNode }) {
+export default async function SiteLayout({ children }: { children: React.ReactNode }) {
+  const tema = await lerTema();
   return (
     <>
+      {/* As variáveis do tema entram DEPOIS do globals.css e por isso vencem.
+          Assim trocar a cor da marca no painel muda o portal sem deploy — e
+          sem mexer no CSS, que é código. */}
+      <style>{`:root {
+  ${cssDoTema(tema)}
+}`}</style>
       <Header />
-      <Ticker />
+      <Ticker texto={tema.textos.ticker} />
       {children}
       <footer className="pfoot">
         <div className="in">

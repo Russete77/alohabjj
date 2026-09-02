@@ -3,6 +3,7 @@
 // traço vermelho; URL do site DESCE e alinha no mesmo eixo Y do botão SIGA (canto esq.).
 // Uso: node web/scripts/render_slides.mjs --slug <slug> [--bg <img>]
 import sharp from "sharp";
+import { carregaTema } from "./tema.mjs";
 import { readFileSync, existsSync } from "node:fs";
 import path from "node:path";
 
@@ -17,8 +18,14 @@ const slides = JSON.parse(readFileSync(path.join(outDir, "slides.json"), "utf-8"
 let meta = {}; try { meta = JSON.parse(readFileSync(path.join(outDir, "meta.json"), "utf-8")); } catch {}
 const LUCAS = path.resolve("public/templates/lucas.png");
 
-const W = 1080, H = 1350, TEAL = "#1A9CB4", TEAL_D = "#16879C", RED = "#D8232A", WHITE = "#fff", INK = "#0C333B";
-const D = "Impact,'Arial Narrow',sans-serif", S = "Arial,sans-serif";
+// Cores, fontes e textos vêm do TEMA (config/tema.json), editável no /admin.
+// As COORDENADAS continuam aqui: são composição, ajustada na mão, e deixá-las
+// editáveis produziria layout quebrado sem ninguém saber por quê.
+const tema = await carregaTema();
+const W = 1080, H = 1350;
+const TEAL = tema.cores.teal, TEAL_D = tema.cores.tealEscuro;
+const RED = tema.cores.red, WHITE = "#fff", INK = tema.cores.ink;
+const D = `${tema.fontes.display},Impact,'Arial Narrow',sans-serif`, S = "Arial,sans-serif";
 const LINE_X = 404;                 // traço vermelho vertical
 const TX = 448;                     // texto começa à direita do traço
 const esc = (s) => (s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;");
@@ -77,11 +84,11 @@ function overlaySVG(sl, idx, total) {
     <text x="${TX}" y="${kickerY}" font-family="${S}" font-weight="700" font-size="26" fill="#ffcfcf" letter-spacing="2.5">${esc(kick)}</text>
     ${tlS}${bdS}${prod}
     <rect x="24" y="1250" width="330" height="52" rx="5" fill="${RED}"/>
-    <text x="189" y="1284" font-family="${S}" font-weight="800" font-size="26" fill="${WHITE}" text-anchor="middle" letter-spacing="0.5">SIGA PARA MAIS BJJ</text>
+    <text x="189" y="1284" font-family="${S}" font-weight="800" font-size="26" fill="${WHITE}" text-anchor="middle" letter-spacing="0.5">${esc(tema.textos.rodapeArte)}</text>
     <circle cx="${TX + 14}" cy="${footY - 9}" r="15" fill="none" stroke="${WHITE}" stroke-width="3"/>
-    <text x="${TX + 40}" y="${footY}" font-family="'Arial Black',Arial" font-weight="900" font-size="40" fill="${WHITE}">ALOHA<tspan fill="${RED}">BJJ</tspan>NEWS.COM</text>
+    <text x="${TX + 40}" y="${footY}" font-family="'Arial Black',Arial" font-weight="900" font-size="40" fill="${WHITE}">${esc(tema.textos.dominioArte)}</text>
     <rect x="0" y="1312" width="${W}" height="38" fill="${TEAL_D}"/>
-    ${[0,1,2,3,4].map(i=>`<text x="${40+i*230}" y="1338" font-family="${S}" font-weight="800" font-size="20" fill="rgba(255,255,255,.5)" letter-spacing="1">@BJJCOMLUCAS</text>`).join("")}
+    ${[0,1,2,3,4].map(i=>`<text x="${40+i*230}" y="1338" font-family="${S}" font-weight="800" font-size="20" fill="rgba(255,255,255,.5)" letter-spacing="1">${esc(tema.textos.assinatura)}</text>`).join("")}
   </svg>`;
 }
 
