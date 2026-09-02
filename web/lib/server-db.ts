@@ -70,3 +70,33 @@ export async function dbUpsert(table: string, body: Record<string, unknown>): Pr
     return false;
   }
 }
+
+/**
+ * POST simples (append) — pra tabela append-only como `events`.
+ *
+ * Duas diferenças deliberadas em relação ao dbUpsert:
+ *
+ * 1) TIMEOUT CURTO. Quem chama isso é a rota de redirect, no caminho quente do
+ *    usuário. Um Supabase lento não pode segurar a função da Vercel até o teto
+ *    de execução — 2,5s e desiste. O clique perdido é barato; o redirect preso
+ *    é caro.
+ *
+ * 2) NUNCA LEVANTA. Devolve false em qualquer falha (banco off, rede, HTTP de
+ *    erro, timeout). Quem chama trata o clique como best-effort — mas quem
+ *    quiser saber se gravou tem a resposta, em vez de um catch mudo.
+ */
+export async function dbInsert(table: string, body: Record<string, unknown>): Promise<boolean> {
+  if (!dbEnabled()) return false;
+  try {
+    const r = await fetch(`${URL_BASE}/rest/v1/${table}`, {
+      method: "POST",
+      headers: headers({ Prefer: "return=minimal" }),
+      body: JSON.stringify(body),
+      cache: "no-store",
+      signal: AbortSignal.timeout(2500),
+    });
+    return r.ok;
+  } catch {
+    return false;
+  }
+}
