@@ -1,0 +1,318 @@
+# Ciclo diario do produto — o que antes dependia do PC do dono estar ligado.
+#
+# POR QUE ISTO EXISTE
+# O ciclo (`python -m orchestrator.daily`) vivia no Agendador de Tarefas do Windows
+# (scripts/register_daily_task.ps1). PC desligado = produto parado — e foi exatamente
+# o que aconteceu: 45 dias (19/07 a 02/09) sem rodar e SEM NINGUEM AVISAR. O calendario
+# editorial ficou congelado na semana de 19 de julho.
+#
+# Aqui o ciclo roda num runner do GitHub (nao depende de maquina nenhuma ligada) e,
+# quando falha, abre/atualiza uma issue neste repositorio — o dono recebe por e-mail
+# sem precisar contratar nada.
+#
+# Documentacao para o dono: docs/OPERACAO.md
+
+name: Ciclo diario
+
+on:
+  schedule:
+    # 09:00 UTC = 06:00 em Sao Paulo (Brasil nao tem mais horario de verao desde 2019,
+    # entao UTC-3 vale o ano inteiro). O GitHub so aceita cron em UTC.
+    # Atencao: o agendamento do GitHub pode atrasar alguns minutos em horario de pico.
+    - cron: "0 9 * * *"
+  workflow_dispatch:
+    inputs:
+      max:
+        description: "Quantas pautas novas na Fase A"
+        required: false
+        default: "2"
+        type: string
+      pular_trends:
+        description: "Pular o Trend Scout (economiza chamada de API)"
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  # write porque o ciclo PRECISA commitar o que produziu de volta no repositorio —
+  # ver o passo "Guarda o que o ciclo produziu". O runner e descartado no fim do job.
+  contents: write
+  issues: write # necessario para o alerta abrir/atualizar a issue de falha
+
+# O ciclo gasta dinheiro de API. Se um run ainda estiver de pe quando o proximo comecar,
+# o novo espera em vez de rodar em paralelo (cancel-in-progress: false) — nunca dois
+# ciclos queimando token ao mesmo tempo.
+concurrency:
+  group: ciclo-diario
+  cancel-in-progress: false
+
+jobs:
+  ciclo:
+    name: Fase A + Trend Scout + Estrategista + snapshot
+    runs-on: ubuntu-latest
+    # Um ciclo normal leva poucos minutos. O daily.py ja da timeout de 30 min POR PASSO,
+    # entao chegar a 60 min significa que pelo menos dois passos travaram — corta antes
+    # de virar conta de API.
+    timeout-minutes: 60
+
+    steps:
+      - name: Baixa o codigo
+        uses: actions/checkout@v4
+
+      # O seen-log (ingestion/.seen_urls.json) e a memoria do Radar: "esta URL eu ja
+      # avaliei". Ele esta no .gitignore, entao NAO vem no checkout — num runner
+      # descartavel o ciclo acordaria amnesico todo dia e reavaliaria as mesmas pautas
+      # (uma chamada Haiku maior por dia, de graca). O cache resolve sem mexer no Python.
+      # A chave muda a cada run e o restore-keys pega a mais recente: e o padrao de
+      # "cache rolante", porque o cache do GitHub e imutavel depois de gravado.
+      - name: Recupera a memoria do Radar (seen-log)
+        uses: actions/cache/restore@v4
+        with:
+          path: ingestion/.seen_urls.json
+          key: seen-urls-${{ github.run_id }}
+          restore-keys: seen-urls-
+
+      - name: Instala Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Instala as dependencias do pipeline
+        run: pip install -r requirements.txt
+
+      # NAO instalamos Node/npm aqui de proposito.
+      # O `orchestrator.daily` encadeia so quatro passos: phase_a, scout_trends,
+      # plan_week e sync_to_cloud. Nenhum deles chama `node`. Quem chama os
+      # renderizadores de imagem (`web/scripts/*.mjs`, que usam sharp) e o
+      # orchestrator/art.py e o orchestrator/build_carousel.py — e esses rodam na
+      # geracao de arte, fora do ciclo diario. Instalar Node aqui so somaria ~1 min
+      # e um `npm ci` por dia sem uso. Se algum dia o daily.py passar a chamar art.py
+      # ou build_carousel.py, descomente o bloco abaixo:
+      #
+      # - name: Instala Node 22 (necessario se o ciclo passar a renderizar imagem)
+      #   uses: actions/setup-node@v4
+      #   with:
+      #     node-version: "22"
+      #     cache: npm
+      #     cache-dependency-path: web/package-lock.json
+      # - name: Dependencias do renderizador (sharp)
+      #   run: npm ci
+      #   working-directory: web
+
+      - name: Roda o ciclo diario
+        env:
+          # --- Obrigatorios ---
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          # --- Opcionais (geracao de imagem; o ciclo diario nao usa hoje, ficam aqui
+          #     para o dia em que a arte entrar no ciclo) ---
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          RUNWAYML_API_SECRET: ${{ secrets.RUNWAYML_API_SECRET }}
+          # --- Ajustes ---
+          # ATENCAO ao `|| "10"`: um segredo nao cadastrado vira string VAZIA, e o
+          # lib/claude.py faz float(os.getenv("SPEND_CAP_USD", "10")) — float("")
+          # estoura ValueError e derruba o run inteiro. O default aqui evita isso.
+          SPEND_CAP_USD: ${{ secrets.SPEND_CAP_USD || '10' }}
+          DAILY_SPEND_CAP_USD: ${{ secrets.DAILY_SPEND_CAP_USD }}
+          SCOUT_MODEL: ${{ secrets.SCOUT_MODEL || 'haiku' }}
+          PYTHONUNBUFFERED: "1"
+          # --- Opcoes do disparo manual (vazias quando o gatilho e o cron) ---
+          DISPATCH_MAX: ${{ inputs.max }}
+          DISPATCH_PULAR_TRENDS: ${{ inputs.pular_trends }}
+        # Os inputs entram por variavel de ambiente (e nao interpolados direto no shell)
+        # para nao abrir brecha de injecao de comando no disparo manual.
+        run: |
+          MAX="${DISPATCH_MAX:-2}"
+          args=(--max "$MAX")
+          if [ "${DISPATCH_PULAR_TRENDS:-false}" = "true" ]; then
+            args+=(--no-trends)
+          fi
+          echo "Rodando: python -m orchestrator.daily ${args[*]}"
+          python -m orchestrator.daily "${args[@]}"
+        shell: bash
+
+      - name: Salva a memoria do Radar para amanha
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: ingestion/.seen_urls.json
+          key: seen-urls-${{ github.run_id }}
+
+      # ESTE PASSO E O QUE FAZ A MIGRACAO VALER ALGUMA COISA.
+      # O ciclo escreve TUDO no disco do repositorio: config/calendario.json (o calendario
+      # editorial), knowledge/<slug>/ (os dossies) e knowledge/trends/ (as tendencias).
+      # O sync_to_cloud so sobe pro Supabase os dossies que ja estao 'published' — ou seja,
+      # nada do que foi criado hoje. Sem commitar de volta, o runner e destruido levando o
+      # trabalho junto: gastaria API todo dia para produzir um calendario que ninguem ve.
+      #
+      # `always()` de proposito: o daily.py e best-effort passo a passo. Se o plan_week deu
+      # certo e o sync falhou, o calendario novo tem que ser guardado do mesmo jeito.
+      #
+      # Efeito colateral bem-vindo: o commit diario mantem o repositorio "ativo", o que
+      # ajuda contra a regra do GitHub que desativa workflows agendados apos 60 dias de
+      # inatividade (ver docs/OPERACAO.md, secao 7.2).
+      - name: Guarda o que o ciclo produziu (commit de volta)
+        if: always()
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # `git add` respeita o .gitignore, entao knowledge/sources/ e afins nao entram.
+          git add config/calendario.json knowledge
+
+          if git diff --cached --quiet; then
+            echo "Nada novo hoje — nenhum commit."
+            exit 0
+          fi
+
+          git commit -m "ciclo diario: dossies, tendencias e calendario ($(date -u +%Y-%m-%d))"
+
+          # Alguem pode ter empurrado enquanto o ciclo rodava. Rebase e tenta de novo;
+          # se ainda assim falhar, o passo falha e o alerta avisa (melhor que perder o dia).
+          for tentativa in 1 2 3; do
+            if git push; then
+              echo "Empurrado na tentativa $tentativa."
+              exit 0
+            fi
+            echo "Push recusado (tentativa $tentativa) — rebase em cima do remoto."
+            git pull --rebase --autostash
+          done
+
+          # Ultimo recurso: se nem assim entrou, o trabalho do dia nao pode evaporar
+          # junto com o runner. Salva o commit como patch dentro de jobs/, que o passo
+          # seguinte sobe como anexo — da para aplicar depois com `git am`.
+          mkdir -p jobs
+          git format-patch -1 HEAD --stdout > jobs/_commit-nao-empurrado.patch || true
+          echo "Nao consegui empurrar o resultado do ciclo depois de 3 tentativas."
+          echo "O commit foi salvo como patch no anexo de logs (jobs/_commit-nao-empurrado.patch)."
+          exit 1
+
+      - name: Guarda os logs do run
+        # `always()`: o motivo de existir deste passo e justamente a falha. O runner e
+        # efemero — sem isto, jobs/*.log e jobs/*.jsonl somem junto com a maquina e nao
+        # ha como investigar depois.
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs-diario-${{ github.run_id }}
+          path: |
+            jobs/*.log
+            jobs/*.jsonl
+            jobs/*.patch
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Avisa a falha (abre ou atualiza issue)
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const LABEL = 'ciclo-diario';
+
+            // Um alerta que so diz "falhou" faz o dono abrir o Actions e cacar o log.
+            // Levamos o fim do log do dia junto para o e-mail ja dizer o que quebrou.
+            let trecho = '(nenhum log em jobs/ — o processo caiu antes de escrever)';
+            try {
+              const arquivos = fs.readdirSync('jobs')
+                .filter((f) => f.endsWith('.log'))
+                .map((f) => ({ f, t: fs.statSync(path.join('jobs', f)).mtimeMs }))
+                .sort((a, b) => b.t - a.t);
+              if (arquivos.length) {
+                const linhas = fs.readFileSync(path.join('jobs', arquivos[0].f), 'utf8').split('\n');
+                trecho = linhas.slice(-60).join('\n');
+              }
+            } catch (e) {
+              trecho = `(nao consegui ler jobs/: ${e.message})`;
+            }
+
+            // O mascaramento de segredo do GitHub vale para o log do Actions, NAO para o
+            // corpo de uma issue criada via API. Se um erro vazar chave no stack trace,
+            // ela iria parar numa issue publica. Por isso raspamos os formatos conhecidos.
+            const limpar = (s) => String(s)
+              .replace(/sk-[A-Za-z0-9_-]{12,}/g, '[chave omitida]')
+              .replace(/eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/g, '[token omitido]');
+
+            const hoje = new Date().toISOString().slice(0, 10);
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const corpo = [
+              `**O ciclo diario falhou em ${hoje}.**`,
+              '',
+              `- Execucao: ${runUrl}`,
+              `- Disparo: \`${context.eventName}\``,
+              '- Os logs completos estao no artifact **logs-diario-' + context.runId + '** dessa execucao (30 dias).',
+              '',
+              'Fim do log do dia:',
+              '',
+              '```',
+              limpar(trecho),
+              '```',
+              '',
+              'O que fazer esta em [`docs/OPERACAO.md`](../blob/main/docs/OPERACAO.md).',
+            ].join('\n');
+
+            const { data: abertas } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: LABEL,
+              per_page: 1,
+            });
+
+            if (abertas.length) {
+              // Ja existe uma issue aberta: comenta nela em vez de criar uma por dia.
+              // O comentario tambem dispara e-mail para quem acompanha a issue.
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: abertas[0].number,
+                body: corpo,
+              });
+              core.notice(`Falha registrada na issue #${abertas[0].number}`);
+            } else {
+              const nova = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `Ciclo diario falhou (${hoje})`,
+                body: corpo,
+                labels: [LABEL],
+              });
+              core.notice(`Falha registrada na issue #${nova.data.number}`);
+            }
+
+      - name: Fecha a issue de falha quando o ciclo volta a rodar
+        # Sem isto a issue fica aberta para sempre e deixa de significar "esta quebrado
+        # agora". Fechando no sucesso, "ha issue aberta com o label ciclo-diario"
+        # vira o indicador de saude do produto.
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const LABEL = 'ciclo-diario';
+            const { data: abertas } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: LABEL,
+              per_page: 20,
+            });
+            for (const issue of abertas) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: `Ciclo diario voltou a rodar com sucesso (${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}). Fechando.`,
+              });
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                state: 'closed',
+              });
+            }

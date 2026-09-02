@@ -1,0 +1,88 @@
+# Testes automaticos do repositorio.
+#
+# POR QUE ISTO EXISTE
+# O projeto acabou de ganhar os primeiros testes (26 em pytest, 17 em `node --test`).
+# Teste que so roda quando alguem lembra de rodar na propria maquina nao protege nada.
+# Aqui eles rodam sozinhos a cada commit que chega na main e a cada pull request.
+#
+# Nenhum segredo e necessario: o pipeline nao e executado (isso e o ciclo diario, em
+# diario.yml) e todo `process.env` do portal tem valor padrao.
+
+name: Testes
+
+on:
+  # main + toda pull request. Assim cada commit e testado uma vez: enquanto a PR esta
+  # em revisao e de novo quando entra na main. Rodar tambem em push de branch faria a
+  # mesma coisa duas vezes por PR, sem ganho.
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+# Se voce empurrar dois commits seguidos, o teste do commit antigo e cancelado —
+# so interessa o estado mais novo do branch.
+concurrency:
+  group: testes-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pipeline:
+    name: Pipeline (Python)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Baixa o codigo
+        uses: actions/checkout@v4
+
+      - name: Instala Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
+
+      - name: Instala dependencias (runtime + pytest)
+        run: pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: pytest
+        run: python -m pytest tests/ -q
+
+  portal:
+    name: Portal (Next.js)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: web
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - name: Baixa o codigo
+        uses: actions/checkout@v4
+
+      - name: Instala Node 22
+        uses: actions/setup-node@v4
+        with:
+          # 22 (a 22.x mais recente) e obrigatorio: `npm test` roda `node --test` em
+          # arquivos .ts direto, o que depende do type stripping nativo do Node 22.18+.
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: npm ci
+        run: npm ci
+
+      - name: Testes unitarios (node --test)
+        run: npm test
+
+      - name: Checagem de tipos
+        run: npx tsc --noEmit
+
+      - name: Build de producao
+        # O build tambem e teste: ele prerenderiza paginas e quebra se um dossie ou
+        # uma rota estiverem malformados.
+        run: npm run build
