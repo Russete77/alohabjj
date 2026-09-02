@@ -6,6 +6,9 @@ Cada run escreve um JSONL em jobs/<run_id>.jsonl com uma linha por etapa:
 
 Resumível: `already_succeeded(step, key)` deixa um passo pular trabalho já feito
 consultando os logs anteriores. Sem dependências externas.
+
+`custo_do_dia()` soma o gasto do dia inteiro (todos os runs), que é o que o teto
+diário precisa saber — cada JobLog só enxerga o próprio arquivo.
 """
 from __future__ import annotations
 
@@ -102,6 +105,80 @@ def _iter_lines(paths: Iterable[Path]) -> Iterable[dict]:
 
 def _sum_cost(paths: Iterable[Path]) -> float:
     return round(sum(e.get("cost_est", 0.0) or 0.0 for e in _iter_lines(paths)), 6)
+
+
+# ── custo do DIA (teto diário) ───────────────────────────────────────────────
+# O teto por run (SPEND_CAP_USD) nunca segurou o dia: cada JobLog soma só o próprio
+# arquivo, então dez runs de $5 gastavam $50 sem nada barrar. Aqui a soma é do dia
+# inteiro, atravessando todos os jobs/*.jsonl.
+#
+# Cache em memória por processo: caminho -> (bytes já lidos, {dia: custo}). Só os
+# bytes NOVOS são lidos a cada chamada — o pipeline chama isto antes de CADA chamada
+# de modelo, e já_teve_sucesso() mostra o preço de reler o histórico inteiro toda vez.
+_CACHE_DIA: dict[str, tuple[int, dict[str, float]]] = {}
+
+
+def limpar_cache_custo() -> None:
+    """Descarta o cache do custo do dia (usado nos testes e ao trocar de JOBS_DIR)."""
+    _CACHE_DIA.clear()
+
+
+def dia_local(ts: float) -> str:
+    """Dia civil no fuso da máquina — o teto é 'por dia', não 'por 24h UTC'."""
+    return time.strftime("%Y-%m-%d", time.localtime(ts))
+
+
+def _atualiza(path: Path, hoje: str) -> dict[str, float]:
+    """Lê só o que foi acrescentado ao arquivo desde a última passada."""
+    chave = str(path)
+    offset, dias = _CACHE_DIA.get(chave, (0, {}))
+    tamanho = path.stat().st_size
+    if tamanho < offset:  # arquivo truncado/reescrito: o offset guardado virou lixo
+        offset, dias = 0, {}
+    if tamanho > offset:
+        with path.open("rb") as f:
+            f.seek(offset)
+            bruto = f.read(tamanho - offset)
+        # Corta na última quebra de linha: o run pode estar escrevendo AGORA e a
+        # última linha vir pela metade. O resto entra na próxima chamada.
+        corte = bruto.rfind(b"\n")
+        if corte >= 0:
+            dias = dict(dias)
+            for linha in bruto[: corte + 1].decode("utf-8", "replace").splitlines():
+                linha = linha.strip()
+                if not linha:
+                    continue
+                try:
+                    e = json.loads(linha)
+                except json.JSONDecodeError:
+                    continue  # linha corrompida não pode derrubar a conta do teto
+                custo = e.get("cost_est") or 0.0
+                if not custo:
+                    continue
+                # Sem ts não dá pra datar o gasto. Falhar fechado: conta no dia de
+                # hoje (some da conta = liberar gasto que já aconteceu).
+                d = dia_local(e["ts"]) if e.get("ts") else hoje
+                dias[d] = dias.get(d, 0.0) + custo
+            offset += corte + 1
+        _CACHE_DIA[chave] = (offset, dias)
+    elif chave not in _CACHE_DIA:
+        _CACHE_DIA[chave] = (offset, dias)
+    return dias
+
+
+def custo_do_dia(dia: str | None = None) -> float:
+    """
+    Soma `cost_est` de TODAS as linhas de jobs/*.jsonl caídas no dia (default: hoje).
+
+    Levanta se não conseguir ler o histórico — quem chama tem que tratar como
+    "bloqueia", nunca como "pode gastar". Erro de disco não é licença pra gastar.
+    """
+    hoje = dia or dia_local(_now())
+    total = 0.0
+    if JOBS_DIR.exists():
+        for p in sorted(JOBS_DIR.glob("*.jsonl")):
+            total += _atualiza(p, hoje).get(hoje, 0.0)
+    return round(total, 6)
 
 
 def already_succeeded(step: str, key: str) -> bool:
