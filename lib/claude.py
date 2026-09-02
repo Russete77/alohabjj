@@ -124,7 +124,10 @@ def _dominios(extra: str) -> tuple[str, ...]:
     try:
         from ruamel.yaml import YAML
 
-        data = YAML(typ="safe", pure=True).load(FONTES.read_text(encoding="utf-8"))
+        from lib import config_store
+
+        data = YAML(typ="safe", pure=True).load(
+            config_store.read("config/fontes.yaml"))
         for src in _walk_fontes(data):
             for campo in ("url", "rss"):
                 h = _host(src.get(campo))

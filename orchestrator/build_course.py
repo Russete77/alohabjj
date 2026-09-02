@@ -18,6 +18,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from lib import config_store  # noqa: E402
 from lib.claude import Claude, OPUS, SpendCapExceeded  # noqa: E402
 from lib.jobs import JobLog  # noqa: E402
 
@@ -79,8 +80,8 @@ def main() -> int:
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
 
-    voz = (ROOT / "config" / "voz.md").read_text(encoding="utf-8")
-    system = (AGENTS / "course_builder" / "system.md").read_text(encoding="utf-8")
+    voz = config_store.read("config/voz.md")
+    system = config_store.read("agents/course_builder/system.md")
     user = (f"VOZ DA MARCA:\n{voz}\n\nTEMA DO CURSO: {args.tema}\n"
             f"Monte um curso com ~{args.modulos} módulos. Aulas curtas, uma ideia cada.")
 

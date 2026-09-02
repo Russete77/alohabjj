@@ -320,11 +320,32 @@ def test_dominios_extras_por_env(monkeypatch):
     assert "adcombat.com" in d
 
 
-def test_fontes_ilegivel_devolve_vazio(monkeypatch, tmp_path):
-    monkeypatch.setattr(claude, "FONTES", tmp_path / "nao-existe.yaml")
+def test_fontes_ilegivel_devolve_vazio(monkeypatch):
+    """Desde a fase 3 o fontes.yaml valente vem do config_store (banco primeiro,
+    arquivo como semente) — o que a allowlist precisa tolerar é a config sumir,
+    não um caminho de arquivo específico."""
+    from lib import config_store
+
+    def sem_config(_path, root=None):
+        raise FileNotFoundError("config ausente no banco e no disco")
+
+    monkeypatch.setattr(config_store, "read", sem_config)
     monkeypatch.delenv("WEB_SEARCH_EXTRA_DOMAINS", raising=False)
     claude.dominios_permitidos.cache_clear()
     assert claude.dominios_permitidos() == []
+    claude.dominios_permitidos.cache_clear()
+
+
+def test_allowlist_segue_a_fonte_editada_no_painel(monkeypatch):
+    """Ligar ou desligar fonte no admin tem que mudar o que o Pesquisador pode
+    citar. Se a allowlist lesse o arquivo do git, a edição não valeria."""
+    from lib import config_store
+
+    fontes = "news:\n- name: Só Esta\n  url: https://so-esta.com\n"
+    monkeypatch.setattr(config_store, "read", lambda _p, root=None: fontes)
+    monkeypatch.delenv("WEB_SEARCH_EXTRA_DOMAINS", raising=False)
+    claude.dominios_permitidos.cache_clear()
+    assert claude.dominios_permitidos() == ["so-esta.com"]
     claude.dominios_permitidos.cache_clear()
 
 

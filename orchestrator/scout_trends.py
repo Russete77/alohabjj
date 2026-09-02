@@ -21,6 +21,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from lib import config_store  # noqa: E402
 from lib.claude import Claude, SONNET, HAIKU, SpendCapExceeded  # noqa: E402
 from lib.jobs import JobLog  # noqa: E402
 
@@ -115,7 +116,7 @@ def qc_tendencias(claude: Claude, tendencias: list[dict]) -> tuple[list[dict], l
         return [], []
     linhas = [f"{i}. [{t.get('tipo','?')}] {t.get('titulo','?')} — {(t.get('o_que_e') or '')[:200]}"
               for i, t in enumerate(tendencias)]
-    system = (AGENTS / "trend_qc" / "system.md").read_text(encoding="utf-8")
+    system = config_store.read("agents/trend_qc/system.md")
     txt, _ = claude.call(
         model=HAIKU, system=system,
         user="Avalie cada tendência abaixo conforme o contrato.\n\nTENDÊNCIAS:\n" + "\n".join(linhas),
@@ -143,7 +144,7 @@ def main() -> int:
     except RuntimeError as e:
         print(f"[trends] {e}"); return 1
 
-    system = (AGENTS / "trend_scout" / "system.md").read_text(encoding="utf-8")
+    system = config_store.read("agents/trend_scout/system.md")
     user = ("Pesquise na web o que está bombando AGORA em TikTok/Reels no nicho de Jiu-Jitsu/"
             "grappling/luta (áudios em alta, formatos, ganchos, assuntos quentes das últimas 2 "
             "semanas). Case, quando fizer sentido, com estas pautas que já temos:\n- "

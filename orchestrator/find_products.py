@@ -22,6 +22,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from lib import config_store  # noqa: E402
 from lib.claude import Claude, SONNET, HAIKU, SpendCapExceeded  # noqa: E402
 
 # modelo do scout: Haiku (barato) por padrão; troque pra sonnet no .env se a copy ficar fraca.
@@ -62,7 +63,7 @@ SCOUT_SCHEMA = {
 
 
 def _sys(name: str) -> str:
-    return (AGENTS / name / "system.md").read_text(encoding="utf-8")
+    return config_store.read(f"agents/{name}/system.md")
 
 
 def _product_info(url: str) -> dict:

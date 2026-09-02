@@ -60,6 +60,16 @@ def main() -> int:
     args = ap.parse_args()
 
     JOBS.mkdir(exist_ok=True)
+
+    # Aviso, não correção: quando o arquivo do git difere do que está no banco,
+    # quem vale é o BANCO. Sem esta linha a divergência fica invisível e alguém
+    # edita um prompt no editor, commita, roda, e o comportamento não muda.
+    try:
+        from lib import config_store
+        config_store.avisa_divergencia()
+    except Exception as e:  # noqa: BLE001
+        print(f"[daily] não consegui checar divergência de config: {e}")
+
     day = time.strftime("%Y%m%d")
     with open(JOBS / f"daily-{day}.log", "a", encoding="utf-8") as logf:
         logf.write(f"\n\n######## RUN {time.strftime('%Y-%m-%d %H:%M:%S')} ########\n")

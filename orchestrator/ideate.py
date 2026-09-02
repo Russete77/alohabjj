@@ -21,6 +21,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from lib import config_store  # noqa: E402
 from lib.claude import Claude, SONNET, HAIKU, SpendCapExceeded  # noqa: E402
 from lib.jobs import JobLog  # noqa: E402
 
@@ -103,7 +104,7 @@ def main() -> int:
     except RuntimeError as e:
         print(f"[ideias:{args.kind}] {e}"); return 1
 
-    system = (AGENTS / cfg["agent"] / "system.md").read_text(encoding="utf-8")
+    system = config_store.read(f"agents/{cfg['agent']}/system.md")
     user = (cfg["task"] + "\n\nNOSSAS PAUTAS RECENTES (contexto de autoridade/interesse):\n- "
             + "\n- ".join(pautas))
     try:
