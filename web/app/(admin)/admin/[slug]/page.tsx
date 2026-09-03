@@ -3,6 +3,7 @@ import { getPiece, artHref } from "@/lib/pieces";
 import { publicar, refazer } from "../actions";
 import PlatformTabs from "./PlatformTabs";
 
+
 export const dynamic = "force-dynamic";
 
 export default async function Revisar({ params }: { params: Promise<{ slug: string }> }) {

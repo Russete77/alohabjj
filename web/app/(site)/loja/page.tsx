@@ -1,5 +1,6 @@
 import { listStoreProducts, KIND_LABEL, type StoreKind, type StoreProduct } from "@/lib/store";
 
+
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Loja · AlohaBJJ" };
 

@@ -3,6 +3,7 @@ import "./admin.css";
 import { logout } from "./actions";
 import { authEnabled } from "@/lib/auth";
 
+
 export const metadata: Metadata = { title: "Painel", robots: { index: false } };
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

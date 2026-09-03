@@ -1,6 +1,7 @@
 import "../../globals.css";
 import "./preview.css";
 
+
 // Layout PRÓPRIO, fora do grupo (admin), de propósito: a prévia precisa parecer
 // o PORTAL, e dentro de (admin) ela herdava a barra lateral do painel — que é
 // justamente o que ela não pode mostrar.

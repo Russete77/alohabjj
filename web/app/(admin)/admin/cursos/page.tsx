@@ -1,6 +1,7 @@
 import { listCursos } from "@/lib/cursos";
 import CursoManager from "./CursoManager";
 
+
 export const dynamic = "force-dynamic";
 
 export default function Cursos() {

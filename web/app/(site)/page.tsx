@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { listPublic, type Categoria, type Dossier } from "@/lib/dossiers";
 
+
 // Quantos cards cada editoria mostra antes do "ver mais". A base cresce todo
 // dia; sem isto a home despeja o acervo inteiro numa página só.
 const POR_EDITORIA = 12;

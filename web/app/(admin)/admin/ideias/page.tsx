@@ -1,6 +1,7 @@
 import { getIdeas3D, getIdeasCursos } from "@/lib/ideias";
 import RunButton from "../calendario/RunButton";
 
+
 export const dynamic = "force-dynamic";
 
 const brl = (n: number) => (n ? `R$ ${n}` : "grátis");

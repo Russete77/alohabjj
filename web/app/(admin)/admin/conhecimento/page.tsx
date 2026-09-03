@@ -1,6 +1,7 @@
 import { listSources, AGENT_OPTIONS } from "@/lib/sources";
 import SourcesManager from "./SourcesManager";
 
+
 export const dynamic = "force-dynamic";
 
 export default function Conhecimento() {

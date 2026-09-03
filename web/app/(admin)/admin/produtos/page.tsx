@@ -1,6 +1,7 @@
 import { listCandidates } from "@/lib/candidates";
 import CandidatesManager from "./CandidatesManager";
 
+
 export const dynamic = "force-dynamic";
 
 export default function Produtos() {

@@ -1,6 +1,7 @@
 import ConsoleAoVivo from "./ConsoleAoVivo";
 import PipelineControl from "./PipelineControl";
 
+
 export const dynamic = "force-dynamic";
 
 export default function Agentes() {

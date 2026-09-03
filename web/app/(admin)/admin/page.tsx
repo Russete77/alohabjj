@@ -1,6 +1,7 @@
 import { getPieces, artHref } from "@/lib/pieces";
 import { listAll } from "@/lib/dossiers";
 
+
 export const dynamic = "force-dynamic"; // lê outputs/ a cada request (muta ao publicar)
 
 const ESTADO_LABEL: Record<string, string> = {

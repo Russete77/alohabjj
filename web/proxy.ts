@@ -3,7 +3,7 @@ import { verifySession, authEnabled, cookieName } from "@/lib/auth";
 
 // Protege /admin e /api/art (imagens geradas). Se ADMIN_PASSWORD não estiver setada,
 // libera tudo (dev). A tela de login (/admin/login) é sempre pública.
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   if (!authEnabled()) return NextResponse.next();
 
   const { pathname } = req.nextUrl;

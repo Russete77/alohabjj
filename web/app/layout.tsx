@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 
+
 // Base pública do portal. Sem isto, todo caminho relativo de openGraph/twitter
 // (inclusive a imagem de compartilhamento) sai quebrado no HTML gerado.
 const BASE = (process.env.PORTAL_URL || "https://alohabjjnews.com").replace(/\/+$/, "");

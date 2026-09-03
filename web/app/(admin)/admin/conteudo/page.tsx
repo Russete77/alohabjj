@@ -3,6 +3,7 @@ import { motivoBloqueio, podeIrAoAr } from "@/lib/porteiro";
 import { CATEGORIAS, LABEL_CATEGORIA, MAX_DESTAQUES, contaDestaques, ehCategoria } from "@/lib/editorial";
 import LinhaConteudo from "./LinhaConteudo";
 
+
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Conteúdo" };
 
