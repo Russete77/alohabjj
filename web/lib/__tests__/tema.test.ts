@@ -51,3 +51,36 @@ test("cssDoTema escapa aspas — tema é dado de entrada, não código", () => {
   assert.ok(!css.includes("</style>"));
   assert.ok(!css.includes("<script"));
 });
+
+// ── Regressão: o tema não pode matar o modo escuro ────────────────────────
+// O bloco injetado no layout vem DEPOIS do globals.css, com a mesma
+// especificidade — então ele vence o @media (prefers-color-scheme: dark) que já
+// existia. Sem emitir o bloco escuro junto, o portal fica preso no claro e
+// ignora a preferência do sistema. Foi o que aconteceu em produção.
+
+test("cssDoTema emite o bloco de tema escuro", () => {
+  const css = cssDoTema(TEMA_PADRAO);
+  assert.match(css, /@media \(prefers-color-scheme:\s*dark\)/);
+});
+
+test("no escuro, a tinta e o papel invertem", () => {
+  const css = cssDoTema(TEMA_PADRAO);
+  const escuro = css.split("prefers-color-scheme")[1];
+  assert.match(escuro, /--ink:\s*#F4F1EE/i);
+  assert.match(escuro, /--paper:\s*#121110/i);
+});
+
+test("trocar a cor no claro não apaga o escuro", () => {
+  const css = cssDoTema({ ...TEMA_PADRAO, cores: { ...TEMA_PADRAO.cores, red: "#1B7F3B" } });
+  const [claro, escuro] = css.split("@media");
+  assert.match(claro, /--red:\s*#1B7F3B/);
+  assert.match(escuro, /--red:/); // o escuro tem o SEU vermelho, não some
+});
+
+test("o contraste do tema escuro também é validado", () => {
+  const r = temaValido({
+    ...TEMA_PADRAO,
+    coresEscuras: { ...TEMA_PADRAO.coresEscuras, ink: "#1a1a1a" }, // quase igual ao fundo
+  });
+  assert.ok(r.erros.some((e) => /escuro/i.test(e)));
+});

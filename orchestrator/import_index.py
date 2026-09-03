@@ -18,9 +18,12 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from lib import db  # noqa: E402
+from lib import db, storage  # noqa: E402
 from lib.dossier_index import read_all  # noqa: E402
 from lib.porteiro import motivo_bloqueio  # noqa: E402
+
+ROOT = Path(__file__).resolve().parent.parent
+HERO = ROOT / "web" / "public" / "hero"
 
 
 def main() -> int:
@@ -45,7 +48,26 @@ def main() -> int:
         print("[import] Supabase desabilitado (faltam SUPABASE_URL/SERVICE_ROLE_KEY).")
         return 1
 
+    subiu = 0
     for d in dossies:
+        # A capa: o banco NÃO pode guardar "/hero/<slug>.jpg". Esse caminho é o
+        # disco local — web/public/hero/ está no .gitignore, então as imagens
+        # nunca vão pro repositório e na Vercel dão 404. O portal ficava sem
+        # imagem nenhuma sem ninguém entender por quê.
+        #
+        # Sobe pro Storage (idempotente, upsert) e grava a URL pública.
+        imagem = d["imagem"]
+        if imagem and imagem.startswith("/hero/"):
+            arquivo = HERO / imagem.removeprefix("/hero/")
+            url = storage.upload("art", f"hero/{arquivo.name}", arquivo) if arquivo.exists() else None
+            if url:
+                imagem = url
+                subiu += 1
+            else:
+                # Sem o arquivo no disco, a URL do Storage ainda pode existir
+                # (de um sync anterior). Melhor apontar pra lá do que pro nada.
+                imagem = storage.public_url("art", f"hero/{arquivo.name}")
+
         db.upsert_dossier({
             "slug": d["slug"],
             "titulo": d["titulo"],
@@ -57,10 +79,11 @@ def main() -> int:
             "source_url": d["fonteUrl"],
             "source": "import_index",
             "resumo": " ".join(d["resumoParas"])[:2000] or None,
-            "imagem": d["imagem"],
+            "imagem": imagem,
             "artifact_path": f"knowledge/{d['slug']}/",
         })
-    print(f"[import] {len(dossies)} enfileirado(s) como 'validated'. Publicar é no /admin.")
+    print(f"[import] {len(dossies)} enfileirado(s) como 'validated' · {subiu} capa(s) subida(s) pro Storage.")
+    print("[import] Publicar é no /admin.")
     return 0
 
 

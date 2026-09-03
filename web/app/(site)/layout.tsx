@@ -35,9 +35,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       {/* As variáveis do tema entram DEPOIS do globals.css e por isso vencem.
           Assim trocar a cor da marca no painel muda o portal sem deploy — e
           sem mexer no CSS, que é código. */}
-      <style>{`:root {
-  ${cssDoTema(tema)}
-}`}</style>
+      <style>{cssDoTema(tema)}</style>
       <Header />
       <Ticker texto={tema.textos.ticker} />
       {children}

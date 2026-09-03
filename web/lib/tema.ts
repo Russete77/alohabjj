@@ -10,6 +10,7 @@
 // Lógica pura, sem imports: testável sem banco e sem rede.
 
 export interface Tema {
+  /** Paleta do tema claro. */
   cores: {
     ink: string;      // texto e superfície escura
     paper: string;    // fundo do portal
@@ -17,6 +18,15 @@ export interface Tema {
     teal: string;     // faixa da arte
     tealEscuro: string;
   };
+  /**
+   * Paleta do tema ESCURO.
+   *
+   * Existe porque o bloco que o layout injeta vem depois do globals.css com a
+   * mesma especificidade — então ele vence o @media (prefers-color-scheme:dark)
+   * que já estava lá. Sem emitir o escuro junto, o portal fica preso no claro e
+   * ignora a preferência do sistema. Foi o que aconteceu em produção.
+   */
+  coresEscuras: { ink: string; paper: string; red: string };
   fontes: { display: string; corpo: string };
   logo: { portal: string | null; arte: string | null; recorte: string | null };
   textos: {
@@ -35,6 +45,8 @@ export const TEMA_PADRAO: Tema = {
     teal: "#1A9CB4",
     tealEscuro: "#16879C",
   },
+  // Os mesmos valores que o globals.css já usava no modo escuro.
+  coresEscuras: { ink: "#F4F1EE", paper: "#121110", red: "#E24B4A" },
   fontes: { display: "Anton", corpo: "Inter" },
   logo: { portal: null, arte: null, recorte: null },
   textos: {
@@ -108,6 +120,22 @@ export function temaValido(t: Tema): { erros: string[] } {
     }
   }
 
+  for (const [nome, valor] of Object.entries(t.coresEscuras ?? {})) {
+    if (!HEX.test(String(valor))) {
+      erros.push(`cor escura "${nome}": "${valor}" não é um hexadecimal`);
+    }
+  }
+  const e = t.coresEscuras;
+  if (e && HEX.test(e.ink) && HEX.test(e.paper)) {
+    const c = contraste(e.ink, e.paper);
+    if (c < 4.5) {
+      erros.push(
+        `no tema escuro, o contraste entre texto (${e.ink}) e fundo (${e.paper}) ` +
+        `é ${c.toFixed(1)}:1 — o mínimo legível é 4.5:1.`,
+      );
+    }
+  }
+
   return { erros };
 }
 
@@ -122,10 +150,20 @@ function limpo(v: string): string {
   return String(v).replace(/[<>"{};\\]/g, "").trim();
 }
 
-/** As variáveis CSS que o portal consome, prontas pra um bloco `:root`. */
+/**
+ * As variáveis CSS do portal — tema claro E escuro, nesta ordem.
+ *
+ * O bloco escuro NÃO é opcional. Este CSS é injetado DEPOIS do globals.css com
+ * a mesma especificidade, então um `:root` sozinho vence o
+ * `@media (prefers-color-scheme: dark)` que já existe lá — e o portal fica
+ * preso no claro, ignorando a preferência do sistema. Foi exatamente o que
+ * aconteceu em produção quando o tema entrou. Há teste de regressão.
+ */
 export function cssDoTema(t: Tema): string {
   const c = t.cores;
-  return [
+  const e = t.coresEscuras;
+
+  const claro = [
     `--ink: ${limpo(c.ink)};`,
     `--paper: ${limpo(c.paper)};`,
     `--red: ${limpo(c.red)};`,
@@ -134,6 +172,27 @@ export function cssDoTema(t: Tema): string {
     `--dark: ${limpo(c.ink)};`,
     `--display: '${limpo(t.fontes.display)}', Impact, sans-serif;`,
     `--sans: '${limpo(t.fontes.corpo)}', system-ui, sans-serif;`,
+  ].join("\n    ");
+
+  // Só os tokens que o TEMA controla. Os demais (panel, line, muted, faint)
+  // seguem vindo do globals.css, que já os define nos dois modos — sobrescrever
+  // aqui só criaria uma segunda fonte pra eles.
+  const escuro = [
+    `--ink: ${limpo(e.ink)};`,
+    `--paper: ${limpo(e.paper)};`,
+    `--red: ${limpo(e.red)};`,
+    `--dark: ${limpo(c.ink)};`,
+  ].join("\n      ");
+
+  return [
+    `:root {`,
+    `    ${claro}`,
+    `  }`,
+    `  @media (prefers-color-scheme: dark) {`,
+    `    :root {`,
+    `      ${escuro}`,
+    `    }`,
+    `  }`,
   ].join("\n  ");
 }
 
@@ -142,6 +201,7 @@ export function mesclaTema(parcial: unknown): Tema {
   const p = (parcial ?? {}) as Partial<Tema>;
   return {
     cores: { ...TEMA_PADRAO.cores, ...(p.cores ?? {}) },
+    coresEscuras: { ...TEMA_PADRAO.coresEscuras, ...(p.coresEscuras ?? {}) },
     fontes: { ...TEMA_PADRAO.fontes, ...(p.fontes ?? {}) },
     logo: { ...TEMA_PADRAO.logo, ...(p.logo ?? {}) },
     textos: { ...TEMA_PADRAO.textos, ...(p.textos ?? {}) },
