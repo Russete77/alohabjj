@@ -23,16 +23,18 @@
   --e-2: 8px;    /* dentro de um controle */
   --e-3: 12px;   /* entre irmãos próximos */
   --e-4: 16px;   /* respiro interno de card */
-  --e-5: 24px;   /* entre blocos */
-  --e-6: 32px;   /* entre seções */
-  --e-7: 48px;   /* entre áreas */
-  --e-8: 64px;   /* separação de página */
-  --e-9: 96px;   /* rodapé, fim de página */
+  --e-5: 20px;   /* respiro de painel — denso, mas não apertado */
+  --e-6: 24px;   /* entre blocos */
+  --e-7: 32px;   /* entre seções */
+  --e-8: 48px;   /* entre áreas */
+  --e-9: 64px;   /* separação de página */
+  --e-10: 96px;  /* rodapé, fim de página */
 
   /* ── Tipo ──────────────────────────────────────────────────────────────
      Nove degraus. Os quatro primeiros são interface; os cinco últimos são
      Anton, que só aparece em manchete — display usado com restrição pesa
      mais do que display em tudo. */
+  --t-0: 10px;     /* etiqueta monoespaçada de painel — o degrau mais denso */
   --t-1: 11px;     /* etiqueta, eyebrow, meta */
   --t-2: 12.5px;   /* legenda, chip */
   --t-3: 14px;     /* interface */
