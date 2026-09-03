@@ -1,0 +1,87 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   TOKENS — a escala única do AlohaBJJ. Portal e painel bebem daqui.
+   ═══════════════════════════════════════════════════════════════════════
+
+   Antes deste arquivo o portal tinha 33 espaçamentos distintos (de 1 a 90px)
+   e 17 tamanhos de fonte; o painel, 31 e 11 — e os dois não compartilhavam
+   nada. Corpo de texto era 14-15px num, 12-13px no outro. Mesma marca, dois
+   sistemas, e nenhum ritmo.
+
+   A escala abaixo não foi inventada: saiu de contar o que o projeto JÁ usava e
+   colapsar cada aglomerado num degrau. Por isso a migração desloca 1 a 3px por
+   valor — imperceptível isolado, e é o que cria a cadência que faltava.
+
+   REGRA: valor em pixel no CSS de componente é dívida. Se um degrau não serve,
+   o degrau está errado — conserta aqui, não lá.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Espaço · grade de 4px ─────────────────────────────────────────────
+     Sobe em passos que a vista distingue. Entre 24 e 32 há diferença; entre
+     26 e 28, que ambos existiam, não há — só ruído. */
+  --e-1: 4px;    /* colado: ícone e rótulo */
+  --e-2: 8px;    /* dentro de um controle */
+  --e-3: 12px;   /* entre irmãos próximos */
+  --e-4: 16px;   /* respiro interno de card */
+  --e-5: 24px;   /* entre blocos */
+  --e-6: 32px;   /* entre seções */
+  --e-7: 48px;   /* entre áreas */
+  --e-8: 64px;   /* separação de página */
+  --e-9: 96px;   /* rodapé, fim de página */
+
+  /* ── Tipo ──────────────────────────────────────────────────────────────
+     Nove degraus. Os quatro primeiros são interface; os cinco últimos são
+     Anton, que só aparece em manchete — display usado com restrição pesa
+     mais do que display em tudo. */
+  --t-1: 11px;     /* etiqueta, eyebrow, meta */
+  --t-2: 12.5px;   /* legenda, chip */
+  --t-3: 14px;     /* interface */
+  --t-4: 16.5px;   /* corpo de leitura — o artigo vive aqui */
+  --t-5: 20px;     /* lead, título de card */
+  --t-6: 26px;     /* título de seção */
+  --t-7: 34px;     /* manchete de bloco */
+  --t-8: clamp(30px, 4.6vw, 52px);   /* título de artigo */
+  --t-9: clamp(34px, 5.2vw, 58px);   /* manchete de capa */
+
+  /* ── Entrelinha ────────────────────────────────────────────────────────
+     Anton é condensada: entrelinha apertada é o que a faz parecer manchete
+     em vez de texto grande. */
+  --lh-display: 1.02;
+  --lh-titulo: 1.12;
+  --lh-ui: 1.5;
+  --lh-leitura: 1.7;
+
+  /* ── Espacejamento ─────────────────────────────────────────────────────
+     Anton grudava as letras em caixa alta; o tracking existe por
+     legibilidade, não por estilo. */
+  --ls-display: 0.045em;
+  --ls-etiqueta: 0.12em;
+
+  /* ── Raio ──────────────────────────────────────────────────────────────
+     Quatro, não trinta e seis. Cada um tem um trabalho. */
+  --r-1: 3px;      /* chip, badge, botão — quase reto, jornalístico */
+  --r-2: 6px;      /* card, caixa */
+  --r-3: 14px;     /* mídia: hero, vídeo, capa grande */
+  --r-full: 999px; /* pílula */
+
+  /* ── Traço ─────────────────────────────────────────────────────────────
+     A aresta vermelha é a assinatura da marca: aparece na faixa do curso, na
+     caixa de CTA e no título de seção. Um valor só pra ela não divergir. */
+  --traco: 4px;
+
+  /* ── Largura ───────────────────────────────────────────────────────────*/
+  --w-pagina: 1180px;
+  --w-leitura: 700px;   /* ~72 caracteres em 16.5px — a coluna do artigo */
+
+  /* ── Movimento ─────────────────────────────────────────────────────────*/
+  --transicao: 150ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --transicao: 0ms; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

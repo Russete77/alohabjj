@@ -2,7 +2,7 @@ import { listStoreProducts, KIND_LABEL, type StoreKind, type StoreProduct } from
 
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Loja · AlohaBJJ" };
+export const metadata = { title: "Loja" };
 
 const ORDER: StoreKind[] = ["curso", "impressao_3d", "afiliado"];
 

@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 export function generateMetadata() {
   const c = getCurso("100kg") || listCursos()[0];
   return {
-    title: c ? `${c.titulo} — Curso grátis · AlohaBJJ` : "Curso · AlohaBJJ",
+    title: c ? `${c.titulo} — Curso grátis` : "Curso",
     description: c?.subtitulo || "",
   };
 }
