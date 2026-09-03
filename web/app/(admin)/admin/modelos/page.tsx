@@ -1,13 +1,8 @@
-import { execFile } from "node:child_process";
-import path from "node:path";
-import { promisify } from "node:util";
+import { lerConfig } from "@/lib/config-store";
 import EditorModelos from "./EditorModelos";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Modelos" };
-
-const ROOT = path.resolve(process.cwd(), "..");
-const exec = promisify(execFile);
 
 export interface Etapa {
   etapa: string;
@@ -18,31 +13,31 @@ export interface Etapa {
 }
 
 /**
- * O catálogo de etapas vive no Python (`lib/modelos.py`), que é quem o pipeline
- * consulta de verdade. A tela pergunta a ele em vez de manter uma segunda
- * lista — duas cópias divergiriam no dia em que alguém acrescentasse um agente,
- * e a tela passaria a mentir sobre o que o pipeline faz.
+ * O catálogo de etapas vem do BANCO, publicado pelo próprio pipeline.
+ *
+ * A primeira versão perguntava ao Python por subprocesso — o que funciona na
+ * máquina do dono e não funciona na Vercel, onde não existe python nem o
+ * repositório. A tela existia e não funcionava justamente onde ele mais ia
+ * usá-la.
+ *
+ * Repetir a lista aqui em TypeScript resolveria o deploy e criaria duas cópias
+ * que divergiriam no dia em que um agente novo entrasse — e aí a tela mentiria
+ * sobre o que o pipeline faz. Então quem sabe (o Python) publica, e o painel só
+ * lê. Ver lib/modelos.publicar_catalogo().
  */
-async function catalogo(): Promise<{ etapas: Etapa[]; erro: string | null }> {
+async function catalogo(): Promise<Etapa[] | null> {
+  const bruto = await lerConfig("config/modelos-catalogo.json");
+  if (!bruto) return null;
   try {
-    const { stdout } = await exec(
-      "python",
-      [
-        "-c",
-        "import json,sys;sys.path.insert(0,'.');from lib.modelos import catalogo;print(json.dumps(catalogo()))",
-      ],
-      { cwd: ROOT, timeout: 15000 },
-    );
-    return { etapas: JSON.parse(stdout), erro: null };
-  } catch (e) {
-    // Na Vercel não existe python nem o repositório. A tela diz isso em vez de
-    // aparecer vazia e o operador achar que perdeu a configuração.
-    return { etapas: [], erro: (e as Error).message };
+    const dados = JSON.parse(bruto) as { etapas?: Etapa[] };
+    return Array.isArray(dados.etapas) ? dados.etapas : null;
+  } catch {
+    return null;
   }
 }
 
 export default async function Modelos() {
-  const { etapas, erro } = await catalogo();
+  const etapas = await catalogo();
 
   return (
     <>
@@ -55,11 +50,11 @@ export default async function Modelos() {
         </div>
       </div>
 
-      {erro && (
+      {!etapas && (
         <div className="draft-banner">
-          Não consegui ler o catálogo de etapas. Esta tela precisa do Python do
-          pipeline, então só funciona onde ele existe — na sua máquina. As escolhas
-          já salvas continuam valendo no ciclo diário.
+          <b>O catálogo de etapas ainda não foi publicado.</b> Quem o publica é o
+          pipeline — rode <code>python -m orchestrator.seed_config --all</code> uma vez,
+          ou espere o ciclo diário. As escolhas já salvas continuam valendo enquanto isso.
         </div>
       )}
 
@@ -69,7 +64,7 @@ export default async function Modelos() {
         <b>escreve</b>: o Analista em Haiku economiza e entrega dossiê pior.
       </p>
 
-      {etapas.length > 0 && <EditorModelos etapas={etapas} />}
+      {etapas && etapas.length > 0 && <EditorModelos etapas={etapas} />}
     </>
   );
 }

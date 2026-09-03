@@ -94,3 +94,36 @@ def test_custo_relativo_ajuda_a_decidir():
     assert modelos.custo_relativo("sonnet", "sonnet") == pytest.approx(1.0)
     # trocar o Analista de Opus pra Sonnet corta a conta daquela etapa em 40%
     assert modelos.custo_relativo("opus", "sonnet") == pytest.approx(0.6)
+
+
+def test_publicar_catalogo_grava_as_etapas(monkeypatch):
+    """O painel lê daqui em vez de chamar o Python por subprocesso — que é o que
+    não funciona na Vercel."""
+    from lib import config_store
+
+    gravado: dict = {}
+    monkeypatch.setattr(config_store, "_habilitado", lambda: True)
+    monkeypatch.setattr(config_store, "_db_put",
+                        lambda path, c, h, updated_by=None: gravado.update({"path": path, "conteudo": c}) or True)
+    assert modelos.publicar_catalogo() is True
+    assert gravado["path"] == "config/modelos-catalogo.json"
+
+    import json as _json
+    etapas = _json.loads(gravado["conteudo"])["etapas"]
+    assert len(etapas) == len(modelos.PADRAO)
+    assert any(e["etapa"] == "analista" and e["padrao"] == "opus" for e in etapas)
+
+
+def test_publicar_catalogo_sem_banco_nao_levanta(monkeypatch):
+    from lib import config_store
+    monkeypatch.setattr(config_store, "_habilitado", lambda: False)
+    assert modelos.publicar_catalogo() is False
+
+
+def test_publicar_catalogo_com_banco_quebrado_nao_derruba_o_run(monkeypatch):
+    from lib import config_store
+    monkeypatch.setattr(config_store, "_habilitado", lambda: True)
+    def explode(*a, **k):
+        raise ConnectionError("banco fora")
+    monkeypatch.setattr(config_store, "_db_put", explode)
+    assert modelos.publicar_catalogo() is False

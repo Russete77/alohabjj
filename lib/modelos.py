@@ -154,3 +154,32 @@ def catalogo() -> list[dict]:
         }
         for etapa, padrao in PADRAO.items()
     ]
+
+
+def publicar_catalogo() -> bool:
+    """Grava o catálogo de etapas no banco, pro painel ler.
+
+    A tela de modelos precisa da lista de etapas. Ela pedia ao Python por
+    subprocesso — o que funciona na máquina do dono e NÃO funciona na Vercel,
+    onde não existe python nem o repositório. Resultado: a tela existia e não
+    funcionava justamente onde ele mais ia usá-la.
+
+    A alternativa óbvia (repetir a lista em TypeScript) criaria duas cópias que
+    divergiriam no dia em que alguém acrescentasse um agente, e aí a tela
+    passaria a mentir sobre o que o pipeline faz.
+
+    Então o Python — que é quem sabe — publica, e o painel só lê. Fonte única,
+    e funciona nos dois lugares.
+    """
+    from lib import config_store
+
+    if not config_store._habilitado():
+        return False
+    dados = json.dumps({"etapas": catalogo()}, ensure_ascii=False, indent=2)
+    try:
+        return config_store._db_put(
+            "config/modelos-catalogo.json", dados,
+            config_store._hash(dados), updated_by="pipeline",
+        )
+    except Exception:  # noqa: BLE001 — publicar o catálogo nunca derruba um run
+        return False

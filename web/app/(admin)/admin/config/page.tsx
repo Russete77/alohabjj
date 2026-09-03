@@ -4,15 +4,15 @@ import ConfigEditor from "./ConfigEditor";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Configuração" };
 
-// Onde cada chave de provedor se cadastra. O painel não edita nenhuma delas —
-// só diz se está lá. Mandar o operador pro lugar certo vale mais que um campo
-// que ele preenche e que não sobrevive ao deploy.
+// Onde cada chave se cadastra. Desde a fase 6 as chaves de PROVEDOR podem ser
+// coladas aqui mesmo (campo de escrita, nunca devolvido) — o texto antigo ainda
+// mandava o operador na Vercel, ou seja, mandava fazer à mão o que o painel já faz.
+//
+// As de INFRAESTRUTURA continuam só no ambiente, e por um motivo que não é
+// preferência: são elas que dão acesso ao banco onde as outras ficariam
+// guardadas. Guardá-las lá dentro seria trancar a chave dentro do cofre.
 const ONDE: Record<string, string> = {
-  ANTHROPIC_API_KEY: "Vercel → Settings → Environment Variables · e GitHub → Secrets",
-  GEMINI_API_KEY: "Vercel e GitHub (opcional — geração de imagem)",
-  OPENAI_API_KEY: "Vercel e GitHub (opcional — geração de imagem)",
-  RUNWAYML_API_SECRET: "Vercel e GitHub (opcional — imagem e vídeo)",
-  SUPABASE_URL: "Vercel e GitHub",
+  SUPABASE_URL: "Vercel e GitHub — é o alicerce, não dá pra guardar no próprio banco",
   SUPABASE_SERVICE_ROLE_KEY: "Vercel e GitHub · NUNCA com prefixo NEXT_PUBLIC_",
   NEXT_PUBLIC_SUPABASE_URL: "Vercel",
   NEXT_PUBLIC_SUPABASE_ANON_KEY: "Vercel",
@@ -45,12 +45,13 @@ export default async function Config() {
       )}
 
       <div className="sec-h">
-        <h2>Ajustes</h2>
+        <h2>Ajustes e chaves de IA</h2>
         <span className="c">valem no próximo run</span>
       </div>
       <p className="chint">
-        Estes ficam no banco, então valem no ar e na sua máquina. Teto de gasto, modelo
-        do scout e tag de afiliado são decisão de negócio — mudam sem deploy.
+        Ficam no banco, então valem no ar e na sua máquina — mudam sem deploy. As chaves
+        de provedor são <b>campos de escrita</b>: você cola, elas gravam, e a tela nunca
+        mais devolve o valor. Entrar aqui não significa levar a chave embora.
       </p>
       <ConfigEditor ajustes={ajustes} />
 
@@ -59,9 +60,10 @@ export default async function Config() {
         <span className="c">somente leitura</span>
       </div>
       <p className="chint">
-        Estas <b>não</b> são editáveis aqui, de propósito: são as que gastam dinheiro
-        na conta de um provedor. Entrar neste painel não pode significar levá-las
-        embora. O painel mostra só se estão configuradas.
+        Estas seis são o <b>alicerce</b>: dão acesso ao banco e ao próprio painel.
+        Guardá-las no banco seria trancar a chave dentro do cofre — por isso só o
+        ambiente. As chaves de <b>provedor de IA</b> (Anthropic, Gemini, OpenAI, Runway)
+        não estão aqui: você as cola na seção de cima, e elas nunca voltam pra tela.
       </p>
       <div className="ctable">
         {chaves.map((c) => (

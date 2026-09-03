@@ -77,6 +77,16 @@ def main() -> int:
     except Exception as e:  # noqa: BLE001
         print(f"[daily] não consegui checar divergência de config: {e}")
 
+    # Publica o catálogo de etapas pro painel. É o Python quem sabe quais
+    # existem; sem isto a tela de modelos precisaria de uma segunda lista em
+    # TypeScript, que divergiria no dia em que um agente novo entrasse.
+    try:
+        from lib import modelos
+        if modelos.publicar_catalogo():
+            print(f"[daily] catálogo de etapas publicado ({len(modelos.PADRAO)} etapas)")
+    except Exception as e:  # noqa: BLE001
+        print(f"[daily] não consegui publicar o catálogo de etapas: {e}")
+
     day = time.strftime("%Y%m%d")
     with open(JOBS / f"daily-{day}.log", "a", encoding="utf-8") as logf:
         logf.write(f"\n\n######## RUN {time.strftime('%Y-%m-%d %H:%M:%S')} ########\n")
