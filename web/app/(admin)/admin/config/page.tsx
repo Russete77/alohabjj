@@ -1,6 +1,7 @@
 import { estadoDasChaves, listarAjustes } from "@/lib/config-store";
 import ConfigEditor from "./ConfigEditor";
 
+
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Configuração" };
 

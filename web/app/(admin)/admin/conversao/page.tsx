@@ -1,5 +1,6 @@
 import { stats } from "@/lib/tracking";
 
+
 export const dynamic = "force-dynamic";
 
 export default async function Conversao() {

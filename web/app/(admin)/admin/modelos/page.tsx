@@ -1,6 +1,7 @@
 import { lerConfig } from "@/lib/config-store";
 import EditorModelos from "./EditorModelos";
 
+
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Modelos" };
 

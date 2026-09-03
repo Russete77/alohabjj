@@ -1,6 +1,7 @@
 import { listProducts } from "@/lib/catalog";
 import CatalogEditor from "./CatalogEditor";
 
+
 export const dynamic = "force-dynamic";
 
 export default async function Catalogo() {

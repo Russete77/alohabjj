@@ -1,6 +1,7 @@
 import { getCurso, listCursos } from "@/lib/cursos";
 import CursoPlayer from "./CursoPlayer";
 
+
 export const dynamic = "force-dynamic";
 
 export function generateMetadata() {

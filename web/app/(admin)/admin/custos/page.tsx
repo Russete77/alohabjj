@@ -1,5 +1,6 @@
 import { custos } from "@/lib/custos";
 
+
 export const dynamic = "force-dynamic";
 
 const fmt = (n: number) => `$${n.toFixed(3)}`;

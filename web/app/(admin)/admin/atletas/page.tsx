@@ -1,6 +1,7 @@
 import { listAtletas, getPerfil } from "@/lib/atletas";
 import AtletasManager from "./AtletasManager";
 
+
 export const dynamic = "force-dynamic";
 
 export default function Atletas() {

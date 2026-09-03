@@ -4,6 +4,7 @@ import { paragrafosParaTexto, vocabularioDeTags } from "@/lib/cms";
 import { motivoBloqueio, podeIrAoAr } from "@/lib/porteiro";
 import EditorConteudo from "./EditorConteudo";
 
+
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {

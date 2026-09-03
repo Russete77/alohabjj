@@ -1,6 +1,7 @@
 import { readRawConfig } from "@/lib/config";
 import FontesEditor from "./FontesEditor";
 
+
 export const dynamic = "force-dynamic";
 
 export default async function Fontes() {

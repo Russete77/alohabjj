@@ -1,6 +1,7 @@
 import { listDocs } from "@/lib/config";
 import PromptEditor from "./PromptEditor";
 
+
 export const dynamic = "force-dynamic";
 
 export default async function Prompts() {

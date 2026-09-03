@@ -1,6 +1,7 @@
 import { getCalendario, getTrends } from "@/lib/estrategia";
 import RunButton from "./RunButton";
 
+
 export const dynamic = "force-dynamic";
 
 const CANAL: Record<string, { label: string; cls: string }> = {

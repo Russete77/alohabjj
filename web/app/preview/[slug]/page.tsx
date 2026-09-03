@@ -4,6 +4,7 @@ import { getPiece } from "@/lib/pieces";
 import { motivoBloqueio, podeIrAoAr } from "@/lib/porteiro";
 import ArtigoView from "../../(site)/artigo/[slug]/ArtigoView";
 
+
 // Prévia de como o artigo fica publicado.
 //
 // Renderiza o MESMO componente do portal. A alternativa — reimplementar o

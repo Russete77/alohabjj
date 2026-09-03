@@ -1,6 +1,7 @@
 import { lerTema } from "@/lib/tema-store";
 import EditorTema from "./EditorTema";
 
+
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Tema" };
 

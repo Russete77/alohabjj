@@ -4,6 +4,7 @@ import { listPublic, getDossierPublic, getRelacionados } from "@/lib/dossiers";
 import { getPiece } from "@/lib/pieces";
 import ArtigoView from "./ArtigoView";
 
+
 const BASE = (process.env.PORTAL_URL || "https://alohabjjnews.com").replace(/\/+$/, "");
 const AUTOR = "Lucas";
 const AUTOR_URL = "https://www.instagram.com/bjjcomlucas";
