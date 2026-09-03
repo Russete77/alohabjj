@@ -44,6 +44,7 @@ PADRAO: dict[str, str] = {
     # Estratégia e caçadores
     "trend_scout": "haiku",
     "trend_qc": "haiku",
+    "editoria": "haiku",
     "content_strategist": "sonnet",
     "athlete_scout": "sonnet",
     "scout": "haiku",
@@ -76,6 +77,7 @@ ROTULOS: dict[str, str] = {
     "capa_visao": "Capa — escolhe a headline olhando a foto",
     "trend_scout": "Trend Scout — o que está bombando",
     "trend_qc": "Trend QC — corta o que não é BJJ",
+    "editoria": "Classificador de editoria — em que seção a matéria entra",
     "content_strategist": "Estrategista — calendário da semana",
     "athlete_scout": "Athlete Scout — perfil de atleta",
     "scout": "Product Scout — campeão do marketplace",
