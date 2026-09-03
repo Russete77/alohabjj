@@ -105,3 +105,87 @@ export interface ParaEditar {
 export function paragrafosParaTexto(paras: string[]): string {
   return paras.join("\n\n");
 }
+
+// ── Publicação criada do zero ─────────────────────────────────────────────
+//
+// Todo dossiê nascia do pipeline — do RSS ou do backfill do WordPress — e a
+// lista do portal é montada A PARTIR DO DISCO, com o banco por cima. Um post
+// escrito à mão não tem artefato em disco, então precisava de um caminho
+// próprio: ele existe só no banco, e `dossieDoBanco` o transforma no mesmo
+// formato que o resto do sistema consome.
+
+/** Título → slug de URL. Sem acento, sem pontuação, sem hífen dobrado. */
+export function gerarSlug(titulo: string): string {
+  const base = String(titulo)
+    .normalize("NFD")
+    .replace(/\p{Mn}/gu, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80)
+    .replace(/-+$/g, "");
+  // Título só com símbolos geraria slug vazio — e slug vazio vira rota quebrada.
+  return base || `post-${Date.now().toString(36)}`;
+}
+
+/** Primeiro slug livre a partir do título. Sufixo numérico em vez de sobrescrever. */
+export function slugLivre(titulo: string, usados: Set<string>): string {
+  const base = gerarSlug(titulo);
+  if (!usados.has(base)) return base;
+  for (let i = 2; i < 500; i++) {
+    const tentativa = `${base}-${i}`;
+    if (!usados.has(tentativa)) return tentativa;
+  }
+  return `${base}-${Date.now().toString(36)}`;
+}
+
+export interface LinhaDossieBanco {
+  slug: string;
+  titulo?: string | null;
+  categoria?: string | null;
+  data?: string | null;
+  evento?: string | null;
+  resumo_editado?: string | null;
+  imagem_editada?: string | null;
+  imagem?: string | null;
+  status?: string | null;
+  arquivado?: boolean | null;
+  destaque?: boolean | null;
+  ordem?: number | null;
+}
+
+const CATEGORIAS_VALIDAS = new Set(["superlutas", "noticias", "analises", "tecnica"]);
+const LABEL: Record<string, string> = {
+  superlutas: "Superlutas", noticias: "Notícias",
+  analises: "Análises", tecnica: "Técnica",
+};
+
+/**
+ * Monta um dossiê que existe SÓ no banco (post escrito à mão).
+ *
+ * `confianca: "alta"` de propósito: quem escreveu foi uma pessoa, não a
+ * apuração automática. Marcá-lo como "media" o faria parecer saída de pipeline;
+ * marcá-lo "baixa" o mandaria pra trava de confiança sem motivo.
+ */
+export function dossieDoBanco(r: LinhaDossieBanco) {
+  const categoria = CATEGORIAS_VALIDAS.has(String(r.categoria)) ? String(r.categoria) : "noticias";
+  return {
+    slug: r.slug,
+    titulo: r.titulo || r.slug,
+    categoria: categoria as "superlutas" | "noticias" | "analises" | "tecnica",
+    categoriaLabel: LABEL[categoria],
+    atletas: [] as string[],
+    evento: r.evento || "",
+    data: r.data || "",
+    resumoParas: r.resumo_editado ? parseParagrafos(r.resumo_editado) : [],
+    imagem: r.imagem_editada || r.imagem || null,
+    fonteUrl: null,
+    confianca: "alta",
+    tags: [] as string[],
+    status: r.status ?? undefined,
+    arquivado: r.arquivado ?? undefined,
+    destaque: r.destaque ?? undefined,
+    ordem: r.ordem ?? null,
+    manual: true,
+  };
+}

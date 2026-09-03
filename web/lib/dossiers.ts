@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { getDossiersSnapshot } from "./cloud";
-import { aplicaEdicao } from "./cms";
+import { aplicaEdicao, dossieDoBanco, type LinhaDossieBanco } from "./cms";
 import { normalizaData, podeIrAoAr } from "./porteiro";
 import { dbSelect } from "./server-db";
 import {
@@ -164,10 +164,12 @@ async function estadoDoBanco(): Promise<Record<string, EstadoEditorial> | null> 
     slug: string; status: string; arquivado: boolean;
     destaque: boolean; ordem: number | null; titulo: string | null; categoria: string | null;
     resumo_editado: string | null; imagem_editada: string | null;
+    data: string | null; evento: string | null; imagem: string | null; source: string | null;
   }>("dossiers?select=slug,status,arquivado,destaque,ordem,titulo,categoria," +
-    "resumo_editado,imagem_editada");
+    "resumo_editado,imagem_editada,data,evento,imagem,source");
   if (rows === null) return null;
   const map: Record<string, EstadoEditorial> = {};
+  const cru: Record<string, LinhaDossieBanco & { source?: string | null }> = {};
   for (const r of rows) {
     map[r.slug] = {
       status: r.status,
@@ -179,9 +181,16 @@ async function estadoDoBanco(): Promise<Record<string, EstadoEditorial> | null> 
       resumo_editado: r.resumo_editado,
       imagem_editada: r.imagem_editada,
     };
+    // guarda a linha crua: os posts escritos à mão (source='manual') não têm
+    // artefato em disco, então é dela que eles nascem lá embaixo.
+    cru[r.slug] = r;
   }
+  _cruDoBanco = cru;
   return map;
 }
+
+/** Última leitura crua do banco — usada pra materializar os posts manuais. */
+let _cruDoBanco: Record<string, LinhaDossieBanco & { source?: string | null }> = {};
 
 /**
  * Todo o conteúdo, publicado ou não, com um sinal de que o banco respondeu.
@@ -202,6 +211,14 @@ export async function listAllComEstado(): Promise<{ list: Dossier[]; bancoOk: bo
     // depois a edição de conteúdo (corpo, capa). São camadas distintas sobre o
     // mesmo artefato do arquivo.
     list = list.map((d) => aplicaEdicao(aplicaEstado(d, estado[d.slug]), estado[d.slug] ?? {}));
+
+    // Posts escritos à mão no painel existem SÓ no banco — não há arquivo em
+    // knowledge/ pra eles. Sem este passo eles simplesmente não apareceriam,
+    // porque a lista nasce do disco.
+    const noDisco = new Set(list.map((d) => d.slug));
+    for (const [slug, linha] of Object.entries(_cruDoBanco)) {
+      if (!noDisco.has(slug)) list.push(dossieDoBanco(linha) as Dossier);
+    }
   }
   list = ordenaAdmin(list);
 

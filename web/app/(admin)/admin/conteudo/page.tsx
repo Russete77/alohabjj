@@ -2,6 +2,7 @@ import { listAllComEstado, temDiscoLocal, type Dossier } from "@/lib/dossiers";
 import { motivoBloqueio, podeIrAoAr } from "@/lib/porteiro";
 import { CATEGORIAS, LABEL_CATEGORIA, MAX_DESTAQUES, contaDestaques, ehCategoria } from "@/lib/editorial";
 import LinhaConteudo from "./LinhaConteudo";
+import NovaPublicacao from "./NovaPublicacao";
 
 
 export const dynamic = "force-dynamic";
@@ -61,6 +62,7 @@ export default async function Conteudo({
           <h1>Conteúdo</h1>
           <p className="sub">Nada vai ao ar sem você publicar aqui</p>
         </div>
+        <NovaPublicacao />
       </div>
 
       {/* Sem o estado do banco a tela mostra tudo como não publicado. Dizer

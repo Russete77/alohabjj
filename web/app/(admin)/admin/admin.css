@@ -833,3 +833,15 @@
 }
 .admin .mod-fator.caro{color:var(--amber);font-weight:600}
 .admin .mod-fator.barato{color:var(--green);font-weight:600}
+
+/* ── Nova publicação ─────────────────────────────────────────────────────
+   Pede só o título. O resto se preenche no editor — um formulário grande
+   antes da primeira frase é uma parede. */
+.admin .nova-btn{flex:none;white-space:nowrap}
+.admin .nova-caixa{
+  display:flex;flex-direction:column;gap:var(--s-2);min-width:340px;flex:none;
+  background:var(--panel);border:1px solid var(--red);
+  border-radius:var(--radius);padding:var(--s-3);
+}
+.admin .nova-caixa .ed-in{margin-top:0}
+.admin .nova-acoes{display:flex;gap:var(--s-1);justify-content:flex-end}

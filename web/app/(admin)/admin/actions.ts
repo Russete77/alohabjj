@@ -16,7 +16,7 @@ import { addSource, removeSource, type SrcType } from "@/lib/sources";
 import { checkPassword, issueSession, cookieName } from "@/lib/auth";
 import { hashIp, limparTentativas, registrarTentativa } from "@/lib/rate-limit";
 import { motivoBloqueio } from "@/lib/porteiro";
-import { normalizaTagLivre } from "@/lib/cms";
+import { normalizaTagLivre, slugLivre } from "@/lib/cms";
 import { salvarTema } from "@/lib/tema-store";
 import { salvarConfig } from "@/lib/config-store";
 import type { Tema } from "@/lib/tema";
@@ -512,4 +512,44 @@ export async function salvarModelos(escolhas: Record<string, string>) {
   if (!r.ok) return { ok: false, erro: r.erro };
   revalidatePath("/admin/modelos");
   return { ok: true };
+}
+
+/**
+ * Cria uma publicação do zero, escrita à mão.
+ *
+ * Ela existe SÓ no banco — não há artefato em `knowledge/`, porque não saiu do
+ * pipeline. `source: "manual"` é o que a distingue: um dossiê da máquina pode
+ * ser regerado e a correção sobrevive por cima; este aqui É o original.
+ *
+ * Nasce como `validated`, igual a todo o resto: escrever não é publicar.
+ */
+export async function criarPublicacao(titulo: string) {
+  const limpo = titulo.trim();
+  if (limpo.length < 3) return { ok: false, erro: "dê um título com pelo menos 3 letras" };
+
+  // Slug livre: consulta os que já existem pra não sobrescrever nada.
+  const existentes = await dbSelect<{ slug: string }>("dossiers?select=slug");
+  if (existentes === null) return { ok: false, erro: "o banco não respondeu — tente de novo" };
+
+  const slug = slugLivre(limpo, new Set(existentes.map((d) => d.slug)));
+  const hoje = new Date().toISOString().slice(0, 10);
+
+  const ok = await dbInsert("dossiers", {
+    slug,
+    titulo: limpo,
+    categoria: "noticias",
+    data: hoje,
+    status: "validated",
+    confianca: "alta",
+    source: "manual",
+    arquivado: false,
+    destaque: false,
+    editado_em: new Date().toISOString(),
+    editado_por: "painel",
+  });
+  if (!ok) return { ok: false, erro: "o banco recusou a criação" };
+
+  invalidaCache();
+  revalidatePath("/admin/conteudo");
+  return { ok: true, slug };
 }
