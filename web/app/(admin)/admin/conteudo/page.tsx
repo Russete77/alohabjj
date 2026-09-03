@@ -75,14 +75,21 @@ export default async function Conteudo({
         </div>
       )}
 
+      {/* "No ar" é o resultado; o resto é contexto. E zero não é notícia —
+          um contador zerado recua em vez de disputar atenção com o que conta. */}
       <div className="kpis">
+        <div className="kpi forte">
+          <div className="lab">No ar</div>
+          <div className="num">{noAr.length}</div>
+        </div>
         <div className="kpi"><div className="lab">Na base</div><div className="num">{list.length}</div></div>
-        <div className="kpi"><div className="lab">No ar</div><div className="num">{noAr.length}</div></div>
-        <div className="kpi">
+        <div className={`kpi ${destaques === 0 ? "zero" : ""}`}>
           <div className="lab">Em destaque</div>
           <div className={`num ${destaques > MAX_DESTAQUES ? "excesso" : ""}`}>{destaques}</div>
         </div>
-        <div className="kpi"><div className="lab">Arquivados</div><div className="num">{arquivados.length}</div></div>
+        <div className={`kpi ${arquivados.length === 0 ? "zero" : ""}`}>
+          <div className="lab">Arquivados</div><div className="num">{arquivados.length}</div>
+        </div>
       </div>
 
       {/* O layout da home tem lugar pra ~3 cards grandes. Mais que isso não
@@ -127,9 +134,9 @@ export default async function Conteudo({
       </div>
 
       {bloqueados.length > 0 && aba !== "arquivados" && (
-        <p className="chint">
-          {bloqueados.length} dossiês foram reprovados na apuração (confiança baixa ou tag de
-          bloqueio). Publicar qualquer um deles pede confirmação extra.
+        <p className="aviso-apuracao">
+          <b>{bloqueados.length} dossiês foram reprovados na apuração.</b> Confiança baixa ou
+          tag de bloqueio — publicar qualquer um deles pede confirmação extra.
         </p>
       )}
 

@@ -848,3 +848,49 @@
 }
 .admin .nova-caixa .ed-in{margin-top:0}
 .admin .nova-acoes{display:flex;gap:var(--s-1);justify-content:flex-end}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   HIERARQUIA — o que a tela está dizendo, em ordem de importância
+   ═══════════════════════════════════════════════════════════════════════
+   Tudo abaixo tinha peso igual e por isso não dizia nada: quatro KPIs
+   idênticos com dois zerados, sete botões idênticos por linha em 52 linhas,
+   e o slug (informação de máquina) do tamanho do título. */
+
+/* KPI: o resultado domina, o contexto acompanha, o zero recua. */
+.admin .kpi.forte .num{font-size:var(--t-7);color:var(--red)}
+.admin .kpi.forte .lab{color:var(--muted)}
+.admin .kpi.zero{opacity:.45}
+.admin .kpi.zero .num{font-weight:400}
+
+/* Aviso de apuração: é o fato operacional mais importante da tela. Era um
+   parágrafo do peso de legenda — passa despercebido exatamente quando importa. */
+.admin .aviso-apuracao{
+  display:flex;gap:var(--e-2);align-items:baseline;
+  margin:var(--e-4) 0 0;padding:var(--e-3) var(--e-4);
+  background:var(--red-soft);border-left:var(--traco) solid var(--red);
+  border-radius:0 var(--r-2) var(--r-2) 0;
+  font-size:var(--t-2);color:var(--muted);line-height:var(--lh-ui);
+}
+.admin .aviso-apuracao b{color:var(--ink)}
+
+/* Ações da linha: três pesos, não um.
+   PUBLICAR é a decisão que a tela existe pra tomar — segue cheia.
+   As de manutenção recuam pra texto: sem borda, sem fundo, sem disputar.
+   APAGAR é irreversível e recua MAIS que as outras — só mostra o vermelho
+   quando o ponteiro está nela. Destrutivo não pode parecer primário. */
+.admin .cacoes .cbtn{
+  border-color:transparent;background:none;color:var(--faint);
+  transition:color var(--transicao),border-color var(--transicao);
+}
+.admin .cacoes .cbtn:hover{color:var(--ink);border-color:var(--line)}
+.admin .cacoes .cbtn.perigo{color:var(--faint);opacity:.7}
+.admin .cacoes .cbtn.perigo:hover,
+.admin .cacoes .cbtn.perigo:focus-visible{color:var(--red);border-color:var(--red);opacity:1}
+
+/* Slug: é endereço de máquina, não manchete. Ocupava uma linha inteira com o
+   mesmo peso do título. Recua pra nota de rodapé e volta ao normal no hover,
+   quando o operador de fato quer copiá-lo. */
+.admin .cslug{opacity:.5;transition:opacity var(--transicao)}
+.admin .crow:hover .cslug,
+.admin .cslug:hover,
+.admin .cslug:focus-within{opacity:1}
