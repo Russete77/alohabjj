@@ -14,6 +14,7 @@ Uso:
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from pathlib import Path
 
@@ -26,6 +27,28 @@ ROOT = Path(__file__).resolve().parent.parent
 HERO = ROOT / "web" / "public" / "hero"
 
 
+def _apagados() -> set[str]:
+    """Slugs que o operador apagou DE PROPÓSITO pelo painel.
+
+    O índice nasce do disco, e o disco guarda o artefato mesmo depois de apagar
+    (na Vercel a ação nem alcança o disco). Sem esta lista, todo import
+    ressuscitaria o que foi apagado — aconteceu de verdade.
+    """
+    import os
+    u = (os.getenv("SUPABASE_URL") or "").rstrip("/")
+    k = os.getenv("SUPABASE_SERVICE_ROLE_KEY") or ""
+    if not (u and k):
+        return set()
+    import urllib.request
+    req = urllib.request.Request(f"{u}/rest/v1/dossiers_apagados?select=slug",
+                                 headers={"apikey": k, "Authorization": f"Bearer {k}"})
+    try:
+        with urllib.request.urlopen(req, timeout=20) as r:
+            return {x["slug"] for x in json.loads(r.read())}
+    except Exception:  # noqa: BLE001 — tabela ainda não criada: segue sem pular nada
+        return set()
+
+
 def main() -> int:
     try:
         sys.stdout.reconfigure(encoding="utf-8")  # type: ignore[attr-defined]
@@ -36,6 +59,13 @@ def main() -> int:
     args = ap.parse_args()
 
     dossies = read_all()
+
+    apagados = _apagados()
+    if apagados:
+        antes = len(dossies)
+        dossies = [d for d in dossies if d["slug"] not in apagados]
+        print(f"[import] {antes - len(dossies)} dossiê(s) apagados no painel — respeitados, não voltam")
+
     bloqueados = [d for d in dossies if motivo_bloqueio(d)]
     print(f"[import] {len(dossies)} dossiê(s) no disco · {len(bloqueados)} exigem confirmação ao publicar")
     for d in bloqueados:

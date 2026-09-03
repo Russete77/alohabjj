@@ -370,6 +370,16 @@ export async function apagarDossie(slug: string, confirmacao: string): Promise<R
     return { ok: false, erro: "digite o slug exatamente como está escrito" };
 
   if (dbEnabled()) {
+    // Lápide ANTES de remover: o índice nasce do disco, e o disco guarda o
+    // artefato mesmo depois de apagar (na Vercel a ação nem alcança o disco).
+    // Sem isto, o próximo import_index ressuscita o que você apagou — aconteceu.
+    // O título vai junto pra a lista de apagados dizer O QUE foi removido, não
+    // só um slug. Lido antes de apagar, porque depois não existe mais.
+    const alvo = await getDossierAdmin(slug);
+    await dbInsert("dossiers_apagados", {
+      slug, titulo: alvo?.titulo ?? slug, apagado_por: "painel",
+    });
+
     const ok = await dbDelete(`dossiers?slug=eq.${encodeURIComponent(slug)}`);
     if (!ok) return { ok: false, erro: "o banco recusou apagar o registro — nada foi removido" };
   }
